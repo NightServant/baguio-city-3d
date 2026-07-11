@@ -1,0 +1,183 @@
+// Baguio City 3D — data layer.
+// PostGIS geometry columns are declared with `Unsupported(...)` because Prisma
+// has no native geometry type. The actual columns, GIST/GIN indexes, the
+// tsvector generated column, and the PostGIS extension are created by the
+// hand-written SQL migration under prisma/migrations/. Keep this schema and
+// that migration in sync.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7: the connection URL lives in prisma.config.ts (for Migrate) and is
+  // supplied to PrismaClient at runtime via a driver adapter. It is no longer
+  // permitted in this block.
+}
+
+enum Category {
+  NATURE
+  PARK
+  VIEWPOINT
+  HERITAGE
+  MARKET
+  MUSEUM
+  CHURCH
+  RECREATION
+}
+
+enum EraKey {
+  PRE_COLONIAL
+  AMERICAN_COLONIAL
+  POST_WAR
+  MODERN
+}
+
+enum TransitKind {
+  JEEPNEY
+  TAXI_SIM
+}
+
+enum VenueCategory {
+  RESTAURANT
+  HOTEL
+  TRANSIENT
+  SOUVENIR
+  FOOD_SHOP
+}
+
+model Destination {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  category    Category
+  elevationM  Float?   @map("elevation_m")
+  hours       Json?
+  eraKey      EraKey?  @map("era_key")
+  // geometry(Point, 4326)
+  geom        Unsupported("geometry(Point, 4326)")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  era    HistoricalEra? @relation(fields: [eraKey], references: [key])
+  landmarks   Landmark[]
+  mediaAssets MediaAsset[]
+
+  @@map("destinations")
+}
+
+model Landmark {
+  id            String @id @default(cuid())
+  destinationId String @map("destination_id")
+  meshUrl       String @map("mesh_url")
+  meshScale     Float  @map("mesh_scale")
+  rotationDeg   Float  @map("rotation_deg")
+  altitudeM     Float  @map("altitude_m")
+
+  destination Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  @@map("landmarks")
+}
+
+model HistoricalEra {
+  key       EraKey  @id
+  name      String
+  startYear Int     @map("start_year")
+  endYear   Int?    @map("end_year")
+  summary   String
+
+  destinations Destination[]
+  events       HistoricalEvent[]
+
+  @@map("historical_eras")
+}
+
+model HistoricalEvent {
+  id          String  @id @default(cuid())
+  eraKey      EraKey  @map("era_key")
+  title       String
+  year        Int
+  description String
+  // geometry(Point, 4326), nullable
+  geom        Unsupported("geometry(Point, 4326)")?
+
+  era HistoricalEra @relation(fields: [eraKey], references: [key], onDelete: Cascade)
+
+  @@map("historical_events")
+}
+
+model TransitRoute {
+  id        String      @id @default(cuid())
+  code      String      @unique
+  name      String
+  kind      TransitKind
+  fareBase  Decimal     @map("fare_base") @db.Decimal(10, 2)
+  farePerKm Decimal     @map("fare_per_km") @db.Decimal(10, 2)
+  // geometry(LineString, 4326) + simplified variants populated by the seed
+  geom      Unsupported("geometry(LineString, 4326)")
+  geomZ12   Unsupported("geometry(LineString, 4326)")? @map("geom_z12")
+  geomZ14   Unsupported("geometry(LineString, 4326)")? @map("geom_z14")
+
+  stops TransitStop[]
+
+  @@map("transit_routes")
+}
+
+model TransitStop {
+  id      String @id @default(cuid())
+  routeId String @map("route_id")
+  seq     Int
+  name    String
+  // geometry(Point, 4326)
+  geom    Unsupported("geometry(Point, 4326)")
+
+  route TransitRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@map("transit_stops")
+}
+
+model Venue {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  name        String
+  category    VenueCategory
+  priceRange  Int           @map("price_range")
+  amenities   Json?
+  hours       Json?
+  description String
+  // geometry(Point, 4326)
+  geom        Unsupported("geometry(Point, 4326)")
+  // tsvector generated column (name + description); GIN indexed in migration
+  searchTsv   Unsupported("tsvector")?  @map("search_tsv")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  mediaAssets MediaAsset[]
+
+  @@map("venues")
+}
+
+model MediaAsset {
+  id            String  @id @default(cuid())
+  url           String
+  kind          String
+  alt           String
+  destinationId String? @map("destination_id")
+  venueId       String? @map("venue_id")
+
+  destination Destination? @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  venue       Venue?       @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@map("media_assets")
+}
+
+model District {
+  id   String @id @default(cuid())
+  name String
+  // geometry(Polygon, 4326)
+  geom Unsupported("geometry(Polygon, 4326)")
+
+  @@map("districts")
+}

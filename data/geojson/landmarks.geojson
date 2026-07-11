@@ -1,0 +1,313 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59360, 16.41160] },
+      "properties": {
+        "slug": "burnham-park",
+        "name": "Burnham Park",
+        "description": "The green heart of Baguio, laid out to Daniel Burnham's 1904 city plan around a man-made lagoon where visitors paddle rented boats. Its tree-lined lanes, rose garden, and skating rink draw families and cyclists at every hour. On cool mornings the melody of buskers and the scent of pine define the city's leisurely rhythm.",
+        "category": "PARK",
+        "elevation_m": 1445,
+        "era": "AMERICAN_COLONIAL",
+        "hours": null,
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59670, 16.41180] },
+      "properties": {
+        "slug": "session-road",
+        "name": "Session Road",
+        "description": "Baguio's sloping main artery, lined with cafes, bookshops, bakeries, and department stores that climb toward the cathedral steps. Named for the American colonial commission sessions once held here, it remains the commercial and social spine of the city. During festivals the whole street closes to traffic for the celebrated Session Road in Bloom.",
+        "category": "HERITAGE",
+        "elevation_m": 1460,
+        "era": "AMERICAN_COLONIAL",
+        "hours": null,
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62800, 16.42010] },
+      "properties": {
+        "slug": "mines-view-park",
+        "name": "Mines View Park",
+        "description": "A dramatic overlook perched on the city's eastern ridge, gazing across the abandoned gold and copper mines of Itogon toward the Amburayan valleys. Souvenir stalls, rented Igorot attire, and St. Bernard photo dogs crowd the viewing deck. At dawn the mountains below fill with a sea of clouds that gives the park its enduring fame.",
+        "category": "VIEWPOINT",
+        "elevation_m": 1540,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "06:00", "close": "20:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61800, 16.40100] },
+      "properties": {
+        "slug": "camp-john-hay",
+        "name": "Camp John Hay",
+        "description": "A former American rest-and-recreation base turned forested leisure estate, blanketed in some of the tallest pine stands in the city. Today it holds golf links, the Bell House, the Cemetery of Negativism, and a treetop adventure park. Its cool, resin-scented trails make it the favorite escape of both locals and honeymooners.",
+        "category": "RECREATION",
+        "elevation_m": 1500,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "07:00", "close": "22:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59610, 16.41320] },
+      "properties": {
+        "slug": "baguio-cathedral",
+        "name": "Our Lady of the Atonement Cathedral",
+        "description": "The rose-pink cathedral crowning Mount Mary, reached by a long flight of steps from Session Road. Its twin spires became a shelter during the 1945 Battle of Baguio and a symbol of the city's postwar resilience. From its plaza visitors catch sweeping views over the downtown rooftops.",
+        "category": "CHURCH",
+        "elevation_m": 1480,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "05:00", "close": "20:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62150, 16.40900] },
+      "properties": {
+        "slug": "wright-park",
+        "name": "Wright Park",
+        "description": "A formal reflecting pool known as the Pool of Pines runs the length of this elegant park facing The Mansion gates. At its lower end the Pony Boys offer horseback rides along shaded circuits beloved by children. Named for Governor-General Luke Wright, it is one of Baguio's most photographed colonial-era landscapes.",
+        "category": "PARK",
+        "elevation_m": 1515,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "06:00", "close": "19:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62300, 16.40850] },
+      "properties": {
+        "slug": "the-mansion",
+        "name": "The Mansion",
+        "description": "The official summer residence of the President of the Philippines, built in 1908 and guarded by an ornate wrought-iron gate said to echo Buckingham Palace. Its manicured lawns and reflecting fountain sit directly across from Wright Park. Visitors may photograph the grounds and view the small exhibit hall near the entrance.",
+        "category": "HERITAGE",
+        "elevation_m": 1520,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "08:00", "close": "17:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61780, 16.41600] },
+      "properties": {
+        "slug": "botanical-garden",
+        "name": "Baguio Botanical Garden",
+        "description": "A lush terraced garden along Leonard Wood Road showcasing native pine, ferns, and Cordillera flora amid stone huts and Igorot woodcarvings. Once called the Igorot Village, it honors the highland communities who shaped the region's culture. Its shaded paths and small waterfalls offer a quiet counterpoint to the busy parks nearby.",
+        "category": "NATURE",
+        "elevation_m": 1505,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "06:00", "close": "18:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59300, 16.41550] },
+      "properties": {
+        "slug": "baguio-public-market",
+        "name": "Baguio City Public Market",
+        "description": "A sprawling, labyrinthine market where highland farmers sell strawberries, sweet peas, ube, and mountain vegetables at cool-climate freshness. Sections for weavings, silver, brooms, and peanut brittle make it the city's essential pasalubong destination. The damp, fragrant aisles capture Baguio's role as the trading hub of the Cordillera.",
+        "category": "MARKET",
+        "elevation_m": 1450,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "05:00", "close": "19:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.57600, 16.43100] },
+      "properties": {
+        "slug": "tam-awan-village",
+        "name": "Tam-awan Village",
+        "description": "A reconstructed cluster of authentic Ifugao and Kalinga huts climbing a forested hillside, conceived by artists as a living gallery of Cordillera heritage. Winding trails lead past dap-ay stone circles to a summit that, on clear days, frames the South China Sea. Its cafe and workshops make it a hub for indigenous art and slow travel.",
+        "category": "HERITAGE",
+        "elevation_m": 1490,
+        "era": "MODERN",
+        "hours": { "open": "08:00", "close": "18:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.54900, 16.38200] },
+      "properties": {
+        "slug": "bencab-museum",
+        "name": "BenCab Museum",
+        "description": "The hillside museum of National Artist Benedicto Cabrera along Asin Road, overlooking a misty ravine and eco-trail. Its galleries pair BenCab's own paintings with an outstanding collection of Cordillera bulul figures and tribal artifacts. A farm-to-table cafe and duck pond below make it a full afternoon's immersion in art and mountain air.",
+        "category": "MUSEUM",
+        "elevation_m": 1420,
+        "era": "MODERN",
+        "hours": { "open": "09:00", "close": "18:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61800, 16.36200] },
+      "properties": {
+        "slug": "philippine-military-academy",
+        "name": "Philippine Military Academy",
+        "description": "The premier training school of the Armed Forces of the Philippines, set on the broad Fort del Pilar grounds in southern Baguio. Visitors watch cadet formations, tour the grave of the Igorot spirit Mateo Cariño, and browse the Melchor Hall military museum. The disciplined parade grounds and pine borders embody the academy's storied prestige.",
+        "category": "HERITAGE",
+        "elevation_m": 1470,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "08:00", "close": "17:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.58700, 16.46400] },
+      "properties": {
+        "slug": "la-trinidad-strawberry-farms",
+        "name": "La Trinidad Strawberry Farms",
+        "description": "The famed berry fields of the Benguet capital just north of Baguio, where visitors pick their own strawberries straight from the rows. Between harvests the terraced plots supply the region's markets and the celebrated strawberry taho and ice cream. The nearby StoBoSa hillside houses, painted in bright colors, add a vivid backdrop to the farm visit.",
+        "category": "NATURE",
+        "elevation_m": 1400,
+        "era": "MODERN",
+        "hours": { "open": "06:00", "close": "18:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.58500, 16.41100] },
+      "properties": {
+        "slug": "lourdes-grotto",
+        "name": "Lourdes Grotto",
+        "description": "A revered Marian shrine reached by a penitential climb of 252 steps to a hilltop candle-lit sanctuary. Devotees ascend especially during Holy Week, when the winding stairway fills with pilgrims and lit tapers. The summit rewards visitors with a panorama over Kennon Road and the western ridges of the city.",
+        "category": "CHURCH",
+        "elevation_m": 1460,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "05:00", "close": "20:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.58000, 16.40900] },
+      "properties": {
+        "slug": "diplomat-hotel-ruins",
+        "name": "Diplomat Hotel Ruins",
+        "description": "The roofless white shell of a 1910s Dominican seminary atop Dominican Hill, later a hotel and now one of Baguio's most storied haunted landmarks. Wartime executions and abandonment left it steeped in local ghost lore, drawing curious visitors and paranormal seekers. Its arched corridors and hilltop cross command a striking view over the city.",
+        "category": "HERITAGE",
+        "elevation_m": 1465,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "07:00", "close": "18:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62500, 16.42050] },
+      "properties": {
+        "slug": "good-shepherd-convent",
+        "name": "Good Shepherd Convent",
+        "description": "A hilltop convent near Mines View run by the Good Shepherd Sisters, famed for the ube jam and strawberry preserves made by the nuns and their students. Proceeds fund scholarships for Cordillera youth, so the long pasalubong queues carry a charitable purpose. The tranquil grounds and viewpoint make it a serene stop on the Mines View circuit.",
+        "category": "HERITAGE",
+        "elevation_m": 1530,
+        "era": "POST_WAR",
+        "hours": { "open": "07:00", "close": "17:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60600, 16.34100] },
+      "properties": {
+        "slug": "lions-head-kennon-road",
+        "name": "Lion's Head, Kennon Road",
+        "description": "A massive lion carved from a limestone outcrop by Lions Club sculptors, guarding the winding descent of historic Kennon Road. It marks the traditional gateway to Baguio for travelers ascending from the lowlands of Pangasinan. The pullout offers a dramatic viewpoint over the gorge that the 1900s road builders famously carved by hand.",
+        "category": "VIEWPOINT",
+        "elevation_m": 1410,
+        "era": "AMERICAN_COLONIAL",
+        "hours": null,
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62100, 16.41800] },
+      "properties": {
+        "slug": "igorot-stone-kingdom",
+        "name": "Igorot Stone Kingdom",
+        "description": "A hillside maze of dry-stone terraces, arches, and caves built to honor Cordillera stone-craft and highland mythology. Visitors climb through winding rock passages to viewpoints that celebrate Igorot heritage and engineering. The whimsical, castle-like complex has become a popular modern attraction near Gibraltar Road.",
+        "category": "RECREATION",
+        "elevation_m": 1525,
+        "era": "MODERN",
+        "hours": { "open": "07:00", "close": "18:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60050, 16.40950] },
+      "properties": {
+        "slug": "baguio-city-hall",
+        "name": "Baguio City Hall",
+        "description": "The stately seat of the city government, fronted by a landscaped garden and a memorial to the city's founders. Its clean colonial lines and central location make it a familiar civic landmark between Burnham Park and the market. Seasonal displays and the annual Panagbenga floats often gather along its frontage.",
+        "category": "HERITAGE",
+        "elevation_m": 1455,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "08:00", "close": "17:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61550, 16.41250] },
+      "properties": {
+        "slug": "teachers-camp",
+        "name": "Teachers Camp",
+        "description": "A rambling campus of wooden dormitories and halls established in 1908 for the training of American-era teachers. Shaded by towering pines along Leonard Wood Road, it still hosts conventions, scout jamborees, and summer workshops. Its creaking heritage buildings are treasured for both their history and their famous ghost stories.",
+        "category": "HERITAGE",
+        "elevation_m": 1500,
+        "era": "AMERICAN_COLONIAL",
+        "hours": { "open": "07:00", "close": "18:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60350, 16.40780] },
+      "properties": {
+        "slug": "baguio-museum",
+        "name": "Baguio Museum",
+        "description": "The regional museum near Governor Pack Road tracing the Ibaloi, Kankanaey, and other Cordillera peoples through textiles, tools, and ritual objects. Dioramas and photographs recount the city's founding, the mining era, and wartime devastation. It offers an ideal primer on the highland cultures that surround the city.",
+        "category": "MUSEUM",
+        "elevation_m": 1465,
+        "era": "POST_WAR",
+        "hours": { "open": "09:00", "close": "17:00" },
+        "meshUrl": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61300, 16.40450] },
+      "properties": {
+        "slug": "mile-hi-cjh-viewdeck",
+        "name": "Mile-Hi Viewdeck, Camp John Hay",
+        "description": "A breezy overlook at the Mile-Hi Center within Camp John Hay, framing rows of towering pines and the eastern mountains. Cafes, an ice-skating rink, and the Camp John Hay Yellow Trail radiate from the deck. It is a favored gathering point for sunset watchers and treetop-adventure visitors.",
+        "category": "VIEWPOINT",
+        "elevation_m": 1510,
+        "era": "MODERN",
+        "hours": { "open": "07:00", "close": "21:00" },
+        "meshUrl": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,395 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59700, 16.41250] },
+      "properties": {
+        "slug": "cafe-by-the-ruins",
+        "name": "Cafe by the Ruins",
+        "category": "RESTAURANT",
+        "priceRange": 3,
+        "amenities": ["farm-to-table", "native coffee", "bakery", "art space"],
+        "hours": { "open": "07:00", "close": "21:00" },
+        "description": "A beloved institution serving Cordillera-inspired dishes, tapuy rice wine, and rustic bread beside the old ruins downtown. Its garden-fresh cooking helped define Baguio's slow-food identity."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59450, 16.40950] },
+      "properties": {
+        "slug": "hill-station",
+        "name": "Hill Station",
+        "category": "RESTAURANT",
+        "priceRange": 3,
+        "amenities": ["wine list", "global cuisine", "heritage building", "reservations"],
+        "hours": { "open": "08:00", "close": "22:00" },
+        "description": "A candle-lit restaurant inside historic Casa Vallejo blending Filipino, Spanish, and Asian flavors along old trade routes. Its refined plates and cozy interiors make it a favorite for special evenings."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59450, 16.41400] },
+      "properties": {
+        "slug": "good-taste",
+        "name": "Good Taste Cafe and Restaurant",
+        "category": "RESTAURANT",
+        "priceRange": 1,
+        "amenities": ["24-hours", "large portions", "group dining", "budget-friendly"],
+        "hours": null,
+        "description": "A cavernous, always-open eatery famous for enormous portions of buttered chicken and fried rice at rock-bottom prices. It is the go-to refuel stop for hungry travelers at any hour."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59700, 16.41300] },
+      "properties": {
+        "slug": "oh-my-gulay",
+        "name": "Oh My Gulay",
+        "category": "RESTAURANT",
+        "priceRange": 2,
+        "amenities": ["vegetarian", "art gallery", "top-floor views", "cash only"],
+        "hours": { "open": "11:00", "close": "20:00" },
+        "description": "An artist-run vegetarian cafe crowning the La Azotea building, filled with whimsical installations and a koi pond. Its meat-free plates and creative ambience draw students and bohemians alike."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60800, 16.41400] },
+      "properties": {
+        "slug": "50s-diner",
+        "name": "50's Diner",
+        "category": "RESTAURANT",
+        "priceRange": 2,
+        "amenities": ["retro theme", "all-day breakfast", "milkshakes", "family-friendly"],
+        "hours": { "open": "07:00", "close": "22:00" },
+        "description": "A nostalgic American-style diner on Leonard Wood Road serving hearty breakfasts, burgers, and thick milkshakes. Its jukebox decor and generous plates make it a long-running local favorite."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60900, 16.41500] },
+      "properties": {
+        "slug": "canto-bogchi-joint",
+        "name": "Canto Bogchi Joint",
+        "category": "RESTAURANT",
+        "priceRange": 2,
+        "amenities": ["ribs specialty", "casual", "local favorite"],
+        "hours": { "open": "11:00", "close": "21:00" },
+        "description": "A casual grill renowned for its tender rib platters and comforting rice bowls. Locals prize it as one of the city's best-value comfort-food stops."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60700, 16.41450] },
+      "properties": {
+        "slug": "amare-la-cucina",
+        "name": "Amare La Cucina",
+        "category": "RESTAURANT",
+        "priceRange": 2,
+        "amenities": ["wood-fired pizza", "italian", "pet-friendly"],
+        "hours": { "open": "11:00", "close": "22:00" },
+        "description": "A cozy trattoria turning out wood-fired Neapolitan pizzas and hearty pasta in the cool mountain air. Its authentic Italian fare has earned a devoted following."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62300, 16.41900] },
+      "properties": {
+        "slug": "lemon-and-olives",
+        "name": "Lemon and Olives Greek Taverna",
+        "category": "RESTAURANT",
+        "priceRange": 3,
+        "amenities": ["greek cuisine", "hilltop views", "reservations"],
+        "hours": { "open": "11:00", "close": "21:00" },
+        "description": "The city's only Greek taverna, perched on Outlook Drive with sweeping ridge views and authentic Mediterranean plates. Its souvlaki and moussaka offer a sunlit change of pace."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61400, 16.40950] },
+      "properties": {
+        "slug": "ketchup-food-community",
+        "name": "Ketchup Food Community",
+        "category": "RESTAURANT",
+        "priceRange": 2,
+        "amenities": ["food cluster", "forest setting", "varied cuisines"],
+        "hours": { "open": "10:00", "close": "21:00" },
+        "description": "A cluster of independent eateries sharing a pine-shaded compound on Romulo Drive near Wright Park. Diners can graze across Filipino, Mexican, and grilled specialties in one leafy setting."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59680, 16.41250] },
+      "properties": {
+        "slug": "vizcos",
+        "name": "Vizco's Restaurant and Cake Shop",
+        "category": "FOOD_SHOP",
+        "priceRange": 2,
+        "amenities": ["strawberry shortcake", "cakes", "dine-in", "takeaway"],
+        "hours": { "open": "09:00", "close": "21:00" },
+        "description": "A Session Road bakeshop famed for its towering strawberry shortcake made with fresh Benguet berries. Its cakes are among the city's most popular edible pasalubong."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62450, 16.42000] },
+      "properties": {
+        "slug": "good-shepherd-ube-jam",
+        "name": "Good Shepherd Convent Store",
+        "category": "FOOD_SHOP",
+        "priceRange": 2,
+        "amenities": ["ube jam", "strawberry preserves", "peanut brittle", "charity proceeds"],
+        "hours": { "open": "07:30", "close": "17:00" },
+        "description": "The convent store beside Mines View selling the nuns' celebrated ube halaya, strawberry jam, and peanut brittle. Every jar funds scholarships for Cordillera students."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61600, 16.40000] },
+      "properties": {
+        "slug": "baguio-country-club-bakeshop",
+        "name": "Baguio Country Club Bakeshop",
+        "category": "FOOD_SHOP",
+        "priceRange": 3,
+        "amenities": ["raisin bread", "cheese bread", "pastries"],
+        "hours": { "open": "07:00", "close": "19:00" },
+        "description": "The historic club's bakeshop, whose warm raisin bread is a legendary Baguio pasalubong. Visitors line up for loaves fresh from the oven."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61300, 16.40500] },
+      "properties": {
+        "slug": "choco-late-de-batirol",
+        "name": "Choco-late de Batirol",
+        "category": "FOOD_SHOP",
+        "priceRange": 2,
+        "amenities": ["native hot chocolate", "garden cafe", "kakanin"],
+        "hours": { "open": "08:00", "close": "20:00" },
+        "description": "A garden cafe in Camp John Hay serving thick native tsokolate whisked the traditional way with a batirol. Its cozy nipa huts pair the drink with Filipino rice cakes."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62750, 16.42000] },
+      "properties": {
+        "slug": "mines-view-souvenir-row",
+        "name": "Mines View Souvenir Row",
+        "category": "SOUVENIR",
+        "priceRange": 1,
+        "amenities": ["woodcarvings", "knitwear", "walking sticks", "keychains"],
+        "hours": { "open": "07:00", "close": "19:00" },
+        "description": "The dense stretch of stalls beside Mines View Park brimming with knitted bonnets, wooden crafts, and trinkets. It is the classic spot for last-minute Baguio keepsakes."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.58500, 16.42000] },
+      "properties": {
+        "slug": "easter-weaving-room",
+        "name": "Easter Weaving Room",
+        "category": "SOUVENIR",
+        "priceRange": 2,
+        "amenities": ["handwoven textiles", "loom demonstrations", "bags", "table runners"],
+        "hours": { "open": "08:00", "close": "17:00" },
+        "description": "A century-old weaving center in Guisad where visitors watch artisans work traditional looms. Its handwoven Cordillera textiles, bags, and blankets support local weavers."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59600, 16.41200] },
+      "properties": {
+        "slug": "ibays-silver-shop",
+        "name": "Ibay's Silver Shop",
+        "category": "SOUVENIR",
+        "priceRange": 2,
+        "amenities": ["silver jewelry", "custom pieces", "Cordillera motifs"],
+        "hours": { "open": "09:00", "close": "18:00" },
+        "description": "A long-established silversmith crafting jewelry inspired by Cordillera patterns and symbols. Its handmade rings and pendants are treasured Baguio mementos."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60200, 16.41300] },
+      "properties": {
+        "slug": "nardas-handwoven",
+        "name": "Narda's Handwoven Arts and Crafts",
+        "category": "SOUVENIR",
+        "priceRange": 3,
+        "amenities": ["premium textiles", "shawls", "home decor", "fashion"],
+        "hours": { "open": "09:00", "close": "18:00" },
+        "description": "A pioneering weaving house whose ikat-dyed shawls and garments carry Cordillera craft into contemporary fashion. Its refined pieces are gifted and worn nationwide."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59300, 16.41500] },
+      "properties": {
+        "slug": "public-market-pasalubong",
+        "name": "Public Market Pasalubong Stalls",
+        "category": "SOUVENIR",
+        "priceRange": 1,
+        "amenities": ["dried fruit", "coffee", "brooms", "peanut brittle", "vegetables"],
+        "hours": { "open": "06:00", "close": "18:00" },
+        "description": "The pasalubong section of the public market packed with strawberry preserves, highland coffee, and native brooms. It is the most affordable place to stock up on Baguio treats."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61500, 16.40300] },
+      "properties": {
+        "slug": "the-manor-cjh",
+        "name": "The Manor at Camp John Hay",
+        "category": "HOTEL",
+        "priceRange": 4,
+        "amenities": ["fireplace lobby", "spa", "fine dining", "pine forest", "parking"],
+        "hours": null,
+        "description": "The flagship luxury hotel of Camp John Hay, styled like a grand alpine lodge amid towering pines. Its log-and-stone interiors and cozy fireplaces epitomize upscale mountain retreat."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61550, 16.40350] },
+      "properties": {
+        "slug": "forest-lodge-cjh",
+        "name": "Forest Lodge at Camp John Hay",
+        "category": "HOTEL",
+        "priceRange": 3,
+        "amenities": ["forest views", "restaurant", "family rooms", "parking"],
+        "hours": null,
+        "description": "A comfortable pine-side lodge within Camp John Hay offering easy access to the golf course and trails. Its warm rooms suit families and groups seeking a forest escape."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61800, 16.41500] },
+      "properties": {
+        "slug": "hotel-elizabeth",
+        "name": "Hotel Elizabeth Baguio",
+        "category": "HOTEL",
+        "priceRange": 3,
+        "amenities": ["restaurant", "function rooms", "shuttle", "parking"],
+        "hours": null,
+        "description": "A gracious mid-range hotel on Gibraltar Road with colonial-inspired decor and a well-regarded restaurant. Its quiet ridge location is close to Mines View and Wright Park."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59200, 16.40800] },
+      "properties": {
+        "slug": "microtel-baguio",
+        "name": "Microtel by Wyndham Baguio",
+        "category": "HOTEL",
+        "priceRange": 3,
+        "amenities": ["city views", "24-hour front desk", "restaurant", "parking"],
+        "hours": null,
+        "description": "A dependable upper-Session hotel offering clean, comfortable rooms with sweeping views over the downtown bowl. Its central location puts the market and Burnham Park within easy reach."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.61600, 16.40050] },
+      "properties": {
+        "slug": "baguio-country-club",
+        "name": "Baguio Country Club",
+        "category": "HOTEL",
+        "priceRange": 4,
+        "amenities": ["golf course", "bowling", "spa", "heritage", "fine dining"],
+        "hours": null,
+        "description": "A prestigious members' club and hotel dating to 1905, set on manicured grounds beside a historic golf course. Its heritage halls and famous bakeshop make it a Baguio landmark in their own right."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59450, 16.40960] },
+      "properties": {
+        "slug": "casa-vallejo",
+        "name": "Casa Vallejo",
+        "category": "HOTEL",
+        "priceRange": 3,
+        "amenities": ["heritage building", "bookshop", "cinema", "restaurant"],
+        "hours": null,
+        "description": "The city's oldest surviving hotel, a 1909 wooden landmark at the top of Session Road with creaking floors and vintage charm. It shares its walls with an indie cinema, bookshop, and Hill Station restaurant."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59800, 16.42000] },
+      "properties": {
+        "slug": "azalea-residences",
+        "name": "Azalea Residences Baguio",
+        "category": "HOTEL",
+        "priceRange": 3,
+        "amenities": ["kitchenette suites", "cafe", "playground", "parking"],
+        "hours": null,
+        "description": "An apartment-style hotel on Leonard Wood Loop offering suites with kitchenettes for longer family stays. Its quiet residential setting is a short ride from downtown attractions."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.60500, 16.42300] },
+      "properties": {
+        "slug": "pine-breeze-transient",
+        "name": "Pine Breeze Transient House",
+        "category": "TRANSIENT",
+        "priceRange": 1,
+        "amenities": ["shared kitchen", "group rooms", "wifi", "parking"],
+        "hours": null,
+        "description": "A budget transient home in Aurora Hill with roomy shared quarters popular among student and family groups. Guests cook their own meals and enjoy a homey mountain base."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.58900, 16.42500] },
+      "properties": {
+        "slug": "cordillera-family-transient",
+        "name": "Cordillera Family Transient",
+        "category": "TRANSIENT",
+        "priceRange": 1,
+        "amenities": ["whole-house rental", "kitchen", "family-friendly", "parking"],
+        "hours": null,
+        "description": "A homey Guisad transient house rented whole for reunions and barkada trips. Its full kitchen and living room give large groups an affordable home away from home."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.59650, 16.41350] },
+      "properties": {
+        "slug": "session-road-backpackers",
+        "name": "Session Road Backpackers",
+        "category": "TRANSIENT",
+        "priceRange": 2,
+        "amenities": ["dorm beds", "common lounge", "wifi", "central location"],
+        "hours": null,
+        "description": "A compact hostel steps from Session Road offering bunk beds and a sociable common lounge. Its central spot suits solo travelers exploring the downtown core on foot."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.62200, 16.41850] },
+      "properties": {
+        "slug": "mountain-view-transient",
+        "name": "Mountain View Transient",
+        "category": "TRANSIENT",
+        "priceRange": 1,
+        "amenities": ["ridge views", "kitchen", "group rooms", "parking"],
+        "hours": null,
+        "description": "A simple transient house on Gibraltar Road with balconies framing the eastern mountains. Its proximity to Mines View makes it a convenient budget base for sightseeing."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [120.58800, 16.44500] },
+      "properties": {
+        "slug": "strawberry-fields-transient",
+        "name": "Strawberry Fields Transient",
+        "category": "TRANSIENT",
+        "priceRange": 1,
+        "amenities": ["near strawberry farms", "kitchen", "family rooms", "parking"],
+        "hours": null,
+        "description": "A quiet transient house on the La Trinidad edge, minutes from the famous strawberry fields. It offers groups a restful, low-cost stay away from the downtown bustle."
+      }
+    }
+  ]
+}

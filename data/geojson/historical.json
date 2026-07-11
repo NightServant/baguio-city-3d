@@ -1,0 +1,153 @@
+{
+  "eras": [
+    {
+      "key": "PRE_COLONIAL",
+      "name": "Ibaloi Highlands",
+      "startYear": 1500,
+      "endYear": 1899,
+      "summary": "Long before it was a city, the cool plateau of Kafagway was home to the Ibaloi people, who farmed sweet potato, panned gold, and pastured cattle across the grassy ridges. Clans such as the Cariños held the meadows now covered by Burnham Park and Camp John Hay. Life followed the rhythms of the cañao feast and the dap-ay council, rooted in the land the Ibaloi had tended for centuries."
+    },
+    {
+      "key": "AMERICAN_COLONIAL",
+      "name": "American Hill Station",
+      "startYear": 1900,
+      "endYear": 1941,
+      "summary": "American authorities, seeking a cool refuge from lowland heat, transformed Kafagway into a planned summer capital. Architect Daniel Burnham's 1904 design gave the city its park, radial roads, and civic core, while the hand-carved Kennon Road linked it to the lowlands. Chartered in 1909, Baguio grew into the 'City of Pines,' a hub of government, mining wealth, and mountain leisure."
+    },
+    {
+      "key": "POST_WAR",
+      "name": "Liberation and Rebuilding",
+      "startYear": 1942,
+      "endYear": 1989,
+      "summary": "The Second World War devastated Baguio, from the 1941 bombings to the fierce 1945 battle that leveled much of the city and ended with General Yamashita's surrender nearby. In the decades that followed, residents rebuilt the cathedral, markets, and schools, and the city reclaimed its role as an educational and tourist center. Universities, convents, and craft cooperatives flourished across the recovering hills."
+    },
+    {
+      "key": "MODERN",
+      "name": "Contemporary Baguio",
+      "startYear": 1990,
+      "endYear": null,
+      "summary": "The 1990 Luzon earthquake tested the city anew, but Baguio rebuilt and reinvented itself as a center of culture, cuisine, and creativity. Malls, art villages, and the annual Panagbenga Flower Festival now draw millions, even as residents grapple with congestion and the loss of pines. In 2017 UNESCO named it a Creative City of Crafts and Folk Art, honoring its living Cordillera heritage."
+    }
+  ],
+  "events": [
+    {
+      "title": "Ibaloi Settlement of Kafagway",
+      "year": 1700,
+      "era": "PRE_COLONIAL",
+      "description": "Ibaloi clans settled the grassy plateau they called Kafagway, herding cattle and panning gold along the streams. The meadows that would become Burnham Park served as communal pasture for families like the Cariños.",
+      "coord": [120.59360, 16.41160]
+    },
+    {
+      "title": "Spanish Comandancia at La Trinidad",
+      "year": 1846,
+      "era": "PRE_COLONIAL",
+      "description": "Spanish colonizers established a military comandancia in the neighboring La Trinidad valley, named for the wife of Governor Oscariz. Their reach over the highland Igorot communities remained thin and contested.",
+      "coord": [120.58700, 16.46000]
+    },
+    {
+      "title": "American Occupation of the Highlands",
+      "year": 1900,
+      "era": "AMERICAN_COLONIAL",
+      "description": "Following the Philippine-American War, U.S. forces reached the cool Benguet plateau and quickly recognized its value as a health resort. Plans began for a summer capital that could relieve officials from the lowland heat.",
+      "coord": [120.59650, 16.41100]
+    },
+    {
+      "title": "Construction of the Benguet (Kennon) Road",
+      "year": 1903,
+      "era": "AMERICAN_COLONIAL",
+      "description": "Engineer Lyman Kennon drove the perilous zigzag road up the Bued River gorge, at great cost in labor and lives. The route opened Baguio to wheeled traffic and remains a monument to early American engineering.",
+      "coord": [120.60600, 16.34100]
+    },
+    {
+      "title": "Burnham Plan for the Summer Capital",
+      "year": 1904,
+      "era": "AMERICAN_COLONIAL",
+      "description": "Architect Daniel Hudson Burnham surveyed the plateau and drafted a city plan centered on a park, a civic core, and radiating avenues. His vision shaped the layout of Baguio that endures today.",
+      "coord": [120.59500, 16.41000]
+    },
+    {
+      "title": "Establishment of Camp John Hay",
+      "year": 1903,
+      "era": "AMERICAN_COLONIAL",
+      "description": "The U.S. Army set aside a forested reservation as a rest-and-recreation base, naming it for Secretary of State John Hay. Its pine slopes became a retreat for American soldiers and, later, generations of Filipino visitors.",
+      "coord": [120.61800, 16.40100]
+    },
+    {
+      "title": "Chartering of the City of Baguio",
+      "year": 1909,
+      "era": "AMERICAN_COLONIAL",
+      "description": "On 1 September 1909 the Philippine Commission granted Baguio its city charter, making it the official summer capital of the islands. The designation cemented its role in national governance for decades.",
+      "coord": [120.60050, 16.40950]
+    },
+    {
+      "title": "Founding of the Philippine Military Academy",
+      "year": 1936,
+      "era": "AMERICAN_COLONIAL",
+      "description": "The Philippine Military Academy was formally organized to train the officer corps of the new Commonwealth army. It settled at Fort del Pilar in southern Baguio, where it still educates the nation's cadets.",
+      "coord": [120.61800, 16.36200]
+    },
+    {
+      "title": "Japanese Bombing and Occupation",
+      "year": 1941,
+      "era": "POST_WAR",
+      "description": "On 8 December 1941 Japanese aircraft bombed Camp John Hay hours after Pearl Harbor, among the first strikes on the Philippines. Baguio soon fell under a harsh occupation that lasted until liberation.",
+      "coord": [120.61800, 16.40100]
+    },
+    {
+      "title": "Battle and Liberation of Baguio",
+      "year": 1945,
+      "era": "POST_WAR",
+      "description": "Intense fighting and Allied bombardment in early 1945 reduced much of the city to rubble as forces closed on General Yamashita's mountain redoubt. The cathedral's basement sheltered civilians through the siege.",
+      "coord": [120.59610, 16.41320]
+    },
+    {
+      "title": "Surrender of General Yamashita",
+      "year": 1945,
+      "era": "POST_WAR",
+      "description": "On 3 September 1945 General Tomoyuki Yamashita formally surrendered at the U.S. ambassador's residence within Camp John Hay. The ceremony marked the end of the war in the Philippine highlands.",
+      "coord": [120.61300, 16.40450]
+    },
+    {
+      "title": "Postwar Rebuilding of the Public Market",
+      "year": 1950,
+      "era": "POST_WAR",
+      "description": "Residents reconstructed the ruined public market and civic buildings, restoring Baguio as the trading heart of the Cordillera. Highland farmers again filled the stalls with vegetables, strawberries, and weavings.",
+      "coord": [120.59300, 16.41550]
+    },
+    {
+      "title": "Rise of the University Town",
+      "year": 1965,
+      "era": "POST_WAR",
+      "description": "Universities and colleges expanded across the city, drawing students from throughout northern Luzon. Education became a pillar of the local economy alongside tourism and mining.",
+      "coord": [120.59670, 16.41180]
+    },
+    {
+      "title": "The 1990 Luzon Earthquake",
+      "year": 1990,
+      "era": "MODERN",
+      "description": "A magnitude 7.8 earthquake on 16 July 1990 collapsed hotels and buildings, killing hundreds and isolating the city for days. Baguio's determined recovery became a defining chapter of its modern history.",
+      "coord": [120.59670, 16.41180]
+    },
+    {
+      "title": "First Panagbenga Flower Festival",
+      "year": 1996,
+      "era": "MODERN",
+      "description": "Launched to lift civic spirits after the earthquake, the Panagbenga Flower Festival filled Session Road with floral floats and street dancers. It has grown into the city's signature February celebration.",
+      "coord": [120.59670, 16.41180]
+    },
+    {
+      "title": "Opening of SM City Baguio",
+      "year": 2003,
+      "era": "MODERN",
+      "description": "The opening of SM City Baguio brought large-scale retail to the city and reshaped its commercial landscape. The mall drew crowds but also stirred debate over pine trees and mountain congestion.",
+      "coord": [120.59900, 16.40850]
+    },
+    {
+      "title": "UNESCO Creative City of Crafts and Folk Art",
+      "year": 2017,
+      "era": "MODERN",
+      "description": "UNESCO named Baguio a Creative City for its living traditions of weaving, woodcarving, silverwork, and tattoo art. The honor affirmed the enduring vitality of Cordillera culture in the modern city.",
+      "coord": [120.57600, 16.43100]
+    }
+  ]
+}
