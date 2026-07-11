@@ -9,7 +9,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-heading: var(--font-display);
+  --color-amber: var(--amber);
+  --color-amber-foreground: var(--amber-foreground);
+  --color-contour: var(--contour);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,73 +52,85 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+  Baguio 3D identity — a mountain hill-station in the Cordilleras.
+  Pine green carries the brand (primary); fog-tinted cool neutrals ground it;
+  a single sunset/strawberry amber is the sparing accent. Tokens are retheme-only
+  so the map HUD (semantic classes) inherits the identity automatically.
+*/
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(0.98 0.008 152);
+  --foreground: oklch(0.24 0.021 158);
+  --card: oklch(0.995 0.004 150);
+  --card-foreground: oklch(0.24 0.021 158);
+  --popover: oklch(0.995 0.004 150);
+  --popover-foreground: oklch(0.24 0.021 158);
+  --primary: oklch(0.40 0.068 160);
+  --primary-foreground: oklch(0.98 0.012 150);
+  --secondary: oklch(0.945 0.014 155);
+  --secondary-foreground: oklch(0.32 0.045 160);
+  --muted: oklch(0.955 0.009 152);
+  --muted-foreground: oklch(0.50 0.021 155);
+  --accent: oklch(0.945 0.032 78);
+  --accent-foreground: oklch(0.34 0.052 68);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.905 0.01 152);
+  --input: oklch(0.905 0.01 152);
+  --ring: oklch(0.55 0.055 160);
+  --chart-1: oklch(0.52 0.088 160);
+  --chart-2: oklch(0.70 0.132 74);
+  --chart-3: oklch(0.48 0.062 210);
+  --chart-4: oklch(0.62 0.142 32);
+  --chart-5: oklch(0.68 0.072 138);
+  --radius: 0.5rem;
+  --amber: oklch(0.70 0.14 66);
+  --amber-foreground: oklch(0.99 0.012 82);
+  --contour: oklch(0.40 0.05 160 / 0.10);
+  --sidebar: oklch(0.985 0.006 150);
+  --sidebar-foreground: oklch(0.24 0.021 158);
+  --sidebar-primary: oklch(0.40 0.068 160);
+  --sidebar-primary-foreground: oklch(0.98 0.012 150);
+  --sidebar-accent: oklch(0.945 0.014 155);
+  --sidebar-accent-foreground: oklch(0.32 0.045 160);
+  --sidebar-border: oklch(0.905 0.01 152);
+  --sidebar-ring: oklch(0.55 0.055 160);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.19 0.018 160);
+  --foreground: oklch(0.93 0.01 150);
+  --card: oklch(0.23 0.022 160);
+  --card-foreground: oklch(0.93 0.01 150);
+  --popover: oklch(0.23 0.022 160);
+  --popover-foreground: oklch(0.93 0.01 150);
+  --primary: oklch(0.70 0.10 152);
+  --primary-foreground: oklch(0.19 0.02 160);
+  --secondary: oklch(0.27 0.025 160);
+  --secondary-foreground: oklch(0.92 0.01 150);
+  --muted: oklch(0.27 0.02 160);
+  --muted-foreground: oklch(0.72 0.02 150);
+  --accent: oklch(0.31 0.032 78);
+  --accent-foreground: oklch(0.90 0.035 80);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.60 0.07 155);
+  --chart-1: oklch(0.66 0.10 155);
+  --chart-2: oklch(0.78 0.14 72);
+  --chart-3: oklch(0.62 0.07 210);
+  --chart-4: oklch(0.68 0.15 34);
+  --chart-5: oklch(0.74 0.08 140);
+  --amber: oklch(0.78 0.14 68);
+  --amber-foreground: oklch(0.20 0.02 60);
+  --contour: oklch(0.85 0.04 150 / 0.08);
+  --sidebar: oklch(0.21 0.02 160);
+  --sidebar-foreground: oklch(0.93 0.01 150);
+  --sidebar-primary: oklch(0.70 0.10 152);
+  --sidebar-primary-foreground: oklch(0.19 0.02 160);
+  --sidebar-accent: oklch(0.27 0.025 160);
+  --sidebar-accent-foreground: oklch(0.92 0.01 150);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.60 0.07 155);
 }
 
 @layer base {
@@ -126,5 +142,40 @@
   }
   html {
     @apply font-sans;
+  }
+  /* Editorial display face with tightened tracking for large headlines. */
+  .font-display {
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
+}
+
+@layer utilities {
+  /* Survey-readout label: mono, spaced, uppercase — the site's field-notes voice. */
+  .readout {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.6875rem;
+    line-height: 1;
+  }
+  /* Slow ambient fog drift for hero atmosphere; disabled under reduced-motion. */
+  .animate-fog {
+    animation: fog-drift 26s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes fog-drift {
+  from {
+    transform: translate3d(-2.5%, 0, 0);
+  }
+  to {
+    transform: translate3d(2.5%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fog {
+    animation: none;
   }
 }
