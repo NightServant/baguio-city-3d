@@ -4,7 +4,7 @@
 // dim destinations from other eras, and nudge the basemap lighting older.
 // Safe on empty data; all mutations are guarded on layer existence.
 import { useEffect, useState } from "react";
-import type { GeoJSONSource, Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
+import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
 import { useMapStore, useActiveEra } from "@/stores/useMapStore";
 import { MAP_PALETTE } from "../categoryStyle";
 import type { ErasResponse, Era } from "@/types/api";
@@ -18,10 +18,10 @@ const EMPTY = { type: "FeatureCollection" as const, features: [] };
 
 /**
  * Register a small amber dot-pin sprite so the event symbols have an icon that
- * actually exists (the Standard style sprite ships no "marker-15"). Drawn to an
+ * actually exists (the basemap sprite ships no matching marker). Drawn to an
  * offscreen canvas — no external asset fetch. Idempotent.
  */
-function ensureEventIcon(map: MapboxMap) {
+function ensureEventIcon(map: MapLibreMap) {
   if (map.hasImage(IMG_EVENT_DOT)) return;
   const size = 18;
   const canvas = document.createElement("canvas");
@@ -40,15 +40,16 @@ function ensureEventIcon(map: MapboxMap) {
   map.addImage(IMG_EVENT_DOT, ctx.getImageData(0, 0, size, size), { pixelRatio: 2 });
 }
 
-// Older eras get a warmer, lower-angle basemap light.
-const LIGHT_PRESET: Record<Era, string> = {
-  PRE_COLONIAL: "dusk",
-  AMERICAN_COLONIAL: "dawn",
-  POST_WAR: "dawn",
-  MODERN: "day",
+// Older eras get a warmer sky/fog tint (MapLibre setSky — no Standard-style
+// light presets). MODERN falls back to the neutral daytime atmosphere.
+const ERA_SKY: Record<Era, { sky: string; fog: string }> = {
+  PRE_COLONIAL: { sky: "#c9a36a", fog: "#e6cfa6" }, // warm dusk haze
+  AMERICAN_COLONIAL: { sky: "#d6b483", fog: "#ecdcc0" }, // sepia dawn
+  POST_WAR: { sky: "#cdbf9a", fog: "#e8ddc6" }, // faded parchment
+  MODERN: { sky: "#a7c4e0", fog: "#dfe7ee" }, // neutral day
 };
 
-export function useHistoryOverlay(map: MapboxMap) {
+export function useHistoryOverlay(map: MapLibreMap) {
   const activeEra = useActiveEra();
   const [eras, setEras] = useState<ErasResponse>({ eras: [] });
 
@@ -63,7 +64,7 @@ export function useHistoryOverlay(map: MapboxMap) {
       source: SRC_EVENTS,
       layout: {
         "text-field": ["get", "title"],
-        "text-font": ["DIN Pro Medium", "Arial Unicode MS Bold"],
+        "text-font": ["Noto Sans Bold"],
         "text-size": 11,
         "text-offset": [0, 1.4],
         "text-anchor": "top",
@@ -78,7 +79,7 @@ export function useHistoryOverlay(map: MapboxMap) {
       },
     });
 
-    const onEventClick = (e: MapMouseEvent) => {
+    const onEventClick = (e: MapLayerMouseEvent) => {
       const f = e.features?.[0];
       if (f?.geometry.type === "Point") {
         map.flyTo({ center: f.geometry.coordinates as [number, number], zoom: 15.5 });
@@ -118,12 +119,20 @@ export function useHistoryOverlay(map: MapboxMap) {
   useEffect(() => {
     const source = map.getSource(SRC_EVENTS) as GeoJSONSource | undefined;
 
-    // Basemap lighting (Standard style config); guarded — style may not support it.
+    // Era mood: tint the atmospheric sky/fog warmer for older eras. Guarded —
+    // setSky is a MapLibre 5+ addition and the style may not be ready.
     try {
-      const preset = activeEra ? LIGHT_PRESET[activeEra] : "day";
-      map.setConfigProperty("basemap", "lightPreset", preset);
+      const tint = ERA_SKY[activeEra ?? "MODERN"];
+      map.setSky({
+        "sky-color": tint.sky,
+        "horizon-color": "#eaf1f7",
+        "fog-color": tint.fog,
+        "sky-horizon-blend": 0.6,
+        "horizon-fog-blend": 0.5,
+        "fog-ground-blend": 0.4,
+      });
     } catch {
-      /* non-Standard style — ignore */
+      /* setSky unsupported or style not ready — atmosphere is optional */
     }
 
     // Dim destinations outside the active era.

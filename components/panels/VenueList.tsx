@@ -1,10 +1,10 @@
 "use client";
 
 // Venue results for the Explore panel. Cursor-paginated "load more"; clicking
-// an item eases the camera to it and shows a lightweight mapbox popup.
+// an item eases the camera to it and shows a lightweight MapLibre popup.
 // Degrades to a quiet notice when the API is unreachable.
 import { useEffect, useRef, useState } from "react";
-import mapboxgl from "mapbox-gl";
+import type { Popup } from "maplibre-gl";
 import { MapPin } from "lucide-react";
 import { useFilters, useMapStore } from "@/stores/useMapStore";
 import { useDebouncedValue } from "@/hooks/useDebouncedBounds";
@@ -41,7 +41,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
     loading: true,
     error: false,
   });
-  const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const popupRef = useRef<Popup | null>(null);
 
   const filterKey = JSON.stringify([venueCategory, filters.priceMax, filters.openNow, q]);
 
@@ -101,16 +101,20 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
     const map = useMapStore.getState().map;
     if (!map) return;
     map.easeTo({ center: [venue.lng, venue.lat], zoom: Math.max(map.getZoom(), 15.5) });
-    popupRef.current?.remove();
-    popupRef.current = new mapboxgl.Popup({ offset: 12, closeButton: true, maxWidth: "260px" })
-      .setLngLat([venue.lng, venue.lat])
-      .setHTML(
-        `<div style="font-family:inherit">
-          <strong>${escapeHtml(venue.name)}</strong>
-          <div style="opacity:.7;font-size:12px">${VENUE_CATEGORY_LABELS[venue.category]} · ${PRICE_GLYPHS[venue.priceRange]}</div>
-        </div>`,
-      )
-      .addTo(map);
+    // Lazy-load maplibre-gl so server prerender never touches window.
+    void (async () => {
+      const maplibregl = (await import("maplibre-gl")).default;
+      popupRef.current?.remove();
+      popupRef.current = new maplibregl.Popup({ offset: 12, closeButton: true, maxWidth: "260px" })
+        .setLngLat([venue.lng, venue.lat])
+        .setHTML(
+          `<div style="font-family:inherit">
+            <strong>${escapeHtml(venue.name)}</strong>
+            <div style="opacity:.7;font-size:12px">${VENUE_CATEGORY_LABELS[venue.category]} · ${PRICE_GLYPHS[venue.priceRange]}</div>
+          </div>`,
+        )
+        .addTo(map);
+    })();
   };
 
   return (

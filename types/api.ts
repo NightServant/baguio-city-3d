@@ -209,6 +209,12 @@ export interface TerrainConfig {
   bounds: [number, number, number, number];
   camera: CameraView;
   presets: Record<string, CameraView>;
-  demSource: "mapbox-dem";
+  /** Keyless AWS Terrarium DEM tile config consumed by the MapLibre canvas. */
+  demSource: {
+    tiles: string[];
+    encoding: "terrarium";
+    tileSize: number;
+    maxzoom: number;
+  };
   exaggeration: number;
 }

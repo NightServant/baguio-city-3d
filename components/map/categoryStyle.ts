@@ -1,8 +1,8 @@
 // Shared visual vocabulary for the map layers — the single source of truth for
-// every literal hex the mapbox paint expressions use (paint can't read CSS
+// every literal hex the MapLibre paint expressions use (paint can't read CSS
 // variables). Values are hand-reconciled to the site palette in app/globals.css:
 // pine greens (primary), fog-tinted cool neutrals, and a warm sunset amber —
-// while staying distinct and legible against the muted Standard basemap terrain.
+// while staying distinct and legible against the light OpenFreeMap basemap.
 import type { LandmarkCategory, Era, VenueCategory } from "@/types/api";
 
 // Category pins — a spectrum that leans into the theme's pine + amber register
@@ -61,7 +61,7 @@ export const CATEGORY_LABELS: Record<LandmarkCategory, string> = {
 
 export const LANDMARK_CATEGORIES = Object.keys(CATEGORY_COLORS) as LandmarkCategory[];
 
-/** Flat [value, color, value, color, …] pairs for a mapbox `match` expression. */
+/** Flat [value, color, value, color, …] pairs for a MapLibre `match` expression. */
 export function categoryMatchExpression(): (string | string[])[] {
   const pairs: string[] = [];
   for (const [cat, color] of Object.entries(CATEGORY_COLORS)) {

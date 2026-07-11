@@ -9,7 +9,7 @@
 // Invalid or unknown params are ignored silently — no crash, no error UI.
 //
 // Mounted inside a <Suspense> boundary (useSearchParams) so /map stays
-// statically prerenderable. mapbox-gl is imported lazily inside the handler so
+// statically prerenderable. maplibre-gl is imported lazily inside the handler so
 // this client component never touches `window` during server prerender.
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -63,8 +63,8 @@ export function DeepLink() {
           if (!v || !Number.isFinite(v.lng) || !Number.isFinite(v.lat)) return;
           const center: [number, number] = [v.lng, v.lat];
           map.easeTo({ center, zoom: 16, duration: 1800, essential: true });
-          const mapboxgl = (await import("mapbox-gl")).default;
-          new mapboxgl.Popup({ closeButton: true, offset: 12 })
+          const maplibregl = (await import("maplibre-gl")).default;
+          new maplibregl.Popup({ closeButton: true, offset: 12 })
             .setLngLat(center)
             .setText(v.name)
             .addTo(map);

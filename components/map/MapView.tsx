@@ -1,21 +1,20 @@
 "use client";
 
-// The mapbox-gl canvas. Initializes the 3D terrain map, wires camera state back
-// into the store, and mounts the imperative layers once the style is ready.
-// Never crashes without a token — renders a setup notice instead.
-import "mapbox-gl/dist/mapbox-gl.css";
+// The MapLibre GL canvas. Initializes the 3D terrain map, wires camera state
+// back into the store, and mounts the imperative layers once the style is ready.
+// Uses OpenFreeMap tiles + AWS Terrarium terrain — no account, key, or token.
+import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
-import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
-import { MountainSnow } from "lucide-react";
+import maplibregl, { type Map as MapLibreMap, type MapMouseEvent } from "maplibre-gl";
 import { useMapStore } from "@/stores/useMapStore";
 import { BAGUIO_BOUNDS, DEFAULT_CAMERA } from "@/lib/constants";
 import type { TerrainConfig } from "@/types/api";
 import { MapLayers } from "./MapLayers";
 
-const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
-const TOKEN_MISSING = !TOKEN || TOKEN.startsWith("pk.REPLACE");
+// Keyless basemap style (OpenFreeMap "Liberty"). No token required.
+const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 
-const DEM_SOURCE = "mapbox-dem";
+const DEM_SOURCE = "terrain-dem";
 
 /** Expand [minLng,minLat,maxLng,maxLat] outward so panning has a little slack. */
 function expandBounds(
@@ -28,66 +27,55 @@ function expandBounds(
   ];
 }
 
-function TokenNotice() {
-  return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted p-6">
-      <div className="max-w-md rounded-3xl border border-border bg-card p-8 text-center shadow-sm ring-1 ring-foreground/5">
-        <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <MountainSnow className="size-6" />
-        </div>
-        <h2 className="font-heading text-lg font-medium text-foreground">
-          Add a Mapbox token to explore in 3D
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The interactive terrain map needs a Mapbox access token. Create one at{" "}
-          <span className="font-medium text-foreground">account.mapbox.com</span>, then set it in
-          your <code className="rounded bg-muted px-1 py-0.5 text-xs">.env</code> file:
-        </p>
-        <pre className="mt-4 overflow-x-auto rounded-xl bg-muted px-4 py-3 text-left text-xs text-foreground">
-          NEXT_PUBLIC_MAPBOX_TOKEN=&quot;pk.your_real_token&quot;
-        </pre>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Restart the dev server after saving. Everything else on this page still works.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export function MapView() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<MapboxMap | null>(null);
+  const mapRef = useRef<MapLibreMap | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (TOKEN_MISSING || !containerRef.current || mapRef.current) return;
+    if (!containerRef.current || mapRef.current) return;
 
-    mapboxgl.accessToken = TOKEN;
-
-    const map = new mapboxgl.Map({
+    const map = new maplibregl.Map({
       container: containerRef.current,
-      style: "mapbox://styles/mapbox/standard",
+      style: BASEMAP_STYLE,
       center: DEFAULT_CAMERA.center as [number, number],
       zoom: DEFAULT_CAMERA.zoom,
       pitch: DEFAULT_CAMERA.pitch,
       bearing: DEFAULT_CAMERA.bearing,
       maxBounds: expandBounds(BAGUIO_BOUNDS),
-      attributionControl: true,
+      maxPitch: 80,
       cooperativeGestures: false,
     });
     mapRef.current = map;
     useMapStore.getState().setMap(map);
 
-    const applyTerrain = (m: MapboxMap, exag: number) => {
+    const applyTerrain = (m: MapLibreMap, exag: number) => {
       if (!m.getSource(DEM_SOURCE)) {
+        // AWS Open Data Terrain Tiles (Terrarium encoding) — free, keyless.
         m.addSource(DEM_SOURCE, {
           type: "raster-dem",
-          url: "mapbox://mapbox.mapbox-terrain-dem-v1",
-          tileSize: 512,
-          maxzoom: 14,
+          tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+          encoding: "terrarium",
+          tileSize: 256,
+          maxzoom: 15,
+          attribution:
+            "Terrain © <a href='https://github.com/tilezen/joerd/blob/master/docs/attribution.md'>Mapzen / Tilezen</a>, AWS Open Data",
         });
       }
       m.setTerrain({ source: DEM_SOURCE, exaggeration: exag });
+      // Cheap atmospheric sky/fog for the 3D horizon (MapLibre 5+ supports setSky).
+      try {
+        map.setSky({
+          "sky-color": "#a7c4e0",
+          "horizon-color": "#eaf1f7",
+          "fog-color": "#dfe7ee",
+          "sky-horizon-blend": 0.6,
+          "horizon-fog-blend": 0.5,
+          "fog-ground-blend": 0.4,
+        });
+      } catch {
+        /* older MapLibre without setSky — atmosphere is optional */
+      }
     };
 
     // Pull terrain config (works without a DB — pure constants), fall back safely.
@@ -149,7 +137,7 @@ export function MapView() {
     map.on("load", onLoad);
 
     // Fare-picking: any click while picking places the origin/destination point.
-    const onMapClick = (e: mapboxgl.MapMouseEvent) => {
+    const onMapClick = (e: MapMouseEvent) => {
       const { fareQuery } = useMapStore.getState().transit;
       if (!fareQuery.picking) return;
       const coord: [number, number] = [e.lngLat.lng, e.lngLat.lat];
@@ -168,14 +156,6 @@ export function MapView() {
       map.remove();
     };
   }, []);
-
-  if (TOKEN_MISSING) {
-    return (
-      <div className="absolute inset-0">
-        <TokenNotice />
-      </div>
-    );
-  }
 
   return (
     <div className="absolute inset-0">

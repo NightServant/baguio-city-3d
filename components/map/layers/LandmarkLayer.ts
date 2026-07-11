@@ -8,7 +8,7 @@
 // LandmarkInfo from the detail response, and a model/extrusion would be placed.
 // With null meshes it returns immediately, so nothing renders and nothing breaks.
 import { useEffect } from "react";
-import type { Map as MapboxMap } from "mapbox-gl";
+import type { Map as MapLibreMap } from "maplibre-gl";
 import { MAP_PALETTE } from "../categoryStyle";
 import type { LandmarkInfo } from "@/types/api";
 
@@ -23,7 +23,7 @@ const EMPTY = { type: "FeatureCollection" as const, features: [] };
  * fill-extrusion footprint would be added, using scale/rotation/altitude.
  */
 export function addLandmarkModel(
-  map: MapboxMap | null,
+  map: MapLibreMap | null,
   landmark: LandmarkInfo | null,
   _coord: [number, number],
 ): void {
@@ -33,7 +33,7 @@ export function addLandmarkModel(
 }
 
 /** Ensures an (empty) source/layer exists so future model placement has a home. */
-export function useLandmarkLayer(map: MapboxMap) {
+export function useLandmarkLayer(map: MapLibreMap) {
   useEffect(() => {
     if (map.getSource(SRC)) return;
     map.addSource(SRC, { type: "geojson", data: EMPTY });

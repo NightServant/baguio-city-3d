@@ -1,6 +1,6 @@
 "use client";
 
-// Client shell that loads the mapbox canvas browser-only.
+// Client shell that loads the MapLibre canvas browser-only.
 // Next 16: dynamic({ ssr: false }) is only legal inside a Client Component,
 // which is exactly why this wrapper exists.
 import dynamic from "next/dynamic";

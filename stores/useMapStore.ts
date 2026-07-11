@@ -6,7 +6,7 @@
 // subtree) can issue imperative camera commands via getState().
 import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import type { Map as MapboxMap } from "mapbox-gl";
+import type { Map as MapLibreMap } from "maplibre-gl";
 import type { Era, LandmarkCategory, PriceRange, FareMode, FareResponse } from "@/types/api";
 import { DEFAULT_CAMERA } from "@/lib/constants";
 
@@ -55,7 +55,7 @@ export interface UiState {
 }
 
 interface MapStore {
-  map: MapboxMap | null;
+  map: MapLibreMap | null;
   camera: CameraState;
   filters: FiltersState;
   transit: TransitState;
@@ -63,7 +63,7 @@ interface MapStore {
   ui: UiState;
 
   // map instance
-  setMap: (map: MapboxMap | null) => void;
+  setMap: (map: MapLibreMap | null) => void;
 
   // camera
   setCamera: (partial: Partial<Omit<CameraState, "bounds">>) => void;

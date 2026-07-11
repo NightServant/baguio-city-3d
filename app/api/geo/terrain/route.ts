@@ -16,7 +16,12 @@ export async function GET() {
     bounds: BAGUIO_BOUNDS,
     camera: DEFAULT_CAMERA,
     presets: CAMERA_PRESETS,
-    demSource: "mapbox-dem",
+    demSource: {
+      tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+      encoding: "terrarium",
+      tileSize: 256,
+      maxzoom: 15,
+    },
     exaggeration: 1.35,
   };
   return jsonWithCache(body, CACHE_TTLS.terrain);

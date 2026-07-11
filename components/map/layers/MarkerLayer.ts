@@ -1,9 +1,14 @@
 "use client";
 
 // Clustered destination markers driven by the viewport + filters.
-// Operates imperatively on a mapbox map instance; safe on empty data.
+// Operates imperatively on a MapLibre map instance; safe on empty data.
 import { useEffect } from "react";
-import type { GeoJSONSource, Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
+import type {
+  GeoJSONSource,
+  Map as MapLibreMap,
+  MapLayerMouseEvent,
+  MapMouseEvent,
+} from "maplibre-gl";
 import { useMapStore, useFilters } from "@/stores/useMapStore";
 import { useDebouncedBounds } from "@/hooks/useDebouncedBounds";
 import { useViewportMarkers } from "@/hooks/useViewportMarkers";
@@ -18,7 +23,7 @@ const L_LABEL = "destinations-label";
 
 const EMPTY: DestinationsResponse = { type: "FeatureCollection", features: [] };
 
-export function useMarkerLayer(map: MapboxMap) {
+export function useMarkerLayer(map: MapLibreMap) {
   const filters = useFilters();
   const viewport = useDebouncedBounds();
   const { data } = useViewportMarkers(viewport.bounds, viewport.zoom, filters.era);
@@ -56,7 +61,7 @@ export function useMarkerLayer(map: MapboxMap) {
       filter: ["has", "point_count"],
       layout: {
         "text-field": ["get", "point_count_abbreviated"],
-        "text-font": ["DIN Pro Medium", "Arial Unicode MS Bold"],
+        "text-font": ["Noto Sans Bold"],
         "text-size": 13,
       },
       paint: { "text-color": MAP_PALETTE.label },
@@ -89,7 +94,7 @@ export function useMarkerLayer(map: MapboxMap) {
       minzoom: 14,
       layout: {
         "text-field": ["get", "name"],
-        "text-font": ["DIN Pro Regular", "Arial Unicode MS Regular"],
+        "text-font": ["Noto Sans Regular"],
         "text-size": 11,
         "text-offset": [0, 1.2],
         "text-anchor": "top",
@@ -107,18 +112,21 @@ export function useMarkerLayer(map: MapboxMap) {
       const clusterId = features[0]?.properties?.cluster_id;
       if (clusterId == null) return;
       const source = map.getSource(SRC) as GeoJSONSource;
-      source.getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err) return;
-        const geom = features[0].geometry;
-        if (geom.type !== "Point") return;
-        map.easeTo({
-          center: geom.coordinates as [number, number],
-          zoom: (zoom ?? map.getZoom()) + 0.2,
-        });
-      });
+      // MapLibre's getClusterExpansionZoom is Promise-based (no callback form).
+      source
+        .getClusterExpansionZoom(clusterId)
+        .then((zoom) => {
+          const geom = features[0].geometry;
+          if (geom.type !== "Point") return;
+          map.easeTo({
+            center: geom.coordinates as [number, number],
+            zoom: (zoom ?? map.getZoom()) + 0.2,
+          });
+        })
+        .catch(() => {});
     };
 
-    const onPointClick = (e: MapMouseEvent) => {
+    const onPointClick = (e: MapLayerMouseEvent) => {
       // Don't hijack fare-picking clicks.
       if (useMapStore.getState().transit.fareQuery.picking) return;
       const feature = e.features?.[0];

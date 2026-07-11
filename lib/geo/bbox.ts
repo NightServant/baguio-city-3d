@@ -43,7 +43,7 @@ export function parseBBox(raw: string | null): BBox | null {
 }
 
 /**
- * Parse a `zoom` integer, clamped to the Mapbox range 1–22. Returns
+ * Parse a `zoom` integer, clamped to the web-map range 1–22. Returns
  * `fallback` when absent; throws on non-numeric input.
  */
 export function parseZoom(raw: string | null, fallback = 14): number {

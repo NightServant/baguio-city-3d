@@ -3,7 +3,7 @@
 // Jeepney route lines. Inactive routes read as quiet threads; the active route
 // gets a marching-ants dashed casing plus its stops. Safe on empty data.
 import { useEffect, useState } from "react";
-import type { GeoJSONSource, Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
+import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
 import { useMapStore, useActiveRouteCode } from "@/stores/useMapStore";
 import { MAP_PALETTE } from "../categoryStyle";
 import type { TransitRoutesResponse } from "@/types/api";
@@ -28,7 +28,7 @@ function zoomTier(zoom: number): number {
   return zoom < 13 ? 12 : zoom <= 14 ? 14 : 16;
 }
 
-export function useTransitLayer(map: MapboxMap) {
+export function useTransitLayer(map: MapLibreMap) {
   const activeRouteCode = useActiveRouteCode();
   const zoom = useMapStore((s) => s.camera.zoom);
   const tier = zoomTier(zoom);
@@ -92,7 +92,7 @@ export function useTransitLayer(map: MapboxMap) {
       },
     });
 
-    const onLineClick = (e: MapMouseEvent) => {
+    const onLineClick = (e: MapLayerMouseEvent) => {
       if (useMapStore.getState().transit.fareQuery.picking) return;
       const code = e.features?.[0]?.properties?.code as string | undefined;
       if (code) useMapStore.getState().setActiveRouteCode(code);
