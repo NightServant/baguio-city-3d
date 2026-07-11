@@ -6,13 +6,39 @@
 import { useEffect, useState } from "react";
 import type { GeoJSONSource, Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import { useMapStore, useActiveEra } from "@/stores/useMapStore";
+import { MAP_PALETTE } from "../categoryStyle";
 import type { ErasResponse, Era } from "@/types/api";
 
 const SRC_EVENTS = "history-events";
 const L_EVENTS = "history-events-symbols";
 const L_POINT = "destinations-point"; // owned by MarkerLayer; we only tweak paint
+const IMG_EVENT_DOT = "history-event-dot"; // programmatic sprite (Standard style has no marker-15)
 
 const EMPTY = { type: "FeatureCollection" as const, features: [] };
+
+/**
+ * Register a small amber dot-pin sprite so the event symbols have an icon that
+ * actually exists (the Standard style sprite ships no "marker-15"). Drawn to an
+ * offscreen canvas — no external asset fetch. Idempotent.
+ */
+function ensureEventIcon(map: MapboxMap) {
+  if (map.hasImage(IMG_EVENT_DOT)) return;
+  const size = 18;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const r = size / 2;
+  ctx.beginPath();
+  ctx.arc(r, r, r - 3, 0, Math.PI * 2);
+  ctx.fillStyle = MAP_PALETTE.era.eventIcon;
+  ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
+  ctx.stroke();
+  map.addImage(IMG_EVENT_DOT, ctx.getImageData(0, 0, size, size), { pixelRatio: 2 });
+}
 
 // Older eras get a warmer, lower-angle basemap light.
 const LIGHT_PRESET: Record<Era, string> = {
@@ -29,6 +55,7 @@ export function useHistoryOverlay(map: MapboxMap) {
   // Install the events source + layer once.
   useEffect(() => {
     if (map.getSource(SRC_EVENTS)) return;
+    ensureEventIcon(map);
     map.addSource(SRC_EVENTS, { type: "geojson", data: EMPTY });
     map.addLayer({
       id: L_EVENTS,
@@ -40,15 +67,14 @@ export function useHistoryOverlay(map: MapboxMap) {
         "text-size": 11,
         "text-offset": [0, 1.4],
         "text-anchor": "top",
-        "icon-image": "marker-15",
+        "icon-image": IMG_EVENT_DOT,
         "icon-allow-overlap": true,
         "text-optional": true,
       },
       paint: {
-        "text-color": "#f4e4c1",
-        "text-halo-color": "rgba(40,25,10,0.8)",
+        "text-color": MAP_PALETTE.era.eventText,
+        "text-halo-color": MAP_PALETTE.era.eventHalo,
         "text-halo-width": 1.4,
-        "icon-color": "#d9a441",
       },
     });
 

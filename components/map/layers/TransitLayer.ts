@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import type { GeoJSONSource, Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import { useMapStore, useActiveRouteCode } from "@/stores/useMapStore";
+import { MAP_PALETTE } from "../categoryStyle";
 import type { TransitRoutesResponse } from "@/types/api";
 
 const SRC = "transit-routes";
@@ -46,7 +47,7 @@ export function useTransitLayer(map: MapboxMap) {
       source: SRC,
       layout: { "line-cap": "round", "line-join": "round" },
       paint: {
-        "line-color": "#7a8aa0",
+        "line-color": MAP_PALETTE.transit.inactive,
         "line-width": ["interpolate", ["linear"], ["zoom"], 11, 1.5, 16, 3],
         "line-opacity": 0.5,
       },
@@ -59,7 +60,7 @@ export function useTransitLayer(map: MapboxMap) {
       filter: ["==", ["get", "code"], ""],
       layout: { "line-cap": "round", "line-join": "round" },
       paint: {
-        "line-color": "#f4b23e",
+        "line-color": MAP_PALETTE.transit.activeCasing,
         "line-width": ["interpolate", ["linear"], ["zoom"], 11, 6, 16, 12],
         "line-opacity": 0.45,
         "line-dasharray": [0, 4, 3],
@@ -73,7 +74,7 @@ export function useTransitLayer(map: MapboxMap) {
       filter: ["==", ["get", "code"], ""],
       layout: { "line-cap": "round", "line-join": "round" },
       paint: {
-        "line-color": "#e0872e",
+        "line-color": MAP_PALETTE.transit.active,
         "line-width": ["interpolate", ["linear"], ["zoom"], 11, 2.5, 16, 5],
         "line-opacity": 0.95,
       },
@@ -85,8 +86,8 @@ export function useTransitLayer(map: MapboxMap) {
       source: SRC_STOPS,
       paint: {
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 3, 16, 6],
-        "circle-color": "#ffffff",
-        "circle-stroke-color": "#e0872e",
+        "circle-color": MAP_PALETTE.transit.stopFill,
+        "circle-stroke-color": MAP_PALETTE.transit.stopStroke,
         "circle-stroke-width": 2,
       },
     });

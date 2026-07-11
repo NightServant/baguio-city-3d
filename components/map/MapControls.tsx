@@ -46,7 +46,7 @@ function resetView() {
 }
 
 const controlButton =
-  "flex size-10 items-center justify-center rounded-xl bg-card/90 text-foreground shadow-sm ring-1 ring-foreground/10 backdrop-blur transition-colors hover:bg-card active:translate-y-px";
+  "flex size-10 items-center justify-center rounded-xl bg-card/90 text-foreground shadow-sm ring-1 ring-foreground/10 backdrop-blur transition-colors hover:bg-card active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function MapControls() {
   return (
@@ -62,6 +62,7 @@ export function MapControls() {
               className={cn(
                 "h-9 shrink-0 rounded-xl px-3 text-xs font-medium text-foreground",
                 "transition-colors hover:bg-primary hover:text-primary-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}
             >
               {PRESET_LABELS[key] ?? key}

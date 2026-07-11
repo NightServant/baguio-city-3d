@@ -7,7 +7,7 @@ import type { GeoJSONSource, Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import { useMapStore, useFilters } from "@/stores/useMapStore";
 import { useDebouncedBounds } from "@/hooks/useDebouncedBounds";
 import { useViewportMarkers } from "@/hooks/useViewportMarkers";
-import { categoryMatchExpression } from "../categoryStyle";
+import { categoryMatchExpression, MAP_PALETTE } from "../categoryStyle";
 import type { DestinationsResponse } from "@/types/api";
 
 const SRC = "destinations";
@@ -41,11 +41,11 @@ export function useMarkerLayer(map: MapboxMap) {
       source: SRC,
       filter: ["has", "point_count"],
       paint: {
-        "circle-color": "#c9772e",
+        "circle-color": MAP_PALETTE.cluster,
         "circle-opacity": 0.85,
         "circle-radius": ["step", ["get", "point_count"], 16, 5, 22, 15, 28],
         "circle-stroke-width": 2,
-        "circle-stroke-color": "rgba(255,255,255,0.8)",
+        "circle-stroke-color": MAP_PALETTE.clusterStroke,
       },
     });
 
@@ -59,7 +59,7 @@ export function useMarkerLayer(map: MapboxMap) {
         "text-font": ["DIN Pro Medium", "Arial Unicode MS Bold"],
         "text-size": 13,
       },
-      paint: { "text-color": "#ffffff" },
+      paint: { "text-color": MAP_PALETTE.label },
     });
 
     map.addLayer({
@@ -72,11 +72,11 @@ export function useMarkerLayer(map: MapboxMap) {
           "match",
           ["get", "category"],
           ...categoryMatchExpression(),
-          "#8a8a8a",
+          MAP_PALETTE.markerDefault,
         ] as unknown as string,
         "circle-radius": 7,
         "circle-stroke-width": 2,
-        "circle-stroke-color": "rgba(255,255,255,0.9)",
+        "circle-stroke-color": MAP_PALETTE.markerStroke,
         "circle-opacity": 0.95,
       },
     });
@@ -96,8 +96,8 @@ export function useMarkerLayer(map: MapboxMap) {
         "text-optional": true,
       },
       paint: {
-        "text-color": "#ffffff",
-        "text-halo-color": "rgba(0,0,0,0.6)",
+        "text-color": MAP_PALETTE.label,
+        "text-halo-color": MAP_PALETTE.labelHalo,
         "text-halo-width": 1.2,
       },
     });

@@ -52,6 +52,7 @@ export function PanelChrome() {
               onClick={() => (active ? closeSheet() : openSheet(key))}
               className={cn(
                 "flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-medium shadow-sm ring-1 backdrop-blur transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
                   ? "bg-primary text-primary-foreground ring-primary/30"
                   : "bg-card/90 text-foreground ring-foreground/10 hover:bg-card",
@@ -82,7 +83,7 @@ export function PanelChrome() {
               type="button"
               aria-label="Close panel"
               onClick={closeSheet}
-              className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <X className="size-4" />
             </button>

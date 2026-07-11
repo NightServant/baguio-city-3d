@@ -9,6 +9,7 @@
 // With null meshes it returns immediately, so nothing renders and nothing breaks.
 import { useEffect } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { MAP_PALETTE } from "../categoryStyle";
 import type { LandmarkInfo } from "@/types/api";
 
 const SRC = "landmark-models";
@@ -41,7 +42,7 @@ export function useLandmarkLayer(map: MapboxMap) {
       type: "fill-extrusion",
       source: SRC,
       paint: {
-        "fill-extrusion-color": "#c9772e",
+        "fill-extrusion-color": MAP_PALETTE.landmark,
         "fill-extrusion-opacity": 0.6,
         "fill-extrusion-height": ["coalesce", ["get", "height"], 0],
       },

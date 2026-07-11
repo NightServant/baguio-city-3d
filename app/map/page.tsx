@@ -1,9 +1,11 @@
 // Server Component: full-viewport map page. All interactivity lives in the
 // client components it composes.
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { MapLoader } from "@/components/map/MapLoader";
 import { MapControls } from "@/components/map/MapControls";
 import { PanelChrome } from "@/components/panels/PanelChrome";
+import { DeepLink } from "@/components/map/DeepLink";
 
 export const metadata: Metadata = {
   title: "Interactive 3D Map — Baguio City",
@@ -17,6 +19,9 @@ export default function MapPage() {
       <MapLoader />
       <MapControls />
       <PanelChrome />
+      <Suspense fallback={null}>
+        <DeepLink />
+      </Suspense>
     </main>
   );
 }

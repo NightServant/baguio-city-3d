@@ -1,4 +1,4 @@
-// GET /api/venues?category=&priceMax=&openNow=&q=&cursor=&limit=
+// GET /api/venues?category=&priceMax=&openNow=&q=&slug=&cursor=&limit=
 // Cursor-paginated venue list with full-text search + open-now filtering.
 //
 // `openNow` is computed in JS from the hours JSON, assuming the Asia/Manila
@@ -83,7 +83,18 @@ export async function GET(request: NextRequest) {
   const cursor = sp.get("cursor") || null;
   const openNow = sp.get("openNow") === "true";
 
-  const key = cacheKey("venues", { category, priceMax, q, cursor, limit, openNow });
+  // Exact slug match — resolves a single venue (used by the map deep-links).
+  let slug: string | null = null;
+  const slugRaw = sp.get("slug");
+  if (slugRaw !== null) {
+    const s = slugRaw.trim();
+    if (s.length === 0 || s.length > 80) {
+      return errorResponse("slug must be 1-80 characters", 400);
+    }
+    slug = s;
+  }
+
+  const key = cacheKey("venues", { category, priceMax, q, slug, cursor, limit, openNow });
 
   try {
     const data = await cacheAside<VenuesResponse>(key, CACHE_TTLS.venues, async () => {
@@ -91,6 +102,7 @@ export async function GET(request: NextRequest) {
       if (cursor) conditions.push(Prisma.sql`id > ${cursor}`);
       if (category) conditions.push(Prisma.sql`category = ${category}::"VenueCategory"`);
       if (priceMax !== null) conditions.push(Prisma.sql`price_range <= ${priceMax}`);
+      if (slug) conditions.push(Prisma.sql`slug = ${slug}`);
       if (q) conditions.push(Prisma.sql`search_tsv @@ plainto_tsquery('english', ${q})`);
       const where = conditions.length
         ? Prisma.sql`WHERE ${Prisma.join(conditions, " AND ")}`

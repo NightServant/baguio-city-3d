@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -29,6 +32,10 @@ function PineMark({ className }: { className?: string }) {
 }
 
 export function SiteNav() {
+  const pathname = usePathname();
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -44,15 +51,24 @@ export function SiteNav() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-muted text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <Link
             href="/map"
             className={cn(buttonVariants({ size: "sm" }), "ml-2 rounded-full px-4")}
@@ -78,19 +94,26 @@ export function SiteNav() {
                 </SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-4" aria-label="Mobile">
-                {NAV_LINKS.map((link) => (
-                  <SheetClose
-                    key={link.href}
-                    render={
-                      <Link
-                        href={link.href}
-                        className="rounded-md px-3 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-muted"
-                      />
-                    }
-                  >
-                    {link.label}
-                  </SheetClose>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const active = isActive(link.href);
+                  return (
+                    <SheetClose
+                      key={link.href}
+                      render={
+                        <Link
+                          href={link.href}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "rounded-md px-3 py-2.5 text-base font-medium transition-colors hover:bg-muted",
+                            active ? "bg-muted text-foreground" : "text-foreground",
+                          )}
+                        />
+                      }
+                    >
+                      {link.label}
+                    </SheetClose>
+                  );
+                })}
                 <SheetClose
                   render={
                     <Link

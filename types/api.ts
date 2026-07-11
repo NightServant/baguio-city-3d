@@ -127,6 +127,18 @@ export interface FareResponse {
 // GET /api/venues
 // ---------------------------------------------------------------------------
 
+/** Query params accepted by GET /api/venues. All optional. */
+export interface VenuesRequest {
+  category?: VenueCategory;
+  priceMax?: PriceRange;
+  openNow?: boolean;
+  q?: string;
+  /** Exact slug match — resolves a single venue (used by map deep-links). */
+  slug?: string;
+  cursor?: string;
+  limit?: number;
+}
+
 export interface VenueListItem {
   id: string;
   slug: string;

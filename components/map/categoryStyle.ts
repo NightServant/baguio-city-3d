@@ -1,18 +1,52 @@
-// Shared visual vocabulary for destination categories.
-// Colors are literal hex (mapbox paint expressions can't read CSS variables),
-// tuned to read as distinct pins against the muted 3D basemap.
+// Shared visual vocabulary for the map layers — the single source of truth for
+// every literal hex the mapbox paint expressions use (paint can't read CSS
+// variables). Values are hand-reconciled to the site palette in app/globals.css:
+// pine greens (primary), fog-tinted cool neutrals, and a warm sunset amber —
+// while staying distinct and legible against the muted Standard basemap terrain.
 import type { LandmarkCategory, Era, VenueCategory } from "@/types/api";
 
+// Category pins — a spectrum that leans into the theme's pine + amber register
+// while keeping eight visually separable hues.
 export const CATEGORY_COLORS: Record<LandmarkCategory, string> = {
-  NATURE: "#2f9e6f",
-  PARK: "#5bb85b",
-  VIEWPOINT: "#3b82c4",
-  HERITAGE: "#b8863b",
-  MARKET: "#e0872e",
-  MUSEUM: "#8b6bd6",
-  CHURCH: "#c25a7a",
-  RECREATION: "#d64f4f",
+  NATURE: "#2f8f66", // deep pine (primary family)
+  PARK: "#6aa855", // meadow green
+  VIEWPOINT: "#3f7fb0", // fog blue
+  HERITAGE: "#b5813a", // heritage tan (amber family)
+  MARKET: "#d67a2c", // market orange
+  MUSEUM: "#8168c0", // muted violet
+  CHURCH: "#bf5a76", // strawberry rose
+  RECREATION: "#cf4d4d", // clay red
 };
+
+/**
+ * Non-category map paint. Centralized here so the marker, transit, history, and
+ * landmark layers all draw from one harmonized palette.
+ */
+export const MAP_PALETTE = {
+  // Clustered markers + point defaults.
+  cluster: "#cf7f38", // warm amber cluster bubble
+  clusterStroke: "rgba(255,255,255,0.85)",
+  markerDefault: "#7d8a90", // fog neutral for unknown categories
+  markerStroke: "rgba(255,255,255,0.9)",
+  label: "#ffffff",
+  labelHalo: "rgba(26,36,30,0.6)", // pine-tinted dark halo
+  // Jeepney route lines.
+  transit: {
+    inactive: "#7d8a95", // quiet fog thread
+    activeCasing: "#e6a94a", // marching-ants amber casing
+    active: "#d68a34", // active route amber
+    stopFill: "#ffffff",
+    stopStroke: "#d68a34",
+  },
+  // Timeline era / historical events.
+  era: {
+    eventIcon: "#d9a441", // amber event dot
+    eventText: "#f2e5c8", // warm cream label
+    eventHalo: "rgba(38,26,12,0.82)", // dark umber halo
+  },
+  // Landmark fill-extrusion scaffold.
+  landmark: "#c9772e",
+} as const;
 
 export const CATEGORY_LABELS: Record<LandmarkCategory, string> = {
   NATURE: "Nature",
