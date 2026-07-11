@@ -59,8 +59,7 @@ export function PanelChrome() {
               )}
             >
               <Icon className="size-4" />
-              <span className="max-sm:sr-only sm:inline">{label}</span>
-              <span className="sm:hidden">{label}</span>
+              <span>{label}</span>
             </button>
           );
         })}

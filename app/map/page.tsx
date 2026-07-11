@@ -15,7 +15,9 @@ export const metadata: Metadata = {
 
 export default function MapPage() {
   return (
-    <main className="relative h-dvh w-full overflow-hidden bg-muted">
+    // Height = viewport minus the sticky SiteNav (h-14 + 1px border) so
+    // bottom-anchored HUD elements stay on-screen.
+    <main className="relative h-[calc(100dvh-3.5rem-1px)] w-full overflow-hidden bg-muted">
       <MapLoader />
       <MapControls />
       <PanelChrome />
