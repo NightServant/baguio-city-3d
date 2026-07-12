@@ -49,6 +49,10 @@ export function MapView() {
     mapRef.current = map;
     useMapStore.getState().setMap(map);
 
+    // applyTerrain can be invoked from two paths (the /api/geo/terrain fetch and
+    // the style.load handler); addSource and setSky must only run once, while
+    // setTerrain is idempotent and cheap so it may re-run to update exaggeration.
+    let skyApplied = false;
     const applyTerrain = (m: MapLibreMap, exag: number) => {
       if (!m.getSource(DEM_SOURCE)) {
         // AWS Open Data Terrain Tiles (Terrarium encoding) — free, keyless.
@@ -64,17 +68,20 @@ export function MapView() {
       }
       m.setTerrain({ source: DEM_SOURCE, exaggeration: exag });
       // Cheap atmospheric sky/fog for the 3D horizon (MapLibre 5+ supports setSky).
-      try {
-        map.setSky({
-          "sky-color": "#a7c4e0",
-          "horizon-color": "#eaf1f7",
-          "fog-color": "#dfe7ee",
-          "sky-horizon-blend": 0.6,
-          "horizon-fog-blend": 0.5,
-          "fog-ground-blend": 0.4,
-        });
-      } catch {
-        /* older MapLibre without setSky — atmosphere is optional */
+      if (!skyApplied) {
+        try {
+          m.setSky({
+            "sky-color": "#a7c4e0",
+            "horizon-color": "#eaf1f7",
+            "fog-color": "#dfe7ee",
+            "sky-horizon-blend": 0.6,
+            "horizon-fog-blend": 0.5,
+            "fog-ground-blend": 0.4,
+          });
+          skyApplied = true;
+        } catch {
+          /* older MapLibre without setSky — atmosphere is optional */
+        }
       }
     };
 
@@ -145,12 +152,29 @@ export function MapView() {
     };
     map.on("click", onMapClick);
 
+    // MapLibre drives rendering purely via requestAnimationFrame, which the
+    // browser pauses whenever the tab/window is hidden. Unlike resize or user
+    // interaction, MapLibre 5.x has NO visibilitychange handler (verified: zero
+    // such listeners in maplibre-gl 5.24), so a map that starts or finishes
+    // loading while the page is backgrounded can be left showing only its blank
+    // clear-color until the user happens to pan/zoom. Force a repaint (and a
+    // resize, in case the container changed while hidden) when the page becomes
+    // visible again so the current map state always paints.
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        map.resize();
+        map.triggerRepaint();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       if (debounce) clearTimeout(debounce);
       map.off("style.load", onStyleLoad);
       map.off("moveend", onMoveEnd);
       map.off("load", onLoad);
       map.off("click", onMapClick);
+      document.removeEventListener("visibilitychange", onVisibility);
       useMapStore.getState().setMap(null);
       mapRef.current = null;
       map.remove();
