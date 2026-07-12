@@ -27,6 +27,14 @@ export function DeepLink() {
   const map = useMapStore((s) => s.map);
   const handled = useRef(false);
 
+  // ?basemap=satellite → switch to satellite imagery. Independent of the camera
+  // deep-links below (no map instance required; the store drives the switch).
+  useEffect(() => {
+    if (params.get("basemap") === "satellite") {
+      useMapStore.getState().setBasemap("satellite");
+    }
+  }, [params]);
+
   useEffect(() => {
     if (handled.current || !map) return;
 

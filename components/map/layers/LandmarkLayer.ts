@@ -36,17 +36,23 @@ export function addLandmarkModel(
 export function useLandmarkLayer(map: MapLibreMap) {
   useEffect(() => {
     if (map.getSource(SRC)) return;
-    map.addSource(SRC, { type: "geojson", data: EMPTY });
-    map.addLayer({
-      id: L_EXTRUDE,
-      type: "fill-extrusion",
-      source: SRC,
-      paint: {
-        "fill-extrusion-color": MAP_PALETTE.landmark,
-        "fill-extrusion-opacity": 0.6,
-        "fill-extrusion-height": ["coalesce", ["get", "height"], 0],
-      },
-    });
+    // Bail cleanly if the style is mid-swap (setStyle unloaded it) — a fresh
+    // mount keyed on styleGeneration re-adds these once the new style loads.
+    try {
+      map.addSource(SRC, { type: "geojson", data: EMPTY });
+      map.addLayer({
+        id: L_EXTRUDE,
+        type: "fill-extrusion",
+        source: SRC,
+        paint: {
+          "fill-extrusion-color": MAP_PALETTE.landmark,
+          "fill-extrusion-opacity": 0.6,
+          "fill-extrusion-height": ["coalesce", ["get", "height"], 0],
+        },
+      });
+    } catch {
+      return;
+    }
     return () => {
       if (map.getLayer(L_EXTRUDE)) map.removeLayer(L_EXTRUDE);
       if (map.getSource(SRC)) map.removeSource(SRC);

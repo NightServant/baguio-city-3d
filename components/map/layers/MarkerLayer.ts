@@ -32,80 +32,89 @@ export function useMarkerLayer(map: MapLibreMap) {
   useEffect(() => {
     if (map.getSource(SRC)) return;
 
-    map.addSource(SRC, {
-      type: "geojson",
-      data: EMPTY,
-      cluster: true,
-      clusterMaxZoom: 13,
-      clusterRadius: 50,
-    });
+    // A basemap switch calls map.setStyle(), which unloads the style before the
+    // new one arrives. If a mount pass runs during that window, addSource throws
+    // "Style is not done loading". Bail cleanly — MapLayers is keyed on
+    // styleGeneration, so a fresh mount re-adds everything once the new style
+    // has loaded.
+    try {
+      map.addSource(SRC, {
+        type: "geojson",
+        data: EMPTY,
+        cluster: true,
+        clusterMaxZoom: 13,
+        clusterRadius: 50,
+      });
 
-    map.addLayer({
-      id: L_CLUSTER,
-      type: "circle",
-      source: SRC,
-      filter: ["has", "point_count"],
-      paint: {
-        "circle-color": MAP_PALETTE.cluster,
-        "circle-opacity": 0.85,
-        "circle-radius": ["step", ["get", "point_count"], 16, 5, 22, 15, 28],
-        "circle-stroke-width": 2,
-        "circle-stroke-color": MAP_PALETTE.clusterStroke,
-      },
-    });
+      map.addLayer({
+        id: L_CLUSTER,
+        type: "circle",
+        source: SRC,
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": MAP_PALETTE.cluster,
+          "circle-opacity": 0.85,
+          "circle-radius": ["step", ["get", "point_count"], 16, 5, 22, 15, 28],
+          "circle-stroke-width": 2,
+          "circle-stroke-color": MAP_PALETTE.clusterStroke,
+        },
+      });
 
-    map.addLayer({
-      id: L_COUNT,
-      type: "symbol",
-      source: SRC,
-      filter: ["has", "point_count"],
-      layout: {
-        "text-field": ["get", "point_count_abbreviated"],
-        "text-font": ["Noto Sans Bold"],
-        "text-size": 13,
-      },
-      paint: { "text-color": MAP_PALETTE.label },
-    });
+      map.addLayer({
+        id: L_COUNT,
+        type: "symbol",
+        source: SRC,
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": ["get", "point_count_abbreviated"],
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 13,
+        },
+        paint: { "text-color": MAP_PALETTE.label },
+      });
 
-    map.addLayer({
-      id: L_POINT,
-      type: "circle",
-      source: SRC,
-      filter: ["!", ["has", "point_count"]],
-      paint: {
-        "circle-color": [
-          "match",
-          ["get", "category"],
-          ...categoryMatchExpression(),
-          MAP_PALETTE.markerDefault,
-        ] as unknown as string,
-        "circle-radius": 7,
-        "circle-stroke-width": 2,
-        "circle-stroke-color": MAP_PALETTE.markerStroke,
-        "circle-opacity": 0.95,
-      },
-    });
+      map.addLayer({
+        id: L_POINT,
+        type: "circle",
+        source: SRC,
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-color": [
+            "match",
+            ["get", "category"],
+            ...categoryMatchExpression(),
+            MAP_PALETTE.markerDefault,
+          ] as unknown as string,
+          "circle-radius": 7,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": MAP_PALETTE.markerStroke,
+          "circle-opacity": 0.95,
+        },
+      });
 
-    map.addLayer({
-      id: L_LABEL,
-      type: "symbol",
-      source: SRC,
-      filter: ["!", ["has", "point_count"]],
-      minzoom: 14,
-      layout: {
-        "text-field": ["get", "name"],
-        "text-font": ["Noto Sans Regular"],
-        "text-size": 11,
-        "text-offset": [0, 1.2],
-        "text-anchor": "top",
-        "text-optional": true,
-      },
-      paint: {
-        "text-color": MAP_PALETTE.label,
-        "text-halo-color": MAP_PALETTE.labelHalo,
-        "text-halo-width": 1.2,
-      },
-    });
+      map.addLayer({
+        id: L_LABEL,
+        type: "symbol",
+        source: SRC,
+        filter: ["!", ["has", "point_count"]],
+        minzoom: 14,
+        layout: {
+          "text-field": ["get", "name"],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": 11,
+          "text-offset": [0, 1.2],
+          "text-anchor": "top",
+          "text-optional": true,
+        },
+        paint: {
+          "text-color": MAP_PALETTE.label,
+          "text-halo-color": MAP_PALETTE.labelHalo,
+          "text-halo-width": 1.2,
+        },
+      });
+    } catch {
+      return;
+    }
 
     const onClusterClick = (e: MapMouseEvent) => {
       const features = map.queryRenderedFeatures(e.point, { layers: [L_CLUSTER] });

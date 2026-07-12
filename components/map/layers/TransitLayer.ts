@@ -38,59 +38,65 @@ export function useTransitLayer(map: MapLibreMap) {
   useEffect(() => {
     if (map.getSource(SRC)) return;
 
-    map.addSource(SRC, { type: "geojson", data: EMPTY });
-    map.addSource(SRC_STOPS, { type: "geojson", data: EMPTY_STOPS });
+    // Bail cleanly if the style is mid-swap (setStyle unloaded it) — a fresh
+    // mount keyed on styleGeneration re-adds these once the new style loads.
+    try {
+      map.addSource(SRC, { type: "geojson", data: EMPTY });
+      map.addSource(SRC_STOPS, { type: "geojson", data: EMPTY_STOPS });
 
-    map.addLayer({
-      id: L_BASE,
-      type: "line",
-      source: SRC,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
-        "line-color": MAP_PALETTE.transit.inactive,
-        "line-width": ["interpolate", ["linear"], ["zoom"], 11, 1.5, 16, 3],
-        "line-opacity": 0.5,
-      },
-    });
+      map.addLayer({
+        id: L_BASE,
+        type: "line",
+        source: SRC,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": MAP_PALETTE.transit.inactive,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 11, 1.5, 16, 3],
+          "line-opacity": 0.5,
+        },
+      });
 
-    map.addLayer({
-      id: L_CASING,
-      type: "line",
-      source: SRC,
-      filter: ["==", ["get", "code"], ""],
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
-        "line-color": MAP_PALETTE.transit.activeCasing,
-        "line-width": ["interpolate", ["linear"], ["zoom"], 11, 6, 16, 12],
-        "line-opacity": 0.45,
-        "line-dasharray": [0, 4, 3],
-      },
-    });
+      map.addLayer({
+        id: L_CASING,
+        type: "line",
+        source: SRC,
+        filter: ["==", ["get", "code"], ""],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": MAP_PALETTE.transit.activeCasing,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 11, 6, 16, 12],
+          "line-opacity": 0.45,
+          "line-dasharray": [0, 4, 3],
+        },
+      });
 
-    map.addLayer({
-      id: L_ACTIVE,
-      type: "line",
-      source: SRC,
-      filter: ["==", ["get", "code"], ""],
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
-        "line-color": MAP_PALETTE.transit.active,
-        "line-width": ["interpolate", ["linear"], ["zoom"], 11, 2.5, 16, 5],
-        "line-opacity": 0.95,
-      },
-    });
+      map.addLayer({
+        id: L_ACTIVE,
+        type: "line",
+        source: SRC,
+        filter: ["==", ["get", "code"], ""],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": MAP_PALETTE.transit.active,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 11, 2.5, 16, 5],
+          "line-opacity": 0.95,
+        },
+      });
 
-    map.addLayer({
-      id: L_STOPS,
-      type: "circle",
-      source: SRC_STOPS,
-      paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 3, 16, 6],
-        "circle-color": MAP_PALETTE.transit.stopFill,
-        "circle-stroke-color": MAP_PALETTE.transit.stopStroke,
-        "circle-stroke-width": 2,
-      },
-    });
+      map.addLayer({
+        id: L_STOPS,
+        type: "circle",
+        source: SRC_STOPS,
+        paint: {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 3, 16, 6],
+          "circle-color": MAP_PALETTE.transit.stopFill,
+          "circle-stroke-color": MAP_PALETTE.transit.stopStroke,
+          "circle-stroke-width": 2,
+        },
+      });
+    } catch {
+      return;
+    }
 
     const onLineClick = (e: MapLayerMouseEvent) => {
       if (useMapStore.getState().transit.fareQuery.picking) return;

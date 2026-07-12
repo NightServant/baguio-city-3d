@@ -49,9 +49,21 @@ export interface TimelineState {
   activeEra: Era | null;
 }
 
+export type Basemap = "terrain" | "satellite";
+
 export interface UiState {
   selectedSlug: string | null;
   activeSheet: SheetKind;
+  /** Active basemap: vector Liberty terrain vs. Esri satellite imagery. */
+  basemap: Basemap;
+  /**
+   * Bumped on every MapLibre `style.load`. `setStyle` destroys all sources,
+   * layers and terrain, so app layers must be re-added afterward. MapLayers is
+   * keyed by this counter, so a bump remounts every layer hook — running each
+   * cleanup (off handlers, remove) then re-adding sources/layers on the fresh
+   * style, which also dedupes delegated event handlers.
+   */
+  styleGeneration: number;
 }
 
 interface MapStore {
@@ -90,6 +102,8 @@ interface MapStore {
   openSheet: (sheet: SheetKind) => void;
   closeSheet: () => void;
   selectDestination: (slug: string) => void;
+  setBasemap: (basemap: Basemap) => void;
+  bumpStyleGeneration: () => void;
 }
 
 const INITIAL_FILTERS: FiltersState = {
@@ -116,7 +130,7 @@ export const useMapStore = create<MapStore>((set) => ({
     fareResult: null,
   },
   timeline: { activeEra: null },
-  ui: { selectedSlug: null, activeSheet: null },
+  ui: { selectedSlug: null, activeSheet: null, basemap: "terrain", styleGeneration: 0 },
 
   setMap: (map) => set({ map }),
 
@@ -156,6 +170,9 @@ export const useMapStore = create<MapStore>((set) => ({
   closeSheet: () => set((s) => ({ ui: { ...s.ui, activeSheet: null } })),
   selectDestination: (slug) =>
     set((s) => ({ ui: { ...s.ui, selectedSlug: slug, activeSheet: "destination" } })),
+  setBasemap: (basemap) => set((s) => ({ ui: { ...s.ui, basemap } })),
+  bumpStyleGeneration: () =>
+    set((s) => ({ ui: { ...s.ui, styleGeneration: s.ui.styleGeneration + 1 } })),
 }));
 
 // ---------------------------------------------------------------------------
@@ -170,6 +187,8 @@ export const useActiveEra = () => useMapStore((s) => s.timeline.activeEra);
 export const useSelectedSlug = () => useMapStore((s) => s.ui.selectedSlug);
 export const useActiveSheet = () => useMapStore((s) => s.ui.activeSheet);
 export const useActiveRouteCode = () => useMapStore((s) => s.transit.activeRouteCode);
+export const useBasemap = () => useMapStore((s) => s.ui.basemap);
+export const useStyleGeneration = () => useMapStore((s) => s.ui.styleGeneration);
 
 /** Stable bag of every action. Actions are defined once, so this never changes identity per-field. */
 export const useMapActions = () =>
@@ -192,5 +211,7 @@ export const useMapActions = () =>
       openSheet: s.openSheet,
       closeSheet: s.closeSheet,
       selectDestination: s.selectDestination,
+      setBasemap: s.setBasemap,
+      bumpStyleGeneration: s.bumpStyleGeneration,
     })),
   );

@@ -57,27 +57,33 @@ export function useHistoryOverlay(map: MapLibreMap) {
   useEffect(() => {
     if (map.getSource(SRC_EVENTS)) return;
     ensureEventIcon(map);
-    map.addSource(SRC_EVENTS, { type: "geojson", data: EMPTY });
-    map.addLayer({
-      id: L_EVENTS,
-      type: "symbol",
-      source: SRC_EVENTS,
-      layout: {
-        "text-field": ["get", "title"],
-        "text-font": ["Noto Sans Bold"],
-        "text-size": 11,
-        "text-offset": [0, 1.4],
-        "text-anchor": "top",
-        "icon-image": IMG_EVENT_DOT,
-        "icon-allow-overlap": true,
-        "text-optional": true,
-      },
-      paint: {
-        "text-color": MAP_PALETTE.era.eventText,
-        "text-halo-color": MAP_PALETTE.era.eventHalo,
-        "text-halo-width": 1.4,
-      },
-    });
+    // Bail cleanly if the style is mid-swap (setStyle unloaded it) — a fresh
+    // mount keyed on styleGeneration re-adds these once the new style loads.
+    try {
+      map.addSource(SRC_EVENTS, { type: "geojson", data: EMPTY });
+      map.addLayer({
+        id: L_EVENTS,
+        type: "symbol",
+        source: SRC_EVENTS,
+        layout: {
+          "text-field": ["get", "title"],
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 11,
+          "text-offset": [0, 1.4],
+          "text-anchor": "top",
+          "icon-image": IMG_EVENT_DOT,
+          "icon-allow-overlap": true,
+          "text-optional": true,
+        },
+        paint: {
+          "text-color": MAP_PALETTE.era.eventText,
+          "text-halo-color": MAP_PALETTE.era.eventHalo,
+          "text-halo-width": 1.4,
+        },
+      });
+    } catch {
+      return;
+    }
 
     const onEventClick = (e: MapLayerMouseEvent) => {
       const f = e.features?.[0];
