@@ -24,7 +24,7 @@ export function SiteFooter() {
               forests, fog, heritage, and jeepney routes, mapped in three
               dimensions.
             </p>
-            <p className="readout text-muted-foreground">
+            <p className="font-mono text-[0.6875rem] uppercase tracking-wider tabular-nums text-muted-foreground">
               16.4023° N · 120.5960° E · 1500 M
             </p>
           </div>

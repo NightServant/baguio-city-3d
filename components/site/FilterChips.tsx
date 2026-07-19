@@ -24,7 +24,7 @@ export function FilterChips({
           href={opt.href}
           aria-current={opt.active ? "page" : undefined}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+            "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             opt.active
               ? "border-primary bg-primary text-primary-foreground"
               : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground",
@@ -34,8 +34,8 @@ export function FilterChips({
           {opt.count != null && (
             <span
               className={cn(
-                "font-mono text-[11px]",
-                opt.active ? "text-primary-foreground/80" : "text-muted-foreground/70",
+                "font-mono text-xs tabular-nums",
+                opt.active ? "text-primary-foreground/90" : "text-muted-foreground",
               )}
             >
               {opt.count}

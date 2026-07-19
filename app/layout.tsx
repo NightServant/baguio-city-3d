@@ -39,6 +39,12 @@ export const metadata: Metadata = {
     locale: "en_PH",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Baguio 3D — Explore the Summer Capital in three dimensions",
+    description:
+      "Fly over the City of Pines. Discover viewpoints, heritage, jeepney routes, and mountain food and lodging on an interactive 3D map.",
+  },
 };
 
 export default function RootLayout({
@@ -58,8 +64,14 @@ export default function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        <a
+          href="#main-content"
+          className="sr-only z-50 focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+        >
+          Skip to content
+        </a>
         <SiteNav />
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1">{children}</main>
         <SiteFooter />
       </body>
     </html>

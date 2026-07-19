@@ -1,7 +1,7 @@
 // Route-level skeleton while the map page's server shell streams in.
 export default function MapLoading() {
   return (
-    <main className="relative h-dvh w-full overflow-hidden bg-muted">
+    <main className="relative h-[calc(100dvh-3.5rem-1px)] w-full overflow-hidden bg-muted">
       {/* Preset chip bar */}
       <div className="absolute inset-x-0 top-3 flex justify-center px-3">
         <div className="h-12 w-full max-w-md animate-pulse rounded-2xl bg-card/80" />

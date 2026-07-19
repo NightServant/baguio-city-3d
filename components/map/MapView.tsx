@@ -5,6 +5,7 @@
 // Uses OpenFreeMap tiles + AWS Terrarium terrain — no account, key, or token.
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
+import { X } from "lucide-react";
 import maplibregl, {
   type Map as MapLibreMap,
   type MapMouseEvent,
@@ -67,6 +68,10 @@ export function MapView() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [ready, setReady] = useState(false);
+  // Basemap/DEM tile failures surface a single dismissible notice over the
+  // canvas. Once the user dismisses it we stay quiet for the session.
+  const [tileError, setTileError] = useState(false);
+  const errorDismissed = useRef(false);
   const basemap = useMapStore((s) => s.ui.basemap);
   const styleGeneration = useMapStore((s) => s.ui.styleGeneration);
   // Which basemap the map's CURRENT, FULLY LOADED style reflects. Only ever
@@ -213,6 +218,16 @@ export function MapView() {
     };
     map.on("click", onMapClick);
 
+    // Tile/network failures (basemap raster, vector tiles, or the Terrarium DEM)
+    // fire `error` repeatedly — one per failed tile. Collapse them into a single
+    // notice: React bails on setState(true) when already true, and once the user
+    // dismisses it we suppress the rest for the session.
+    const onError = () => {
+      if (errorDismissed.current) return;
+      setTileError(true);
+    };
+    map.on("error", onError);
+
     // MapLibre drives rendering purely via requestAnimationFrame, which the
     // browser pauses whenever the tab/window is hidden. Unlike resize or user
     // interaction, MapLibre 5.x has NO visibilitychange handler (verified: zero
@@ -235,6 +250,7 @@ export function MapView() {
       map.off("moveend", onMoveEnd);
       map.off("load", onLoad);
       map.off("click", onMapClick);
+      map.off("error", onError);
       document.removeEventListener("visibilitychange", onVisibility);
       useMapStore.getState().setMap(null);
       mapRef.current = null;
@@ -269,6 +285,36 @@ export function MapView() {
       <div ref={containerRef} className="size-full" aria-label="Baguio City 3D map" />
       {ready && appliedBasemap === basemap && mapRef.current && (
         <MapLayers key={styleGeneration} map={mapRef.current} />
+      )}
+
+      {tileError && (
+        <div
+          role="status"
+          className="absolute left-1/2 top-16 z-hud flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 items-center gap-3 rounded-2xl bg-card/95 px-4 py-2.5 shadow-lg ring-1 ring-foreground/10 backdrop-blur animate-in fade-in slide-in-from-top-2 duration-200 ease-out motion-reduce:animate-none"
+        >
+          <div className="flex min-w-0 flex-col">
+            <span className="readout text-muted-foreground">Map tiles</span>
+            <span className="mt-1 text-xs text-foreground">Some map tiles didn&apos;t load.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="shrink-0 rounded-lg bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Reload
+          </button>
+          <button
+            type="button"
+            aria-label="Dismiss"
+            onClick={() => {
+              errorDismissed.current = true;
+              setTileError(false);
+            }}
+            className="flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
       )}
     </div>
   );

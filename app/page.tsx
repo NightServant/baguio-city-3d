@@ -44,6 +44,18 @@ export default async function Home() {
     destinations.find((d) => d.slug === slug),
   ).filter((d) => d != null);
 
+  if (
+    process.env.NODE_ENV !== "production" &&
+    featured.length !== FEATURED_SLUGS.length
+  ) {
+    const missing = FEATURED_SLUGS.filter(
+      (slug) => !destinations.some((d) => d.slug === slug),
+    );
+    console.warn(
+      `[home] FEATURED_SLUGS references unknown destination slug(s): ${missing.join(", ")}`,
+    );
+  }
+
   const venueCounts = VENUE_CATEGORY_ORDER.map((cat) => ({
     cat,
     count: venues.filter((v) => v.category === cat).length,
@@ -61,7 +73,7 @@ export default async function Home() {
         <FogBank />
 
         <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28">
-          <p className="readout text-primary">
+          <p className="font-mono text-[0.6875rem] uppercase tracking-wider tabular-nums text-primary">
             16.4023° N · 120.5960° E · 1,500 m above the lowland heat
           </p>
           <h1 className="mt-5 max-w-3xl font-display text-5xl font-semibold leading-[1.05] tracking-tight text-balance sm:text-6xl md:text-7xl">
@@ -93,7 +105,7 @@ export default async function Home() {
               Browse destinations
             </Link>
           </div>
-          <p className="readout mt-12 text-muted-foreground">
+          <p className="mt-12 font-mono text-[0.6875rem] uppercase tracking-wider tabular-nums text-muted-foreground">
             {destinations.length} destinations · {routes.length} jeepney lines ·{" "}
             {venues.length} places to eat & stay · {history.eras.length} eras
           </p>
@@ -116,8 +128,17 @@ export default async function Home() {
           </Link>
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((d) => (
-            <DestinationCard key={d.slug} destination={d} />
+          {/* Zig-zag: lead card spans left in row one, closing card spans right
+              in row three, so six cards fill the 3-col grid without an orphan. */}
+          {featured.map((d, i) => (
+            <DestinationCard
+              key={d.slug}
+              destination={d}
+              featured={i === 0 || i === featured.length - 1}
+              className={
+                i === featured.length - 1 ? "lg:col-start-2" : undefined
+              }
+            />
           ))}
         </div>
       </section>

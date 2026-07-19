@@ -8,6 +8,7 @@ import { MapPin } from "lucide-react";
 import { useActiveEra, useMapActions, useMapStore } from "@/stores/useMapStore";
 import type { EraWithEvents, ErasResponse } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { focusRing } from "./controlStyles";
 
 interface ErasState {
   eras: EraWithEvents[];
@@ -45,7 +46,11 @@ export function TimelineScrubber() {
   const flyToEvent = (lng?: number, lat?: number) => {
     const map = useMapStore.getState().map;
     if (!map || lng == null || lat == null) return;
-    map.flyTo({ center: [lng, lat], zoom: 15.5, duration: 1800, essential: true });
+    // essential: true bypasses prefers-reduced-motion, so gate the duration.
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    map.flyTo({ center: [lng, lat], zoom: 15.5, duration: reduce ? 0 : 1800, essential: true });
   };
 
   return (
@@ -77,14 +82,15 @@ export function TimelineScrubber() {
                   aria-pressed={active}
                   onClick={() => setActiveEra(active ? null : era.key)}
                   className={cn(
-                    "flex flex-col items-start gap-0.5 rounded-xl px-3 py-2.5 text-left transition-colors",
+                    "flex flex-col items-start gap-0.5 rounded-xl px-3 py-2.5 text-left transition-colors active:translate-y-px",
+                    focusRing,
                     active
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <span className="text-xs font-medium leading-tight">{era.name}</span>
-                  <span className={cn("text-[11px] tabular-nums", active ? "opacity-80" : "opacity-70")}>
+                  <span className={cn("font-mono text-[11px] tabular-nums", active ? "opacity-80" : "opacity-70")}>
                     {yearRange(era)}
                   </span>
                 </button>
@@ -95,7 +101,7 @@ export function TimelineScrubber() {
             <button
               type="button"
               onClick={() => setActiveEra(null)}
-              className="self-start text-xs font-medium text-primary hover:underline"
+              className={cn("self-start rounded text-xs font-medium text-primary hover:underline", focusRing)}
             >
               Back to the present
             </button>
@@ -119,10 +125,11 @@ export function TimelineScrubber() {
                       onClick={() => flyToEvent(event.lng, event.lat)}
                       className={cn(
                         "flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors",
+                        focusRing,
                         hasCoords ? "hover:bg-muted" : "cursor-default",
                       )}
                     >
-                      <span className="mt-0.5 w-10 shrink-0 text-xs font-medium tabular-nums text-primary">
+                      <span className="mt-0.5 w-10 shrink-0 font-mono text-xs font-medium tabular-nums text-primary">
                         {event.year}
                       </span>
                       <span className="min-w-0 flex-1">

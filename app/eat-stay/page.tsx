@@ -47,6 +47,7 @@ export default async function EatStayPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
       <SectionHeading
+        as="h1"
         eyebrow="Eat & stay"
         title="The pasalubong economy"
         lede="Strawberry shortcake on Session Road, the nuns' ube jam by Mines View, fireplace lodges under the pines — with hours, price range, and a spot on the map."
@@ -58,11 +59,17 @@ export default async function EatStayPage({
 
       {category ? (
         // Filtered: single grid
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((v) => (
-            <VenueCard key={v.slug} venue={v} />
-          ))}
-        </div>
+        shown.length > 0 ? (
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {shown.map((v) => (
+              <VenueCard key={v.slug} venue={v} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-12 text-sm text-muted-foreground">
+            No places in this category yet. Choose another filter above.
+          </p>
+        )
       ) : (
         // All: grouped by category
         <div className="mt-12 space-y-14">

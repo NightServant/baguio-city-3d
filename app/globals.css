@@ -151,6 +151,35 @@
 }
 
 @layer utilities {
+  /* HUD layering scale — keep raw z literals out of components. */
+  .z-hud {
+    z-index: 20;
+  }
+  .z-panel {
+    z-index: 30;
+  }
+  .z-sheet {
+    z-index: 40;
+  }
+  /* Thin themed scrollbar for panel bodies. */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  /* Hidden scrollbar for horizontal chip rails (both engines). */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
   /* Survey-readout label: mono, spaced, uppercase — the site's field-notes voice. */
   .readout {
     font-family: var(--font-mono);

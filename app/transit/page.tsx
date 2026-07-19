@@ -33,6 +33,7 @@ export default async function TransitPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
       <SectionHeading
+        as="h1"
         eyebrow="Getting around"
         title="Jeepney lines & fares"
         lede={`Every line starts at the City Plaza terminal downtown. Base fare covers the first ${JEEPNEY_BASE_KM} km; the meter of the mountains is the barker's call, so round up and pay forward.`}
@@ -43,7 +44,7 @@ export default async function TransitPage() {
         {routes.map((route) => (
           <article
             key={route.code}
-            className="flex flex-col rounded-xl border border-border bg-card p-6"
+            className="flex flex-col rounded-2xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 transition hover:shadow-md hover:shadow-primary/5 hover:ring-primary/40"
           >
             <div className="flex items-center justify-between gap-3">
               <span className="rounded bg-primary px-2.5 py-1 font-mono text-xs font-semibold tracking-wider text-primary-foreground">
@@ -104,7 +105,7 @@ export default async function TransitPage() {
             </h2>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
               Baguio taxis are metered and famously honest. The estimate here
-              mirrors the LTFRB-style structure the map's fare tool uses:
+              mirrors the LTFRB-style structure the map&apos;s fare tool uses:
               flagdown plus a distance charge every {TAXI_PER_METER_UNIT_M} m,
               plus waiting time in traffic.
             </p>

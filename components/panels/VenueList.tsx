@@ -10,6 +10,8 @@ import { useFilters, useMapStore } from "@/stores/useMapStore";
 import { useDebouncedValue } from "@/hooks/useDebouncedBounds";
 import type { VenueCategory, VenueListItem, VenuesResponse } from "@/types/api";
 import { PRICE_GLYPHS, VENUE_CATEGORY_LABELS } from "@/components/map/categoryStyle";
+import { cn } from "@/lib/utils";
+import { focusRing } from "./controlStyles";
 
 interface VenueListState {
   items: VenueListItem[];
@@ -137,7 +139,10 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
             <button
               type="button"
               onClick={() => showVenue(venue)}
-              className="group flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted"
+              className={cn(
+                "group flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted",
+                focusRing,
+              )}
             >
               <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
               <span className="min-w-0 flex-1">
@@ -166,7 +171,10 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
         <button
           type="button"
           onClick={loadMore}
-          className="h-9 rounded-xl bg-muted text-xs font-medium text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+          className={cn(
+            "h-9 rounded-xl bg-muted text-xs font-medium text-foreground transition-colors hover:bg-primary hover:text-primary-foreground active:translate-y-px",
+            focusRing,
+          )}
         >
           Load more places
         </button>

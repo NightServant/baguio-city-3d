@@ -48,7 +48,7 @@ export function PriceGlyphs({ priceRange }: { priceRange: PriceRange }) {
       title={["Budget", "Moderate", "Upscale", "Premium"][priceRange - 1]}
     >
       <span className="text-foreground">{"₱".repeat(priceRange)}</span>
-      <span className="text-muted-foreground/40">{"₱".repeat(4 - priceRange)}</span>
+      <span className="text-muted-foreground">{"₱".repeat(4 - priceRange)}</span>
     </span>
   );
 }

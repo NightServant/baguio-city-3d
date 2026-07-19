@@ -6,6 +6,7 @@ interface SectionHeadingProps {
   lede?: string;
   className?: string;
   align?: "left" | "center";
+  as?: "h1" | "h2";
 }
 
 /** Editorial section header: mono eyebrow, Fraunces title, optional lede. */
@@ -15,6 +16,7 @@ export function SectionHeading({
   lede,
   className,
   align = "left",
+  as: Heading = "h2",
 }: SectionHeadingProps) {
   return (
     <div
@@ -25,9 +27,9 @@ export function SectionHeading({
       )}
     >
       {eyebrow ? <p className="readout text-primary">{eyebrow}</p> : null}
-      <h2 className="font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+      <Heading className="font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
         {title}
-      </h2>
+      </Heading>
       {lede ? (
         <p className="text-base leading-7 text-muted-foreground text-pretty">{lede}</p>
       ) : null}

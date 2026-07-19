@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { PineMark } from "@/components/site/PineMark";
 import {
   Sheet,
   SheetTrigger,
@@ -21,15 +22,6 @@ const NAV_LINKS = [
   { href: "/transit", label: "Transit" },
   { href: "/eat-stay", label: "Eat & Stay" },
 ] as const;
-
-/** Small pine mark used in the wordmark. */
-function PineMark({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" fill="currentColor">
-      <path d="M12 2 L16.5 9.5 L14.5 9.5 L18.5 16 L15.5 16 L19 21.5 L5 21.5 L8.5 16 L5.5 16 L9.5 9.5 L7.5 9.5 Z" />
-    </svg>
-  );
-}
 
 export function SiteNav() {
   const pathname = usePathname();

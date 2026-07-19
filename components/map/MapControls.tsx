@@ -15,6 +15,16 @@ const PRESET_LABELS: Record<string, string> = {
   "kennon-road": "Kennon Rd",
 };
 
+// Honor the OS "reduce motion" setting: MapLibre's `essential: true` deliberately
+// bypasses prefers-reduced-motion, so we gate the animation duration ourselves —
+// jump instantly instead of sweeping the camera.
+function prefersReducedMotion() {
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
 function flyToPreset(key: string) {
   const map = useMapStore.getState().map;
   const preset = CAMERA_PRESETS[key];
@@ -24,7 +34,7 @@ function flyToPreset(key: string) {
     zoom: preset.zoom,
     pitch: preset.pitch,
     bearing: preset.bearing,
-    duration: 2200,
+    duration: prefersReducedMotion() ? 0 : 2200,
     essential: true,
   });
 }
@@ -56,8 +66,8 @@ export function MapControls() {
   return (
     <>
       {/* Preset chips — top center, horizontally scrollable on small screens */}
-      <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center px-3">
-        <div className="pointer-events-auto flex max-w-full gap-1.5 overflow-x-auto rounded-2xl bg-card/80 p-1.5 shadow-sm ring-1 ring-foreground/10 backdrop-blur [scrollbar-width:none]">
+      <div className="pointer-events-none absolute inset-x-0 top-3 z-hud flex justify-center px-3">
+        <div className="scrollbar-none pointer-events-auto flex max-w-full gap-1.5 overflow-x-auto rounded-2xl bg-card/80 p-1.5 shadow-sm ring-1 ring-foreground/10 backdrop-blur">
           {Object.keys(CAMERA_PRESETS).map((key) => (
             <button
               key={key}
@@ -65,7 +75,7 @@ export function MapControls() {
               onClick={() => flyToPreset(key)}
               className={cn(
                 "h-9 shrink-0 rounded-xl px-3 text-xs font-medium text-foreground",
-                "transition-colors hover:bg-primary hover:text-primary-foreground",
+                "transition-colors hover:bg-primary hover:text-primary-foreground active:translate-y-px",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}
             >
@@ -76,7 +86,7 @@ export function MapControls() {
       </div>
 
       {/* Basemap + zoom + compass — right edge */}
-      <div className="absolute right-3 top-1/2 z-20 flex -translate-y-1/2 flex-col gap-2">
+      <div className="absolute right-3 top-1/2 z-hud flex -translate-y-1/2 flex-col gap-2">
         <button
           type="button"
           aria-label="Toggle satellite imagery"

@@ -10,6 +10,7 @@ import { addLandmarkModel } from "@/components/map/layers/LandmarkLayer";
 import { CATEGORY_COLORS, CATEGORY_LABELS, ERA_LABELS } from "@/components/map/categoryStyle";
 import type { DestinationFeature } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { iconButton } from "./controlStyles";
 
 interface DetailState {
   feature: DestinationFeature | null;
@@ -63,9 +64,11 @@ export function DestinationSheet() {
     <aside
       aria-label="Destination details"
       className={cn(
-        "absolute z-40 flex flex-col overflow-hidden bg-card/95 shadow-xl ring-1 ring-foreground/10 backdrop-blur",
+        "absolute z-sheet flex flex-col overflow-hidden bg-card/95 shadow-xl ring-1 ring-foreground/10 backdrop-blur",
         "max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[60dvh] max-sm:rounded-t-3xl",
         "sm:right-3 sm:top-16 sm:bottom-3 sm:w-[22rem] sm:rounded-3xl",
+        "animate-in fade-in duration-200 ease-out motion-reduce:animate-none",
+        "max-sm:slide-in-from-bottom-4 sm:slide-in-from-right-4",
       )}
     >
       {/* Mobile grab handle */}
@@ -105,17 +108,12 @@ export function DestinationSheet() {
             </h2>
           )}
         </div>
-        <button
-          type="button"
-          aria-label="Close details"
-          onClick={close}
-          className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
+        <button type="button" aria-label="Close details" onClick={close} className={iconButton}>
           <X className="size-4" />
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
+      <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
         {state.loading && (
           <div className="flex flex-col gap-2" aria-hidden>
             <div className="h-32 animate-pulse rounded-2xl bg-muted" />
@@ -148,9 +146,9 @@ export function DestinationSheet() {
                 ))}
               </div>
             ) : (
-              <div className="flex h-32 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+              <div className="flex h-32 flex-col items-center justify-center gap-2 rounded-2xl bg-muted text-muted-foreground">
                 <ImageIcon className="size-6" aria-hidden />
-                <span className="sr-only">No photos yet</span>
+                <span className="readout">No photos yet</span>
               </div>
             )}
 
@@ -171,7 +169,10 @@ export function DestinationSheet() {
                   <Mountain className="size-4 shrink-0 text-primary" aria-hidden />
                   <dt className="sr-only">Elevation</dt>
                   <dd className="text-muted-foreground">
-                    {Math.round(props.elevationM).toLocaleString()} m above sea level
+                    <span className="font-mono tabular-nums text-foreground">
+                      {Math.round(props.elevationM).toLocaleString()}
+                    </span>{" "}
+                    m above sea level
                   </dd>
                 </div>
               )}

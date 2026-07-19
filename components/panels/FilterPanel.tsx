@@ -17,6 +17,7 @@ import {
   VENUE_CATEGORY_LABELS,
 } from "@/components/map/categoryStyle";
 import { VenueList } from "./VenueList";
+import { chipControl, focusRing } from "./controlStyles";
 
 const ERAS = Object.keys(ERA_LABELS) as Era[];
 const VENUE_CATEGORIES = Object.keys(VENUE_CATEGORY_LABELS) as VenueCategory[];
@@ -54,7 +55,7 @@ export function FilterPanel() {
                 resetFilters();
                 setVenueCategory(null);
               }}
-              className="text-xs font-medium text-primary hover:underline"
+              className={cn("rounded text-xs font-medium text-primary hover:underline", focusRing)}
             >
               Clear all
             </button>
@@ -70,7 +71,8 @@ export function FilterPanel() {
                 aria-pressed={active}
                 onClick={() => toggleCategory(cat)}
                 className={cn(
-                  "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs transition-colors",
+                  chipControl,
+                  "flex h-9 items-center gap-1.5 rounded-full px-2.5",
                   active
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:text-foreground",
@@ -96,7 +98,8 @@ export function FilterPanel() {
             onClick={() => setEra(null)}
             aria-pressed={filters.era === null}
             className={cn(
-              "h-8 rounded-full px-3 text-xs transition-colors",
+              chipControl,
+              "h-9 rounded-full px-3",
               filters.era === null
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:text-foreground",
@@ -111,7 +114,8 @@ export function FilterPanel() {
               onClick={() => setEra(filters.era === era ? null : era)}
               aria-pressed={filters.era === era}
               className={cn(
-                "h-8 rounded-full px-3 text-xs transition-colors",
+                chipControl,
+                "h-9 rounded-full px-3",
                 filters.era === era
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:text-foreground",
@@ -146,7 +150,8 @@ export function FilterPanel() {
             onClick={() => setVenueCategory(null)}
             aria-pressed={venueCategory === null}
             className={cn(
-              "h-8 rounded-full px-3 text-xs transition-colors",
+              chipControl,
+              "h-9 rounded-full px-3",
               venueCategory === null
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:text-foreground",
@@ -161,7 +166,8 @@ export function FilterPanel() {
               onClick={() => setVenueCategory(venueCategory === cat ? null : cat)}
               aria-pressed={venueCategory === cat}
               className={cn(
-                "h-8 rounded-full px-3 text-xs transition-colors",
+                chipControl,
+                "h-9 rounded-full px-3",
                 venueCategory === cat
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:text-foreground",
@@ -181,7 +187,8 @@ export function FilterPanel() {
                 aria-pressed={filters.priceMax === p}
                 onClick={() => setPriceMax(filters.priceMax === p ? null : (p as PriceRange))}
                 className={cn(
-                  "h-8 flex-1 rounded-lg text-xs transition-colors",
+                  chipControl,
+                  "h-9 flex-1 rounded-lg",
                   filters.priceMax !== null && p <= filters.priceMax
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:text-foreground",
@@ -192,7 +199,7 @@ export function FilterPanel() {
               </button>
             ))}
           </div>
-          <label className="flex h-8 cursor-pointer items-center gap-1.5 rounded-lg bg-muted px-2.5 text-xs text-muted-foreground has-checked:bg-primary has-checked:text-primary-foreground">
+          <label className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-muted px-2.5 text-xs text-muted-foreground transition-colors has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring">
             <input
               type="checkbox"
               checked={filters.openNow}

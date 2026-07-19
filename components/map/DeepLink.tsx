@@ -22,6 +22,16 @@ const LNG_MAX = 120.8;
 const LAT_MIN = 16.2;
 const LAT_MAX = 16.6;
 
+// `essential: true` (used below so the deep-link camera move survives) tells
+// MapLibre to ignore prefers-reduced-motion, so we gate the duration ourselves:
+// jump instantly when the user asked for reduced motion.
+function motionDuration(ms: number) {
+  return typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? 0
+    : ms;
+}
+
 export function DeepLink() {
   const params = useSearchParams();
   const map = useMapStore((s) => s.map);
@@ -56,7 +66,7 @@ export function DeepLink() {
         .then((f) => {
           const c = f?.geometry?.coordinates;
           if (c && Number.isFinite(c[0]) && Number.isFinite(c[1])) {
-            map.easeTo({ center: [c[0], c[1]], zoom: 15.5, duration: 1600, essential: true });
+            map.easeTo({ center: [c[0], c[1]], zoom: 15.5, duration: motionDuration(1600), essential: true });
           }
         })
         .catch(() => {});
@@ -70,7 +80,7 @@ export function DeepLink() {
           const v = data?.items?.[0];
           if (!v || !Number.isFinite(v.lng) || !Number.isFinite(v.lat)) return;
           const center: [number, number] = [v.lng, v.lat];
-          map.easeTo({ center, zoom: 16, duration: 1800, essential: true });
+          map.easeTo({ center, zoom: 16, duration: motionDuration(1800), essential: true });
           const maplibregl = (await import("maplibre-gl")).default;
           new maplibregl.Popup({ closeButton: true, offset: 12 })
             .setLngLat(center)
@@ -90,7 +100,7 @@ export function DeepLink() {
         lat >= LAT_MIN &&
         lat <= LAT_MAX
       ) {
-        map.flyTo({ center: [lng, lat], zoom: 16, duration: 2000, essential: true });
+        map.flyTo({ center: [lng, lat], zoom: 16, duration: motionDuration(2000), essential: true });
       }
     }
 

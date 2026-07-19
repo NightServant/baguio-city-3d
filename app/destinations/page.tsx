@@ -50,6 +50,7 @@ export default async function DestinationsPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
       <SectionHeading
+        as="h1"
         eyebrow="The directory"
         title="Destinations"
         lede="Every landmark in the guide, from Burnham's lagoon to the ridge viewpoints. Filter by kind, then jump to its spot on the 3D map."

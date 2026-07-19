@@ -24,6 +24,7 @@ export default async function HistoryPage() {
     <div>
       <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
         <SectionHeading
+          as="h1"
           eyebrow="The exhibit"
           title="Four eras of the City of Pines"
           lede="From Ibaloi cattle pasture to UNESCO Creative City in a little over a century. Events with a place on the mountain link straight to the 3D map."

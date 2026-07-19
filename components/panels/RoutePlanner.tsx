@@ -13,6 +13,7 @@ import {
 } from "@/stores/useMapStore";
 import type { FareResponse, TransitRouteFeature, TransitRoutesResponse } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { focusRing } from "./controlStyles";
 
 interface RoutesState {
   routes: TransitRouteFeature[];
@@ -93,6 +94,12 @@ export function RoutePlanner() {
           </p>
         )}
 
+        {!state.error && !state.loading && state.routes.length === 0 && (
+          <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+            No jeepney routes to show yet. Check back in a moment.
+          </p>
+        )}
+
         <ul className="flex flex-col gap-1.5">
           {state.routes.map((route) => {
             const active = route.properties.code === activeRouteCode;
@@ -103,7 +110,8 @@ export function RoutePlanner() {
                   aria-pressed={active}
                   onClick={() => pickRoute(route)}
                   className={cn(
-                    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors",
+                    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors active:translate-y-px",
+                    focusRing,
                     active
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-foreground hover:bg-muted/70",
@@ -233,7 +241,8 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
               setError(null);
             }}
             className={cn(
-              "flex h-9 items-center justify-center gap-1.5 rounded-xl text-xs font-medium transition-colors",
+              "flex h-9 items-center justify-center gap-1.5 rounded-xl text-xs font-medium transition-colors active:translate-y-px",
+              focusRing,
               mode === key
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:text-foreground",
@@ -299,7 +308,8 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
               type="button"
               onClick={() => setFareQuery({ picking: picking === key ? null : key })}
               className={cn(
-                "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+                "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors active:translate-y-px",
+                focusRing,
                 picking === key
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-foreground hover:bg-muted/70",
@@ -308,7 +318,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
               <Crosshair className="size-4 shrink-0" />
               <span className="min-w-0 flex-1">
                 <span className="block text-xs opacity-70">{label}</span>
-                <span className="block truncate tabular-nums">
+                <span className="block truncate font-mono tabular-nums">
                   {picking === key ? "Tap the map…" : fmtCoord(value)}
                 </span>
               </span>
@@ -324,7 +334,10 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
         type="button"
         disabled={!(jeepneyReady || taxiReady) || loading}
         onClick={calculate}
-        className="h-10 rounded-xl bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/85 disabled:pointer-events-none disabled:opacity-50"
+        className={cn(
+          "h-10 rounded-xl bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/85 active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
+          focusRing,
+        )}
       >
         {loading ? "Working it out…" : "Estimate fare"}
       </button>
@@ -340,7 +353,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
               {result.mode === "jeepney" ? "Jeepney fare" : "Taxi estimate"} ·{" "}
               {result.distanceKm.toFixed(1)} km
             </span>
-            <span className="font-heading text-xl font-semibold tabular-nums text-foreground">
+            <span className="font-mono text-xl font-semibold tabular-nums text-foreground">
               {peso(result.fare)}
             </span>
           </div>
@@ -348,7 +361,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
             {Object.entries(result.breakdown).map(([k, v]) => (
               <div key={k} className="flex justify-between text-muted-foreground">
                 <dt>{BREAKDOWN_LABELS[k] ?? k}</dt>
-                <dd className="tabular-nums">{peso(v)}</dd>
+                <dd className="font-mono tabular-nums">{peso(v)}</dd>
               </div>
             ))}
           </dl>
