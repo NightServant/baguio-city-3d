@@ -1,29 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="760" height="372" viewBox="0 0 760 372" role="img" aria-label="Baguio 3D brand palette: pine, ink, fog white, fog gray, mist, amber, night pine, moonlit pine">
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="372" viewBox="0 0 760 372" role="img" aria-label="Baguio 3D brand palette in dark mode: pine, ink, fog white, fog gray, mist, amber, night pine, moonlit pine">
   <style>
-    .name { font: 600 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #17221b; }
-    .val  { font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #5a675e; }
-    .hdr  { font: 600 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #21533b; letter-spacing: 0.18em; }
+    .name { font: 600 12px ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill: #e3eae4; }
+    .val  { font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #9ca89e; }
+    .hdr  { font: 600 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #6db07f; letter-spacing: 0.18em; }
   </style>
-  <rect x="0.5" y="0.5" width="759" height="371" rx="16" fill="#f5faf6" stroke="#e6f0e9"/>
+  <rect x="0.5" y="0.5" width="759" height="371" rx="16" fill="#0d1611" stroke="#25312a"/>
   <text class="hdr" x="24" y="42">BAGUIO 3D · FIELD PALETTE</text>
 
   <!-- Row 1 -->
-  <rect x="24" y="62" width="166" height="84" rx="10" fill="#21533b"/>
+  <rect x="24" y="62" width="166" height="84" rx="10" fill="#21533b" stroke="#25312a"/>
   <text class="name" x="24" y="166">Pine</text>
   <text class="val" x="24" y="182">oklch(0.40 0.068 160)</text>
   <text class="val" x="24" y="196">#21533b · primary</text>
 
-  <rect x="206" y="62" width="166" height="84" rx="10" fill="#17221b"/>
+  <rect x="206" y="62" width="166" height="84" rx="10" fill="#17221b" stroke="#25312a"/>
   <text class="name" x="206" y="166">Ink</text>
   <text class="val" x="206" y="182">oklch(0.24 0.021 158)</text>
   <text class="val" x="206" y="196">#17221b · foreground</text>
 
-  <rect x="388" y="62" width="166" height="84" rx="10" fill="#f5faf6" stroke="#d5e2d9"/>
+  <rect x="388" y="62" width="166" height="84" rx="10" fill="#f5faf6"/>
   <text class="name" x="388" y="166">Fog white</text>
   <text class="val" x="388" y="182">oklch(0.98 0.008 152)</text>
   <text class="val" x="388" y="196">#f5faf6 · background</text>
 
-  <rect x="570" y="62" width="166" height="84" rx="10" fill="#e6f0e9" stroke="#d5e2d9"/>
+  <rect x="570" y="62" width="166" height="84" rx="10" fill="#e6f0e9"/>
   <text class="name" x="570" y="166">Fog gray</text>
   <text class="val" x="570" y="182">oklch(0.945 0.014 155)</text>
   <text class="val" x="570" y="196">#e6f0e9 · secondary</text>
@@ -39,7 +39,7 @@
   <text class="val" x="206" y="336">oklch(0.70 0.14 66)</text>
   <text class="val" x="206" y="350">#d88a2c · single accent</text>
 
-  <rect x="388" y="216" width="166" height="84" rx="10" fill="#0d1611"/>
+  <rect x="388" y="216" width="166" height="84" rx="10" fill="#0d1611" stroke="#25312a"/>
   <text class="name" x="388" y="320">Night pine</text>
   <text class="val" x="388" y="336">oklch(0.19 0.018 160)</text>
   <text class="val" x="388" y="350">#0d1611 · dark background</text>
