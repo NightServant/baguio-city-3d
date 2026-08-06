@@ -1,4 +1,10 @@
-# Baguio 3D
+<p align="center">
+  <img src="app/icon.svg" alt="Baguio 3D pine mark — a white pine tree on a pine-green rounded square" width="72" height="72"/>
+</p>
+
+<h1 align="center">Baguio 3D</h1>
+
+<p align="center"><em>The Summer Capital, in three dimensions.</em></p>
 
 An interactive 3D map and field guide to Baguio City — the Summer Capital of the Philippines. Fly over pine-forest terrain rendered from real elevation data, trace jeepney routes from the City Plaza terminal, walk four eras of hill-station history on a timeline, and browse where to eat and stay, all pinned to one 3D map.
 
@@ -31,6 +37,35 @@ Geospatial data lives in PostgreSQL/PostGIS and is served through Next.js route 
 | Geospatial | Turf.js · curated GeoJSON in `data/geojson` |
 | State | zustand |
 | Fonts | Fraunces · Inter · Geist Mono (via `next/font`) |
+
+## Brand
+
+The identity reads like field notes from a hill station: Fraunces for display headlines, Inter for body text, and Geist Mono for the uppercase "survey readout" voice used on coordinates, elevations, fares, and years.
+
+### Color palette
+
+![Baguio 3D field palette — pine, ink, fog white, fog gray, mist, amber, night pine, moonlit pine](docs/brand-palette.svg)
+
+Pine green carries the brand; fog-tinted cool neutrals ground it; a single amber is the sparing accent. All colors are defined as oklch tokens in [`app/globals.css`](app/globals.css) — components consume semantic tokens (`primary`, `secondary`, `accent`, …), so the theme can be retuned in one place.
+
+| Token | Role | OKLCH | Hex |
+|---|---|---|---|
+| Pine | `--primary` (light) | `oklch(0.40 0.068 160)` | `#21533b` |
+| Ink | `--foreground` | `oklch(0.24 0.021 158)` | `#17221b` |
+| Fog white | `--background` | `oklch(0.98 0.008 152)` | `#f5faf6` |
+| Fog gray | `--secondary` | `oklch(0.945 0.014 155)` | `#e6f0e9` |
+| Mist | `--muted-foreground` | `oklch(0.50 0.021 155)` | `#5a675e` |
+| Amber | `--amber` accent | `oklch(0.70 0.14 66)` | `#d88a2c` |
+| Night pine | `--background` (dark) | `oklch(0.19 0.018 160)` | `#0d1611` |
+| Moonlit pine | `--primary` (dark) | `oklch(0.70 0.10 152)` | `#6db07f` |
+
+### Brand icon
+
+The pine mark is the single logo element, drawn once in [`components/site/PineMark.tsx`](components/site/PineMark.tsx) and reused everywhere it appears:
+
+- [`app/icon.svg`](app/icon.svg) — favicon: the mark in fog white on a pine rounded square
+- [`app/apple-icon.tsx`](app/apple-icon.tsx) — 180×180 home-screen icon, generated at build time
+- [`app/opengraph-image.tsx`](app/opengraph-image.tsx) — 1200×630 share card: the mark in amber over night pine with contour-line texture
 
 ## Local setup
 
