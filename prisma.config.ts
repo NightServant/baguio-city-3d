@@ -12,6 +12,9 @@ export default defineConfig({
     seed: "node --experimental-strip-types prisma/seed.ts",
   },
   datasource: {
-    url: env("DATABASE_URL"),
+    // Migrations need a direct (non-pooled) connection: Supabase's PgBouncer in
+    // transaction mode can't run the DDL Migrate emits. Falls back to
+    // DATABASE_URL for local Docker, where there is no pooler.
+    url: env(process.env.DIRECT_URL ? "DIRECT_URL" : "DATABASE_URL"),
   },
 });

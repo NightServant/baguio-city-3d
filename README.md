@@ -32,7 +32,7 @@ Geospatial data lives in PostgreSQL/PostGIS and is served through Next.js route 
 | Framework | [Next.js 16](https://nextjs.org) (App Router) · React 19 · TypeScript 5 |
 | Map engine | [MapLibre GL JS 5](https://maplibre.org) · [OpenFreeMap](https://openfreemap.org) vector tiles · AWS Terrarium terrain DEM |
 | Styling | Tailwind CSS v4 · shadcn/ui on Base UI · tw-animate-css |
-| Database | PostgreSQL 16 + [PostGIS](https://postgis.net) 3.4 · Prisma 7 (`@prisma/adapter-pg`, raw SQL for spatial queries) |
+| Database | PostgreSQL + [PostGIS](https://postgis.net) — local via Docker (16/3.4) or hosted on [Supabase](https://supabase.com) (17/3.3) · Prisma 7 (`@prisma/adapter-pg`, raw SQL for spatial queries) |
 | Cache | Redis 7 via ioredis |
 | Geospatial | Turf.js · curated GeoJSON in `data/geojson` |
 | State | zustand |
@@ -94,6 +94,32 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) — the 3D map lives at [/map](http://localhost:3000/map).
 
 > **Note:** the content pages render without the database, but the map's data layers (`/api/geo/*`, `/api/venues`) return 500s if Docker isn't running. If markers or routes fail to load, check `docker compose ps` first.
+
+### Using Supabase instead of local Postgres
+
+The schema is also deployed to a hosted Supabase project (PostGIS 3.3 on Postgres 17), managed with the Supabase CLI. Migrations live in [`supabase/migrations`](supabase/migrations) and mirror the Prisma migration exactly.
+
+```bash
+# 1. Authenticate and link the CLI to the project
+supabase login
+supabase link --project-ref tnqeqtcjtridhjbcdlbe
+
+# 2. Point the app at Supabase — see .env.example for both URLs.
+#    DATABASE_URL = pooled (6543) for runtime; DIRECT_URL = direct (5432) for
+#    migrations. Copy them from Project Settings -> Database.
+
+# 3. Tell Prisma the schema is already applied, then seed
+npx prisma migrate resolve --applied 20260711000000_init
+npx prisma db seed
+```
+
+`supabase db push` applies any new local migration to the hosted project; `supabase migration new <name>` starts one.
+
+Two things worth knowing about this setup:
+
+- **PostGIS is installed in `public`**, not Supabase's `extensions` schema, so the unqualified `geometry(...)` columns and `ST_*` calls behave identically on Supabase and on local Docker. The trade-off is that Supabase's database linter reports `extension_in_public`, plus findings on PostGIS's own `spatial_ref_sys` table and `st_estimatedextent` function. Those objects are owned by `supabase_admin` and cannot be revoked by the project's `postgres` role. They expose only public EPSG reference data, not application data.
+- **Row Level Security is enabled on all nine app tables with no policies.** The app reaches Postgres directly through Prisma, which bypasses RLS, so this costs nothing at runtime while closing the auto-generated PostgREST API — verified: the `anon` role reads zero rows from tables that `postgres` reads normally.
+- **Redis is not part of Supabase.** Keep the `redis` service from docker-compose, or point `REDIS_URL` at any managed Redis.
 
 ### Useful commands
 

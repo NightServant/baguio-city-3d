@@ -12,7 +12,8 @@ import type {
 const PRECISION = 5;
 
 function round(n: number): number {
-  return Math.round(n * 1e5) / 1e5;
+  const scale = 10 ** PRECISION;
+  return Math.round(n * scale) / scale;
 }
 
 function quantizePosition(pos: Position): Position {

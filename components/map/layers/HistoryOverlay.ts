@@ -5,7 +5,7 @@
 // Safe on empty data; all mutations are guarded on layer existence.
 import { useEffect, useState } from "react";
 import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "maplibre-gl";
-import { useMapStore, useActiveEra } from "@/stores/useMapStore";
+import { useActiveEra } from "@/stores/useMapStore";
 import { MAP_PALETTE } from "../categoryStyle";
 import type { ErasResponse, Era } from "@/types/api";
 import { isTornDown } from "./teardown";
