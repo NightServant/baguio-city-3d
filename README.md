@@ -104,14 +104,16 @@ The schema is also deployed to a hosted Supabase project (PostGIS 3.3 on Postgre
 supabase login
 supabase link --project-ref tnqeqtcjtridhjbcdlbe
 
-# 2. Point the app at Supabase — see .env.example for both URLs.
+# 2. Apply schema + seed data. Both authenticate with the CLI access token —
+#    no database password needed.
+supabase db push --include-seed
+
+# 3. Point the app at Supabase — see .env.example for both URLs.
 #    DATABASE_URL = pooled (6543) for runtime; DIRECT_URL = direct (5432) for
 #    migrations. Copy them from Project Settings -> Database.
-
-# 3. Tell Prisma the schema is already applied, then seed
-npx prisma migrate resolve --applied 20260711000000_init
-npx prisma db seed
 ```
+
+`supabase/seed.sql` is generated from `data/geojson` by `npm run seed:supabase:generate` — regenerate it rather than editing it by hand. It exists alongside `prisma/seed.ts` because the two need different credentials: the Prisma seeder requires `DATABASE_URL` (the database password), while the CLI seeder needs only the access token. If you do have `DATABASE_URL` set, `npx prisma migrate resolve --applied 20260711000000_init && npx prisma db seed` is equivalent.
 
 `supabase db push` applies any new local migration to the hosted project; `supabase migration new <name>` starts one.
 
