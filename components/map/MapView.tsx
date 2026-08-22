@@ -84,6 +84,13 @@ export function MapView() {
   // right before map creation / setStyle; read by the style.load handler.
   const pendingBasemapRef = useRef<Basemap>("terrain");
 
+  // True whenever a stylesheet is in flight — from map construction and from
+  // every setStyle() basemap swap until the matching style.load. In that window
+  // MapLibre has torn down style.projection, and any frame rendered against it
+  // throws (Painter.useProgram dereferences style.projection.shaderPreludeCode).
+  // Starts true: the initial style is in flight the moment the map is created.
+  const styleInFlightRef = useRef(true);
+
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -163,6 +170,7 @@ export function MapView() {
     // exact flag addSource's _checkLoaded asserts is set right before this
     // event fires.
     const onStyleLoad = () => {
+      styleInFlightRef.current = false;
       applyTerrain(map, exaggeration);
       useMapStore.getState().bumpStyleGeneration();
       setAppliedBasemap(pendingBasemapRef.current);
@@ -237,10 +245,16 @@ export function MapView() {
     // resize, in case the container changed while hidden) when the page becomes
     // visible again so the current map state always paints.
     const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        map.resize();
-        map.triggerRepaint();
-      }
+      if (document.visibilityState !== "visible") return;
+      map.resize();
+      // Skip the nudge only while a stylesheet is in flight (see
+      // styleInFlightRef) — forcing a frame then throws inside MapLibre. Note
+      // this deliberately does NOT use map.isStyleLoaded(): that also waits on
+      // every source, so it stays false long after rendering is safe, which
+      // would suppress the repaint in the common "finished loading while
+      // hidden" case this handler exists to fix. The pending style.load paints
+      // on its own, so skipping during the swap loses nothing.
+      if (!styleInFlightRef.current) map.triggerRepaint();
     };
     document.addEventListener("visibilitychange", onVisibility);
 
@@ -277,6 +291,7 @@ export function MapView() {
     if (!map || !ready) return;
     if (appliedBasemap === basemap) return;
     pendingBasemapRef.current = basemap;
+    styleInFlightRef.current = true;
     map.setStyle(basemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE, { diff: false });
   }, [basemap, appliedBasemap, ready]);
 
