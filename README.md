@@ -108,10 +108,15 @@ supabase link --project-ref tnqeqtcjtridhjbcdlbe
 #    no database password needed.
 supabase db push --include-seed
 
-# 3. Point the app at Supabase — see .env.example for both URLs.
+# 3. Create the app's read-only login role (writes supabase/roles.sql, gitignored)
+supabase db push --include-roles
+
+# 4. Point the app at Supabase — see .env.example for the URL shapes.
 #    DATABASE_URL = pooled (6543) for runtime; DIRECT_URL = direct (5432) for
-#    migrations. Copy them from Project Settings -> Database.
+#    migrations.
 ```
+
+The app connects as `baguio_app`, a least-privilege role with `SELECT` and a read policy per table — not as `postgres`. The role and its password are created by `supabase/roles.sql`, which is gitignored because it contains a secret; regenerate it rather than sharing it. Using a non-owner role means RLS genuinely applies to the app, which is why the read policies in the third migration exist.
 
 `supabase/seed.sql` is generated from `data/geojson` by `npm run seed:supabase:generate` — regenerate it rather than editing it by hand. It exists alongside `prisma/seed.ts` because the two need different credentials: the Prisma seeder requires `DATABASE_URL` (the database password), while the CLI seeder needs only the access token. If you do have `DATABASE_URL` set, `npx prisma migrate resolve --applied 20260711000000_init && npx prisma db seed` is equivalent.
 

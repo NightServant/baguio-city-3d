@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Contains a generated database role password
+supabase/roles.sql
+.env.local-docker.bak
