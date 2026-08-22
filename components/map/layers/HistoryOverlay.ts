@@ -8,6 +8,7 @@ import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "mapl
 import { useMapStore, useActiveEra } from "@/stores/useMapStore";
 import { MAP_PALETTE } from "../categoryStyle";
 import type { ErasResponse, Era } from "@/types/api";
+import { isTornDown } from "./teardown";
 
 const SRC_EVENTS = "history-events";
 const L_EVENTS = "history-events-symbols";
@@ -98,6 +99,7 @@ export function useHistoryOverlay(map: MapLibreMap) {
     map.on("mouseleave", L_EVENTS, clearPointer);
 
     return () => {
+      if (isTornDown(map)) return;
       map.off("click", L_EVENTS, onEventClick);
       map.off("mouseenter", L_EVENTS, setPointer);
       map.off("mouseleave", L_EVENTS, clearPointer);

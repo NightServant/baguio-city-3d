@@ -7,6 +7,7 @@ import type { GeoJSONSource, Map as MapLibreMap, MapLayerMouseEvent } from "mapl
 import { useMapStore, useActiveRouteCode } from "@/stores/useMapStore";
 import { MAP_PALETTE } from "../categoryStyle";
 import type { TransitRoutesResponse } from "@/types/api";
+import { isTornDown } from "./teardown";
 
 const SRC = "transit-routes";
 const SRC_STOPS = "transit-stops";
@@ -111,6 +112,7 @@ export function useTransitLayer(map: MapLibreMap) {
     map.on("mouseleave", L_BASE, clearPointer);
 
     return () => {
+      if (isTornDown(map)) return;
       map.off("click", L_BASE, onLineClick);
       map.off("mouseenter", L_BASE, setPointer);
       map.off("mouseleave", L_BASE, clearPointer);

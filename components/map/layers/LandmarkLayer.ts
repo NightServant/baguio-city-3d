@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { MAP_PALETTE } from "../categoryStyle";
 import type { LandmarkInfo } from "@/types/api";
+import { isTornDown } from "./teardown";
 
 const SRC = "landmark-models";
 const L_EXTRUDE = "landmark-extrusions";
@@ -54,6 +55,7 @@ export function useLandmarkLayer(map: MapLibreMap) {
       return;
     }
     return () => {
+      if (isTornDown(map)) return;
       if (map.getLayer(L_EXTRUDE)) map.removeLayer(L_EXTRUDE);
       if (map.getSource(SRC)) map.removeSource(SRC);
     };

@@ -13,6 +13,7 @@ import { useMapStore, useFilters } from "@/stores/useMapStore";
 import { useDebouncedBounds } from "@/hooks/useDebouncedBounds";
 import { useViewportMarkers } from "@/hooks/useViewportMarkers";
 import { categoryMatchExpression, MAP_PALETTE } from "../categoryStyle";
+import { isTornDown } from "./teardown";
 import type { DestinationsResponse } from "@/types/api";
 
 const SRC = "destinations";
@@ -158,6 +159,7 @@ export function useMarkerLayer(map: MapLibreMap) {
     map.on("mouseleave", L_POINT, clearPointer);
 
     return () => {
+      if (isTornDown(map)) return;
       map.off("click", L_CLUSTER, onClusterClick);
       map.off("click", L_POINT, onPointClick);
       map.off("mouseenter", L_CLUSTER, setPointer);
