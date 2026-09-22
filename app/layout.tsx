@@ -8,6 +8,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { ElevationRail } from "@/components/site/ElevationRail";
 
 // One family, worked at two extremes. Archivo is variable on BOTH weight and
 // width, so the width axis becomes an active design element: display type is
@@ -78,6 +79,7 @@ export default function RootLayout({
               Skip to content
             </a>
             <SiteNav />
+            <ElevationRail />
             <main id="main-content" className="flex-1">{children}</main>
             <SiteFooter />
           </ThemeProvider>

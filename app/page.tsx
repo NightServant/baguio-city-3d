@@ -197,11 +197,11 @@ export default async function Home() {
               lede="Kafagway's cattle meadows became Burnham's planned hill station, survived the 1945 battle, and rebuilt into today's festival city. Walk the whole story on one timeline."
             />
             <div className="space-y-3">
-              {history.eras.map((era) => (
+              {history.eras.map((era, i) => (
+                <ScrollReveal key={era.key} delay={((i % 3) + 1) as 1 | 2 | 3}>
                 <Link
-                  key={era.key}
                   href="/history"
-                  className="group flex items-baseline justify-between gap-4 rounded-lg border border-border bg-card px-5 py-4 transition-colors hover:border-primary/40"
+                  className="weave-edge group flex items-baseline justify-between gap-4 border-y border-r border-border bg-card px-5 py-4 transition-colors hover:bg-secondary"
                 >
                   <span className="font-display text-lg font-medium tracking-tight group-hover:text-primary">
                     {era.name}
@@ -210,6 +210,7 @@ export default async function Home() {
                     {ERA_YEARS[era.key]}
                   </span>
                 </Link>
+                </ScrollReveal>
               ))}
               <Link
                 href="/history"
@@ -226,7 +227,7 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="grid gap-12 lg:grid-cols-2">
           {/* Transit teaser */}
-          <div>
+          <ScrollReveal>
             <SectionHeading
               eyebrow="Getting around"
               title="Ride the jeepney lines"
@@ -258,10 +259,10 @@ export default async function Home() {
             >
               Routes & fares
             </Link>
-          </div>
+          </ScrollReveal>
 
           {/* Eat & Stay teaser */}
-          <div>
+          <ScrollReveal delay={1}>
             <SectionHeading
               eyebrow="Eat & stay"
               title="Ube jam, strawberry cake, pine-side lodges"
@@ -288,7 +289,7 @@ export default async function Home() {
             >
               Browse all {venues.length} places
             </Link>
-          </div>
+          </ScrollReveal>
         </div>
       </section>
 
