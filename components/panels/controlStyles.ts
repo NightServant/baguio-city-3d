@@ -18,6 +18,6 @@ export const chipControl = cn("text-xs transition-colors active:translate-y-px",
 
 /** Icon-only close button for panels/sheets — size-9 (36px) touch target. */
 export const iconButton = cn(
-  "flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
+  "flex size-9 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
   focusRing,
 );

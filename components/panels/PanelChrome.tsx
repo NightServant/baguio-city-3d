@@ -70,7 +70,7 @@ export function PanelChrome() {
               aria-pressed={active}
               onClick={() => (active ? closeSheet() : openSheet(key))}
               className={cn(
-                "flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-medium shadow-sm ring-1 backdrop-blur transition-colors",
+                "flex h-10 items-center gap-2 border px-3.5 text-xs font-medium backdrop-blur transition-colors",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
                   ? "bg-primary text-primary-foreground ring-primary/30"
@@ -88,9 +88,9 @@ export function PanelChrome() {
       {panelOpen && (
         <div
           className={cn(
-            "absolute z-panel flex flex-col overflow-hidden bg-card/95 shadow-xl ring-1 ring-foreground/10 backdrop-blur",
-            "max-sm:inset-x-0 max-sm:bottom-16 max-sm:mx-2 max-sm:max-h-[55dvh] max-sm:rounded-3xl",
-            "sm:left-3 sm:top-16 sm:bottom-3 sm:w-[21rem] sm:rounded-3xl",
+            "weave-edge absolute z-panel flex flex-col overflow-hidden border-y border-r border-border bg-background/96 backdrop-blur",
+            "max-sm:inset-x-0 max-sm:bottom-16 max-sm:mx-2 max-sm:max-h-[55dvh]",
+            "sm:left-3 sm:top-16 sm:bottom-3 sm:w-[21rem]",
             "animate-in fade-in duration-200 ease-out motion-reduce:animate-none",
             "max-sm:slide-in-from-bottom-4 sm:slide-in-from-left-4",
           )}

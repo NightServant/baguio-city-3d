@@ -72,14 +72,14 @@ export function FilterPanel() {
                 onClick={() => toggleCategory(cat)}
                 className={cn(
                   chipControl,
-                  "flex h-9 items-center gap-1.5 rounded-full px-2.5",
+                  "flex h-9 items-center gap-1.5 px-2.5",
                   active
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:text-foreground",
                 )}
               >
                 <span
-                  className="size-2 rounded-full"
+                  className="size-2 "
                   style={{ backgroundColor: CATEGORY_COLORS[cat] }}
                 />
                 {CATEGORY_LABELS[cat]}
@@ -99,7 +99,7 @@ export function FilterPanel() {
             aria-pressed={filters.era === null}
             className={cn(
               chipControl,
-              "h-9 rounded-full px-3",
+              "h-9 px-3",
               filters.era === null
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:text-foreground",
@@ -115,7 +115,7 @@ export function FilterPanel() {
               aria-pressed={filters.era === era}
               className={cn(
                 chipControl,
-                "h-9 rounded-full px-3",
+                "h-9 px-3",
                 filters.era === era
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:text-foreground",
@@ -140,7 +140,7 @@ export function FilterPanel() {
             value={filters.q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Strawberry taho, ukay-ukay, silog…"
-            className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            className="h-10 w-full border border-border bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           />
         </label>
 
@@ -151,7 +151,7 @@ export function FilterPanel() {
             aria-pressed={venueCategory === null}
             className={cn(
               chipControl,
-              "h-9 rounded-full px-3",
+              "h-9 px-3",
               venueCategory === null
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted text-muted-foreground hover:text-foreground",
@@ -167,7 +167,7 @@ export function FilterPanel() {
               aria-pressed={venueCategory === cat}
               className={cn(
                 chipControl,
-                "h-9 rounded-full px-3",
+                "h-9 px-3",
                 venueCategory === cat
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:text-foreground",
@@ -188,7 +188,7 @@ export function FilterPanel() {
                 onClick={() => setPriceMax(filters.priceMax === p ? null : (p as PriceRange))}
                 className={cn(
                   chipControl,
-                  "h-9 flex-1 rounded-lg",
+                  "h-9 flex-1 ",
                   filters.priceMax !== null && p <= filters.priceMax
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground hover:text-foreground",
@@ -199,7 +199,7 @@ export function FilterPanel() {
               </button>
             ))}
           </div>
-          <label className="flex h-9 cursor-pointer items-center gap-1.5 rounded-lg bg-muted px-2.5 text-xs text-muted-foreground transition-colors has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring">
+          <label className="flex h-9 cursor-pointer items-center gap-1.5 bg-muted px-2.5 text-xs text-muted-foreground transition-colors has-checked:bg-primary has-checked:text-primary-foreground has-focus-visible:outline-none has-focus-visible:ring-2 has-focus-visible:ring-ring">
             <input
               type="checkbox"
               checked={filters.openNow}

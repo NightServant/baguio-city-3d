@@ -58,13 +58,13 @@ export function TimelineScrubber() {
       {state.loading && (
         <div className="grid grid-cols-2 gap-1.5" aria-hidden>
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />
+            <div key={i} className="h-14 animate-pulse bg-muted" />
           ))}
         </div>
       )}
 
       {state.error && (
-        <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+        <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
           The history timeline isn&apos;t loading right now. The rest of the map still works.
         </p>
       )}
@@ -82,7 +82,7 @@ export function TimelineScrubber() {
                   aria-pressed={active}
                   onClick={() => setActiveEra(active ? null : era.key)}
                   className={cn(
-                    "flex flex-col items-start gap-0.5 rounded-xl px-3 py-2.5 text-left transition-colors active:translate-y-px",
+                    "flex flex-col items-start gap-0.5 px-3 py-2.5 text-left transition-colors active:translate-y-px",
                     focusRing,
                     active
                       ? "bg-primary text-primary-foreground"
@@ -124,7 +124,7 @@ export function TimelineScrubber() {
                       disabled={!hasCoords}
                       onClick={() => flyToEvent(event.lng, event.lat)}
                       className={cn(
-                        "flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors",
+                        "flex w-full items-start gap-2.5 px-2.5 py-2 text-left transition-colors",
                         focusRing,
                         hasCoords ? "hover:bg-muted" : "cursor-default",
                       )}

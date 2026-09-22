@@ -64,21 +64,21 @@ export function DestinationSheet() {
     <aside
       aria-label="Destination details"
       className={cn(
-        "absolute z-sheet flex flex-col overflow-hidden bg-card/95 shadow-xl ring-1 ring-foreground/10 backdrop-blur",
-        "max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[60dvh] max-sm:rounded-t-3xl",
-        "sm:right-3 sm:top-16 sm:bottom-3 sm:w-[22rem] sm:rounded-3xl",
+        "weave-edge absolute z-sheet flex flex-col overflow-hidden border-y border-r border-border bg-background/96 backdrop-blur",
+        "max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[60dvh]",
+        "sm:right-3 sm:top-16 sm:bottom-3 sm:w-[22rem]",
         "animate-in fade-in duration-200 ease-out motion-reduce:animate-none",
         "max-sm:slide-in-from-bottom-4 sm:slide-in-from-right-4",
       )}
     >
       {/* Mobile grab handle */}
       <div className="flex justify-center pt-2 sm:hidden" aria-hidden>
-        <div className="h-1 w-10 rounded-full bg-border" />
+        <div className="h-1 w-10 bg-border" />
       </div>
 
       <div className="flex items-start justify-between gap-3 px-5 pb-3 pt-3 sm:pt-5">
         <div className="min-w-0">
-          {state.loading && <div className="h-6 w-40 animate-pulse rounded-lg bg-muted" />}
+          {state.loading && <div className="h-6 w-40 animate-pulse bg-muted" />}
           {props && (
             <>
               <h2 className="font-heading truncate text-lg font-medium text-foreground">
@@ -86,16 +86,16 @@ export function DestinationSheet() {
               </h2>
               <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                 <span
-                  className="flex items-center gap-1.5 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+                  className="flex items-center gap-1.5 bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
                 >
                   <span
-                    className="size-1.5 rounded-full"
+                    className="size-1.5 "
                     style={{ backgroundColor: CATEGORY_COLORS[props.category] }}
                   />
                   {CATEGORY_LABELS[props.category]}
                 </span>
                 {props.era && (
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                  <span className="bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
                     {ERA_LABELS[props.era]}
                   </span>
                 )}
@@ -116,7 +116,7 @@ export function DestinationSheet() {
       <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
         {state.loading && (
           <div className="flex flex-col gap-2" aria-hidden>
-            <div className="h-32 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-32 animate-pulse bg-muted" />
             <div className="h-4 w-full animate-pulse rounded bg-muted" />
             <div className="h-4 w-4/5 animate-pulse rounded bg-muted" />
             <div className="h-4 w-3/5 animate-pulse rounded bg-muted" />
@@ -124,7 +124,7 @@ export function DestinationSheet() {
         )}
 
         {state.error && (
-          <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+          <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
             The details service isn&apos;t answering. Close this card and tap the pin again in a
             moment.
           </p>
@@ -141,12 +141,12 @@ export function DestinationSheet() {
                     key={m.id}
                     src={m.url}
                     alt={m.alt}
-                    className="h-32 w-48 shrink-0 rounded-2xl object-cover ring-1 ring-foreground/10"
+                    className="h-32 w-48 shrink-0 object-cover ring-1 ring-foreground/10"
                   />
                 ))}
               </div>
             ) : (
-              <div className="flex h-32 flex-col items-center justify-center gap-2 rounded-2xl bg-muted text-muted-foreground">
+              <div className="flex h-32 flex-col items-center justify-center gap-2 bg-muted text-muted-foreground">
                 <ImageIcon className="size-6" aria-hidden />
                 <span className="readout">No photos yet</span>
               </div>

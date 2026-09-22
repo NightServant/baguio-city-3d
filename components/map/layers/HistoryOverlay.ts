@@ -44,10 +44,10 @@ function ensureEventIcon(map: MapLibreMap) {
 // Older eras get a warmer sky/fog tint (MapLibre setSky — no Standard-style
 // light presets). MODERN falls back to the neutral daytime atmosphere.
 const ERA_SKY: Record<Era, { sky: string; fog: string }> = {
-  PRE_COLONIAL: { sky: "#c9a36a", fog: "#e6cfa6" }, // warm dusk haze
-  AMERICAN_COLONIAL: { sky: "#d6b483", fog: "#ecdcc0" }, // sepia dawn
-  POST_WAR: { sky: "#cdbf9a", fog: "#e8ddc6" }, // faded parchment
-  MODERN: { sky: "#a7c4e0", fog: "#dfe7ee" }, // neutral day
+  PRE_COLONIAL: { sky: "#C2A177", fog: "#EADBC2" }, // oldest: deepest ochre
+  AMERICAN_COLONIAL: { sky: "#D2B48F", fog: "#EFE2CC" }, // sepia
+  POST_WAR: { sky: "#D8CBB0", fog: "#F0E7D6" }, // faded parchment
+  MODERN: { sky: "#DCD3C4", fog: "#E8DFD0" }, // today: the weave palette
 };
 
 export function useHistoryOverlay(map: MapLibreMap) {
@@ -133,7 +133,7 @@ export function useHistoryOverlay(map: MapLibreMap) {
       const tint = ERA_SKY[activeEra ?? "MODERN"];
       map.setSky({
         "sky-color": tint.sky,
-        "horizon-color": "#eaf1f7",
+        "horizon-color": "#F5F0E6",
         "fog-color": tint.fog,
         "sky-horizon-blend": 0.6,
         "horizon-fog-blend": 0.5,
