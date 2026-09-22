@@ -73,7 +73,7 @@ export default async function HistoryPage() {
                             href={`/map?focus=${event.coord[0]},${event.coord[1]}`}
                             className="mt-2 inline-block text-xs font-medium text-primary underline-offset-4 hover:underline"
                           >
-                            View on map →
+                            View on map
                           </Link>
                         )}
                       </li>

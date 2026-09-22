@@ -1,21 +1,22 @@
 // Shared visual vocabulary for the map layers — the single source of truth for
 // every literal hex the MapLibre paint expressions use (paint can't read CSS
-// variables). Values are hand-reconciled to the site palette in app/globals.css:
-// pine greens (primary), fog-tinted cool neutrals, and a warm sunset amber —
-// while staying distinct and legible against the light OpenFreeMap basemap.
+// variables). Reconciled to the "Cordillera Weave" identity in app/globals.css.
 import type { LandmarkCategory, Era, VenueCategory } from "@/types/api";
 
-// Category pins — a spectrum that leans into the theme's pine + amber register
-// while keeping eight visually separable hues.
+// Category pins are DATA, not brand: eight categories need eight separable
+// hues, so they can't collapse to the three-colour chrome palette. They are
+// drawn instead from the natural dyestuffs those textiles are coloured with —
+// madder, ochre, indigo, annatto, logwood, cochineal — which keeps them
+// separable, legible on the light basemap, and of a piece with the identity.
 export const CATEGORY_COLORS: Record<LandmarkCategory, string> = {
-  NATURE: "#2f8f66", // deep pine (primary family)
-  PARK: "#6aa855", // meadow green
-  VIEWPOINT: "#3f7fb0", // fog blue
-  HERITAGE: "#b5813a", // heritage tan (amber family)
-  MARKET: "#d67a2c", // market orange
-  MUSEUM: "#8168c0", // muted violet
-  CHURCH: "#bf5a76", // strawberry rose
-  RECREATION: "#cf4d4d", // clay red
+  NATURE: "#7A7A45", // weld — olive-gold
+  PARK: "#A38B3C", // ochre
+  VIEWPOINT: "#3E5F7E", // indigo
+  HERITAGE: "#8C6239", // umber
+  MARKET: "#C4622D", // annatto
+  MUSEUM: "#6B4A6B", // logwood
+  CHURCH: "#A34458", // cochineal
+  RECREATION: "#B5432F", // madder, lightened
 };
 
 /**
@@ -23,29 +24,32 @@ export const CATEGORY_COLORS: Record<LandmarkCategory, string> = {
  * landmark layers all draw from one harmonized palette.
  */
 export const MAP_PALETTE = {
+  // Cordillera Weave triad: warp #16130F, bone #F5F0E6, madder #8C2318.
+  // Map paint is deliberately limited to these three so the HUD and the
+  // terrain read as one object. Terrain supplies all other colour.
   // Clustered markers + point defaults.
-  cluster: "#cf7f38", // warm amber cluster bubble
-  clusterStroke: "rgba(255,255,255,0.85)",
-  markerDefault: "#7d8a90", // fog neutral for unknown categories
-  markerStroke: "rgba(255,255,255,0.9)",
-  label: "#ffffff",
-  labelHalo: "rgba(26,36,30,0.6)", // pine-tinted dark halo
+  cluster: "#8C2318", // madder cluster bubble
+  clusterStroke: "rgba(245,240,230,0.9)", // bone
+  markerDefault: "#4A4238", // neutral warp-grey for unknown categories
+  markerStroke: "rgba(245,240,230,0.92)",
+  label: "#F5F0E6",
+  labelHalo: "rgba(22,19,15,0.72)", // warp halo
   // Jeepney route lines.
   transit: {
-    inactive: "#7d8a95", // quiet fog thread
-    activeCasing: "#e6a94a", // marching-ants amber casing
-    active: "#d68a34", // active route amber
-    stopFill: "#ffffff",
-    stopStroke: "#d68a34",
+    inactive: "#6B6156", // quiet warp thread
+    activeCasing: "#B5432F", // marching-ants madder casing
+    active: "#8C2318",
+    stopFill: "#F5F0E6",
+    stopStroke: "#8C2318",
   },
   // Timeline era / historical events.
   era: {
-    eventIcon: "#d9a441", // amber event dot
-    eventText: "#f2e5c8", // warm cream label
-    eventHalo: "rgba(38,26,12,0.82)", // dark umber halo
+    eventIcon: "#8C2318",
+    eventText: "#F5F0E6",
+    eventHalo: "rgba(22,19,15,0.85)",
   },
   // Landmark fill-extrusion scaffold.
-  landmark: "#c9772e",
+  landmark: "#8C2318",
 } as const;
 
 export const CATEGORY_LABELS: Record<LandmarkCategory, string> = {

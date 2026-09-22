@@ -112,7 +112,7 @@ export default async function DestinationPage({
                   href="/history"
                   className="mt-4 inline-block text-sm font-medium text-accent-foreground underline-offset-4 hover:underline"
                 >
-                  Read the full timeline →
+                  Read the full timeline
                 </Link>
               </section>
             ) : null}

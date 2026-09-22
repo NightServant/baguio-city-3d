@@ -37,7 +37,7 @@ export function SiteNav() {
             Baguio<span className="text-primary"> 3D</span>
           </span>
           <span className="readout mt-0.5 hidden text-muted-foreground lg:inline">
-            ELEV 1500 M
+            1,500 m
           </span>
         </Link>
 

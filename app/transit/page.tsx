@@ -89,7 +89,7 @@ export default async function TransitPage() {
               href={`/map?route=${route.code}`}
               className="mt-6 text-sm font-medium text-primary underline-offset-4 hover:underline"
             >
-              View route on map →
+              View route on map
             </Link>
           </article>
         ))}

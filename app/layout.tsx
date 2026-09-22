@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
-import { Fraunces, Geist_Mono, Inter } from "next/font/google";
+import { Archivo, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 
-// Body / UI text — clean, quiet grotesk.
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-
-// Display face — Fraunces carries the editorial, heritage-warm personality.
-const fraunces = Fraunces({
+// One family, worked at two extremes. Archivo is variable on BOTH weight and
+// width, so the width axis becomes an active design element: display type is
+// stretched like warp under tension, body text sits at normal width.
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-sans",
   display: "swap",
-  axes: ["opsz"],
+  axes: ["wdth"],
 });
 
 // Mono — the "survey readout" voice for coordinates, elevations, fares, years.
@@ -57,8 +56,7 @@ export default function RootLayout({
       lang="en"
       className={cn(
         "h-full antialiased",
-        inter.variable,
-        fraunces.variable,
+        archivo.variable,
         geistMono.variable,
         "font-sans",
       )}

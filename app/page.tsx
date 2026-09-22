@@ -72,44 +72,68 @@ export default async function Home() {
         <Contours className="absolute -right-24 top-1/2 hidden h-[560px] w-[760px] -translate-y-1/2 text-contour md:block" />
         <FogBank />
 
-        <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28">
-          <p className="font-mono text-[0.6875rem] uppercase tracking-wider tabular-nums text-primary">
-            16.4023° N · 120.5960° E · 1,500 m above the lowland heat
-          </p>
-          <h1 className="mt-5 max-w-3xl font-display text-5xl font-semibold leading-[1.05] tracking-tight text-balance sm:text-6xl md:text-7xl">
-            The Summer Capital, in three dimensions.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground text-pretty">
-            Baguio sits a mile up in the Cordilleras — pine forest, fog banks,
-            and a century of hill-station history. Fly the terrain, trace the
-            jeepney lines, and plan your trip ridge by ridge.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Link
-              href="/map"
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "h-11 rounded-full px-6 text-base",
-              )}
-            >
-              Open the 3D map
-              <ArrowRight data-icon="inline-end" />
-            </Link>
-            <Link
-              href="/destinations"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "h-11 rounded-full px-6 text-base",
-              )}
-            >
-              Browse destinations
-            </Link>
+        <div className="relative mx-auto grid max-w-6xl gap-x-10 px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:grid-cols-[3px_1fr]">
+          {/* Warp edge: the weave as structure, running the height of the hero */}
+          <div className="weave-edge hidden lg:block" aria-hidden="true" />
+
+          <div>
+            <h1 className="max-w-[16ch] font-display text-6xl leading-[0.9] sm:text-7xl md:text-[5.5rem]">
+              The Summer Capital, in three dimensions.
+            </h1>
+
+            <p className="mt-8 max-w-[58ch] text-lg leading-8 text-muted-foreground text-pretty">
+              Baguio sits a mile up in the Cordilleras — pine forest, fog banks,
+              and a century of hill-station history. Fly the terrain, trace the
+              jeepney lines, and plan your trip ridge by ridge.
+            </p>
+
+            <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
+              {[
+                ["Latitude", "16.4023° N"],
+                ["Longitude", "120.5960° E"],
+                ["Elevation", "1,500 m"],
+              ].map(([label, value]) => (
+                <div key={label}>
+                  <dt className="text-xs text-muted-foreground">{label}</dt>
+                  <dd className="readout mt-1 text-foreground">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              <Link
+                href="/map"
+                className={cn(buttonVariants({ size: "lg" }), "h-12 px-7 text-base")}
+              >
+                Open the 3D map
+              </Link>
+              <Link
+                href="/destinations"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "h-12 px-7 text-base",
+                )}
+              >
+                Browse destinations
+              </Link>
+            </div>
+
+            <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-px border border-border bg-border sm:grid-cols-4">
+              {[
+                [destinations.length, "Destinations"],
+                [routes.length, "Jeepney lines"],
+                [venues.length, "Places to eat & stay"],
+                [history.eras.length, "Eras"],
+              ].map(([value, label]) => (
+                <div key={String(label)} className="bg-background px-4 py-3">
+                  <dd className="font-display text-2xl leading-none">{value}</dd>
+                  <dt className="mt-1.5 text-xs text-muted-foreground">{label}</dt>
+                </div>
+              ))}
+            </dl>
           </div>
-          <p className="mt-12 font-mono text-[0.6875rem] uppercase tracking-wider tabular-nums text-muted-foreground">
-            {destinations.length} destinations · {routes.length} jeepney lines ·{" "}
-            {venues.length} places to eat & stay · {history.eras.length} eras
-          </p>
         </div>
+
+        <div className="weave-band" aria-hidden="true" />
       </section>
 
       {/* ------------------------------------------------------ Highlights */}
@@ -124,7 +148,7 @@ export default async function Home() {
             href="/destinations"
             className="text-sm font-medium text-primary underline-offset-4 hover:underline"
           >
-            All {destinations.length} destinations →
+            All {destinations.length} destinations
           </Link>
         </div>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -171,7 +195,7 @@ export default async function Home() {
                 href="/history"
                 className="inline-block pt-2 text-sm font-medium text-primary underline-offset-4 hover:underline"
               >
-                Open the timeline →
+                Open the timeline
               </Link>
             </div>
           </div>
@@ -212,7 +236,7 @@ export default async function Home() {
               href="/transit"
               className="mt-4 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
             >
-              Routes & fares →
+              Routes & fares
             </Link>
           </div>
 
@@ -242,7 +266,7 @@ export default async function Home() {
               href="/eat-stay"
               className="mt-4 inline-block text-sm font-medium text-primary underline-offset-4 hover:underline"
             >
-              Browse all {venues.length} places →
+              Browse all {venues.length} places
             </Link>
           </div>
         </div>
