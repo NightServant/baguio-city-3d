@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { LinkButton } from "@/components/ui/LinkButton";
 import {
   getDestinations,
   getHistory,
@@ -77,7 +76,9 @@ export default async function Home() {
           <div className="weave-edge hidden lg:block" aria-hidden="true" />
 
           <div>
-            <h1 className="max-w-[16ch] font-display text-6xl leading-[0.9] sm:text-7xl md:text-[5.5rem]">
+            {/* Scale from 36px: at 60px the longest word ("dimensions.")
+                exceeds a 375px viewport and gets clipped by overflow-hidden. */}
+            <h1 className="max-w-[16ch] font-display text-[2.25rem] leading-[0.95] sm:text-6xl sm:leading-[0.9] md:text-7xl lg:text-[5.5rem]">
               The Summer Capital, in three dimensions.
             </h1>
 
@@ -100,21 +101,12 @@ export default async function Home() {
               ))}
             </dl>
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Link
-                href="/map"
-                className={cn(buttonVariants({ size: "lg" }), "h-12 px-7 text-base")}
-              >
+              <LinkButton href="/map" size="large">
                 Open the 3D map
-              </Link>
-              <Link
-                href="/destinations"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" }),
-                  "h-12 px-7 text-base",
-                )}
-              >
+              </LinkButton>
+              <LinkButton href="/destinations" size="large" variant="outlined">
                 Browse destinations
-              </Link>
+              </LinkButton>
             </div>
 
             <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-px border border-border bg-border sm:grid-cols-4">
@@ -282,16 +274,15 @@ export default async function Home() {
           <p className="mx-auto mt-4 max-w-md text-base leading-7 text-primary-foreground/80">
             Terrain, landmarks, and live routes — the whole plateau in one view.
           </p>
-          <Link
+          <LinkButton
             href="/map"
-            className={cn(
-              buttonVariants({ variant: "secondary", size: "lg" }),
-              "mt-8 h-11 rounded-full px-6 text-base",
-            )}
+            size="large"
+            endIcon={<ArrowRight className="size-4" />}
+            sx={{ mt: 4, bgcolor: "background.default", color: "text.primary",
+                  "&:hover": { bgcolor: "#E8DFD0" } }}
           >
             Open the 3D map
-            <ArrowRight data-icon="inline-end" />
-          </Link>
+          </LinkButton>
         </div>
         <Treeline className="relative text-primary-foreground/20" />
       </section>

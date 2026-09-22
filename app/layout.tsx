@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Archivo, Geist_Mono } from "next/font/google";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { theme } from "./theme";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/site/SiteNav";
@@ -62,15 +66,22 @@ export default function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <a
-          href="#main-content"
-          className="sr-only z-50 focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
-        >
-          Skip to content
-        </a>
-        <SiteNav />
-        <main id="main-content" className="flex-1">{children}</main>
-        <SiteFooter />
+        {/* AppRouterCacheProvider collects Emotion's CSS while Next streams
+            chunks; without it MUI styles flash in after hydration. */}
+        <AppRouterCacheProvider options={{ key: "mui" }}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <a
+              href="#main-content"
+              className="sr-only z-50 focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+            >
+              Skip to content
+            </a>
+            <SiteNav />
+            <main id="main-content" className="flex-1">{children}</main>
+            <SiteFooter />
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

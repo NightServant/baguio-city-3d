@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { LinkButton } from "@/components/ui/LinkButton";
 import { getTransitRoutes } from "@/lib/content";
 import {
   JEEPNEY_BASE_KM,
@@ -109,13 +109,13 @@ export default async function TransitPage() {
               flagdown plus a distance charge every {TAXI_PER_METER_UNIT_M} m,
               plus waiting time in traffic.
             </p>
-            <Link
+            <LinkButton
               href="/map"
-              className={cn(buttonVariants(), "mt-6 rounded-full")}
+              className="mt-6"
+              endIcon={<ArrowRight className="size-4" />}
             >
               Estimate a real trip on the map
-              <ArrowRight data-icon="inline-end" />
-            </Link>
+            </LinkButton>
           </div>
           <div className="rounded-xl border border-border bg-card p-6">
             <p className="readout text-muted-foreground">
