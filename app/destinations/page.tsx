@@ -61,7 +61,7 @@ export default async function DestinationsPage({
       </div>
 
       {shown.length > 0 ? (
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((d) => (
             <DestinationCard key={d.slug} destination={d} />
           ))}

@@ -324,3 +324,22 @@
   .reveal-weave { clip-path: none !important; transition: none !important; }
   .parallax-layer { transform: none !important; }
 }
+
+/* Page transition: the incoming page settles downward into place, matching
+   the scroll-reveal easing so navigation reads as the same descending motion
+   the elevation rail tracks. */
+.route-transition {
+  transition: opacity 280ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.route-transition[data-route-stage="in"] {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.route-transition[data-route-stage="settled"] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-transition { transition: none !important; opacity: 1 !important; transform: none !important; }
+}
