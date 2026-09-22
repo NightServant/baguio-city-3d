@@ -15,6 +15,7 @@ import { useMapStore, type Basemap } from "@/stores/useMapStore";
 import { BAGUIO_BOUNDS, DEFAULT_CAMERA } from "@/lib/constants";
 import type { TerrainConfig } from "@/types/api";
 import { MapLayers } from "./MapLayers";
+import { applyWeaveBasemap } from "./basemapTheme";
 
 // Keyless basemap style (OpenFreeMap "Liberty"). No token required.
 const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
@@ -174,6 +175,11 @@ export function MapView() {
     const onStyleLoad = () => {
       styleInFlightRef.current = false;
       applyTerrain(map, exaggeration);
+      // Liberty only. Satellite imagery carries its own colour and its own
+      // shading, so re-dyeing or hillshading it would fight the photograph.
+      if (pendingBasemapRef.current === "terrain") {
+        applyWeaveBasemap(map, DEM_SOURCE);
+      }
       useMapStore.getState().bumpStyleGeneration();
       setAppliedBasemap(pendingBasemapRef.current);
       setReady(true);
@@ -294,6 +300,16 @@ export function MapView() {
     if (appliedBasemap === basemap) return;
     pendingBasemapRef.current = basemap;
     styleInFlightRef.current = true;
+    // Drop terrain BEFORE the swap. setStyle({diff:false}) unloads the style,
+    // but terrain stays configured on the map — and the terrain render path
+    // (Painter.maybeDrawDepth -> terrainDepth -> useProgram) dereferences
+    // style.projection.shaderPreludeCode on the very next frame, which is
+    // undefined while the style is gone. That throw happens inside MapLibre's
+    // rAF callback, so it kills the render loop outright: the canvas goes blank
+    // and every in-flight tile request is aborted, permanently. (Reproduced on
+    // both the ?basemap=satellite deep link and the satellite toggle.)
+    // onStyleLoad's applyTerrain restores it once the new style is in.
+    map.setTerrain(null);
     map.setStyle(basemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE, { diff: false });
   }, [basemap, appliedBasemap, ready]);
 
