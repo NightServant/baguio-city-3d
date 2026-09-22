@@ -579,7 +579,7 @@ Export must also emit `landmarks-manifest.json` — `slug`, `mesh_url`, `mesh_sc
 | **three.js is a new dependency** | **Medium** | Adds bundle weight to an app currently free of 3D libs. Locked by user decision. |
 | **Repaint-during-style-swap crash** | **Medium** | Known MapLibre bug already hit in this project (`6d7d2e1`). New custom layer must respect `styleInFlightRef`. |
 | **22 hand-modeled landmarks is real labor** | **Medium** | Largest time sink. Tier the work; ship tier 1 first. |
-| **Supabase project is PAUSED** | **Medium** | ⚠️ Measured 2026-09-22: project `tnqeqtcjtridhjbcdlbe` reports `status: INACTIVE` (free tier auto-pauses when idle), so `/api/geo/*` returns **500** and the pooler rejects `baguio_app` with *"tenant/user not found"*. Terrain/basemap still render — they're third-party. **Restore the project before any phase that seeds `landmarks` rows.** |
+| **Supabase project is PAUSED** | **Medium** | ⚠️ Measured 2026-09-22: project `<project-ref>` reports `status: INACTIVE` (free tier auto-pauses when idle), so `/api/geo/*` returns **500** and the pooler rejects `<app-role>` with *"tenant/user not found"*. Terrain/basemap still render — they're third-party. **Restore the project before any phase that seeds `landmarks` rows.** |
 | **Drone footage is one flight, one season, one time of day** | **Low** | Fine for massing/colour; insufficient for lighting studies. |
 
 **Open questions for the user**
@@ -601,7 +601,7 @@ Export must also emit `landmarks-manifest.json` — `slug`, `mesh_url`, `mesh_sc
 3. ✅ ~~Resolve the datum questions~~ — **all three answered by measurement** (§3a/b/c). Placement rule: query terrain at render time; never use `elevation_m`; never hardcode 1.35.
 4. **Correct the 22 `elevation_m` values** using `baguio-dem-probe.py` (§3c found errors up to **441 m**). Cheap, and it hands the existing app a corrected dataset — the clearest standalone win available here.
 5. ✅ ~~Enable Poly Haven~~ — **done and verified** (§4.0). Roof/wall/ground materials now come from CC0 assets rather than hand-authoring. Named asset IDs are in §4.0.
-6. **Restore the paused Supabase project** (`tnqeqtcjtridhjbcdlbe`, currently `INACTIVE`) before any phase that seeds `landmarks` rows.
+6. **Restore the paused Supabase project** (`<project-ref>`, currently `INACTIVE`) before any phase that seeds `landmarks` rows.
 7. **Prove the loop on one asset before scaling:** script `baguio-cathedral` end-to-end through the MCP — `execute_blender_code` to build → `get_scene_info` to assert → `get_viewport_screenshot` to compare against the §1 drone frame → export → manifest. If that loop holds for one landmark, it holds for 22.
 4. **Decide the height-inference model** (§6) now that OSM tags are known to be useless for 99.3 % of buildings. This is the single largest determinant of whether the city reads correctly.
 5. **Acquire DEM + OSM extract** (Phase 1) — both are large downloads, start early.
