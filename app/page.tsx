@@ -7,9 +7,12 @@ import {
   getTransitRoutes,
   getVenues,
 } from "@/lib/content";
-import { Contours, FogBank, Treeline } from "@/components/site/atmosphere";
+import { FogBank, Treeline } from "@/components/site/atmosphere";
+import { TerrainCanvas } from "@/components/site/TerrainCanvas";
+import { DestinationCarousel } from "@/components/site/DestinationCarousel";
+import { ScrollReveal, ParallaxLayer } from "@/components/site/Motion";
+import { PineIcon, FogIcon, RouteIcon, ContourIcon } from "@/components/site/AnimatedIcons";
 import { SectionHeading } from "@/components/site/SectionHeading";
-import { DestinationCard } from "@/components/site/DestinationCard";
 import { ERA_YEARS, VENUE_CATEGORY_LABELS } from "@/components/site/labels";
 import type { VenueCategory } from "@/types/venue";
 
@@ -68,10 +71,21 @@ export default async function Home() {
           className="absolute inset-0 bg-gradient-to-b from-secondary/80 via-background to-background"
           aria-hidden="true"
         />
-        <Contours className="absolute -right-24 top-1/2 hidden h-[560px] w-[760px] -translate-y-1/2 text-contour md:block" />
+        {/* Real Baguio relief as a warp/weft grid, sitting in the lower-right
+            and masked so it dissolves toward the text rather than colliding
+            with it. z-0 keeps it under the content, which is z-10. */}
+        <TerrainCanvas
+          className="pointer-events-none absolute -right-[12%] -bottom-[14%] z-0 hidden h-[620px] w-[64%] lg:block"
+          style={{
+            maskImage:
+              "radial-gradient(120% 100% at 85% 75%, #000 35%, rgba(0,0,0,0.55) 60%, transparent 85%)",
+            WebkitMaskImage:
+              "radial-gradient(120% 100% at 85% 75%, #000 35%, rgba(0,0,0,0.55) 60%, transparent 85%)",
+          }}
+        />
         <FogBank />
 
-        <div className="relative mx-auto grid max-w-6xl gap-x-10 px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:grid-cols-[3px_1fr]">
+        <div className="relative z-10 mx-auto grid max-w-6xl gap-x-10 px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:grid-cols-[3px_1fr]">
           {/* Warp edge: the weave as structure, running the height of the hero */}
           <div className="weave-edge hidden lg:block" aria-hidden="true" />
 
@@ -109,15 +123,18 @@ export default async function Home() {
               </LinkButton>
             </div>
 
+            {/* Each figure gets the icon of the thing it counts, and each icon
+                animates what that thing does. */}
             <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-px border border-border bg-border sm:grid-cols-4">
               {[
-                [destinations.length, "Destinations"],
-                [routes.length, "Jeepney lines"],
-                [venues.length, "Places to eat & stay"],
-                [history.eras.length, "Eras"],
-              ].map(([value, label]) => (
-                <div key={String(label)} className="bg-background px-4 py-3">
-                  <dd className="font-display text-2xl leading-none">{value}</dd>
+                { value: destinations.length, label: "Destinations", Icon: ContourIcon },
+                { value: routes.length, label: "Jeepney lines", Icon: RouteIcon },
+                { value: venues.length, label: "Places to eat & stay", Icon: PineIcon },
+                { value: history.eras.length, label: "Eras", Icon: FogIcon },
+              ].map(({ value, label, Icon }) => (
+                <div key={label} className="bg-background px-4 py-3">
+                  <Icon className="size-5 text-primary" />
+                  <dd className="mt-2 font-display text-2xl leading-none">{value}</dd>
                   <dt className="mt-1.5 text-xs text-muted-foreground">{label}</dt>
                 </div>
               ))}
@@ -125,7 +142,10 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="weave-band" aria-hidden="true" />
+        {/* The band draws itself across on entry rather than fading in. */}
+        <ScrollReveal variant="weave">
+          <div className="weave-band" aria-hidden="true" />
+        </ScrollReveal>
       </section>
 
       {/* ------------------------------------------------------ Highlights */}
@@ -143,25 +163,33 @@ export default async function Home() {
             All {destinations.length} destinations
           </Link>
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Zig-zag: lead card spans left in row one, closing card spans right
-              in row three, so six cards fill the 3-col grid without an orphan. */}
-          {featured.map((d, i) => (
-            <DestinationCard
-              key={d.slug}
-              destination={d}
-              featured={i === 0 || i === featured.length - 1}
-              className={
-                i === featured.length - 1 ? "lg:col-start-2" : undefined
-              }
-            />
-          ))}
-        </div>
+        {/* Coverflow: slides rake back like ridgelines receding into haze. */}
+        <ScrollReveal className="mt-10" delay={1}>
+          <DestinationCarousel destinations={featured} />
+        </ScrollReveal>
       </section>
 
       {/* --------------------------------------------------------- History */}
       <section className="relative overflow-hidden border-y border-border bg-secondary/50">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        {/* Three ridge layers at different parallax rates. Distant ridges move
+            least, which is how depth actually reads across a valley. */}
+        <ParallaxLayer speed={-0.05} className="pointer-events-none absolute inset-x-0 bottom-0 z-0">
+          <svg viewBox="0 0 1200 220" className="h-[220px] w-full text-foreground/[0.05]" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 200 L120 120 L260 168 L420 88 L560 150 L700 96 L860 160 L1010 110 L1200 170 V220 H0 Z" fill="currentColor" />
+          </svg>
+        </ParallaxLayer>
+        <ParallaxLayer speed={-0.11} className="pointer-events-none absolute inset-x-0 bottom-0 z-0">
+          <svg viewBox="0 0 1200 180" className="h-[180px] w-full text-foreground/[0.07]" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 170 L160 104 L320 150 L480 76 L640 138 L820 92 L980 146 L1200 104 V180 H0 Z" fill="currentColor" />
+          </svg>
+        </ParallaxLayer>
+        <ParallaxLayer speed={-0.19} className="pointer-events-none absolute inset-x-0 bottom-0 z-0">
+          <svg viewBox="0 0 1200 140" className="h-[140px] w-full text-foreground/[0.10]" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 130 L140 78 L300 120 L470 60 L620 112 L790 70 L960 118 L1200 82 V140 H0 Z" fill="currentColor" />
+          </svg>
+        </ParallaxLayer>
+
+        <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
           <div className="grid items-start gap-10 lg:grid-cols-2">
             <SectionHeading
               eyebrow="Four eras"

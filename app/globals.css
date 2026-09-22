@@ -240,3 +240,87 @@
     animation: none;
   }
 }
+
+/* ==========================================================================
+   Motion layer.
+
+   Everything here describes the subject: the pine sways, fog drifts, route
+   dashes travel, contour rings breathe outward, sections weave in as they
+   enter the viewport, and ridge layers parallax at different depths the way
+   real ridges do. Every rule is disabled under prefers-reduced-motion at the
+   bottom of this block.
+   ========================================================================== */
+
+@keyframes icon-sway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50%      { transform: rotate(2.5deg); }
+}
+@keyframes icon-drift {
+  0%   { transform: translateX(-3px); opacity: 0.45; }
+  50%  { transform: translateX(3px);  opacity: 1; }
+  100% { transform: translateX(-3px); opacity: 0.45; }
+}
+@keyframes icon-route {
+  to { stroke-dashoffset: -16; }
+}
+@keyframes icon-ring {
+  0%, 100% { transform: scale(0.94); opacity: 0.5; }
+  50%      { transform: scale(1.06); opacity: 1; }
+}
+
+.icon-sway  { animation: icon-sway 4.5s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
+.icon-drift { animation: icon-drift 5.5s ease-in-out infinite; }
+.icon-route { animation: icon-route 1.4s linear infinite; }
+.icon-ring  { animation: icon-ring 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+
+/* --- Scroll reveal -------------------------------------------------------
+   Sections weave in: the warp edge draws down, then content settles. Driven
+   by IntersectionObserver adding .is-visible (see ScrollReveal). */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.is-visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: 90ms; }
+.reveal-delay-2 { transition-delay: 180ms; }
+.reveal-delay-3 { transition-delay: 270ms; }
+
+/* The weave band draws itself across rather than fading in. */
+.reveal-weave { clip-path: inset(0 100% 0 0); transition: clip-path 900ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.reveal-weave.is-visible { clip-path: inset(0 0 0 0); }
+
+/* --- Parallax ------------------------------------------------------------
+   Ridge layers move at different rates. --p is set per element by the
+   ParallaxLayer component from a rAF-throttled scroll listener. */
+.parallax-layer { transform: translate3d(0, calc(var(--p, 0) * 1px), 0); will-change: transform; }
+
+/* --- Swiper, themed to the weave ----------------------------------------- */
+.baguio-swiper .swiper { padding-block: 0.5rem 2.5rem; }
+.baguio-swiper .swiper-slide { height: auto; transition: opacity 400ms ease; }
+.baguio-swiper .swiper-slide-shadow-left,
+.baguio-swiper .swiper-slide-shadow-right { background: none; }
+/* Slides recede into haze, like ridgelines. */
+.baguio-swiper .swiper-slide:not(.swiper-slide-active) { opacity: 0.42; }
+.baguio-swiper .swiper-slide-active { z-index: 2; }
+.baguio-swiper .swiper-button-next,
+.baguio-swiper .swiper-button-prev {
+  color: var(--warp);
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.baguio-swiper .swiper-button-next:hover,
+.baguio-swiper .swiper-button-prev:hover { background: var(--ecru); border-color: var(--warp); }
+.baguio-swiper .swiper-button-next::after,
+.baguio-swiper .swiper-button-prev::after { font-size: 1rem; font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-sway, .icon-drift, .icon-route, .icon-ring { animation: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .reveal-weave { clip-path: none !important; transition: none !important; }
+  .parallax-layer { transform: none !important; }
+}
