@@ -13,11 +13,11 @@
 ## Global Constraints
 
 - **Next.js 16.2.10.** Before using any Next API, read the matching guide in `node_modules/next/dist/docs/` (AGENTS.md rule). Middleware is `proxy.ts` in this version. `robots.ts`, `sitemap.ts`, `opengraph-image.tsx`, `icon.svg`, `apple-icon.tsx` are metadata file conventions (`01-app/03-api-reference/03-file-conventions/01-metadata/`).
-- **New dependencies allowed:** `vitest` (dev), `@playwright/test` (dev), `@next/third-parties`. Nothing else without a new ruling. `swiper` is removed (R4).
+- **New dependencies allowed:** `vitest` (dev), `@playwright/test` (dev), `@next/third-parties`. Nothing else without a new ruling. `swiper` and `three` stay: the carousel and the wireframe are kept with new jobs (R4, R5).
 - **Palette:** bone `#F5F0E6`, warp `#16130F`, madder `#8C2318`, ecru `#E8DFD0`, thread `#6B6156`. **No green anywhere** (user rule, 2026-09-22). Radius token `0.125rem`. No `rounded-lg/xl/2xl/3xl` on any surface; `rounded-full` only on dots and circles.
 - **Type:** Archivo (display at `wdth` 125 via `.font-display`, body at 100). Geist Mono only for measured values: m, °, ₱, km, times.
 - **Copy:** sentence case. No em dashes, no ` · ` meta strings, no arrow glyphs (→ ←) and no arrow icons on CTAs, no eyebrow label above headings. Enforced by the copy gate (Task 27).
-- **Motion:** one orchestrated moment per page (the weave band draw under the hero). Everything else answers a user action. `prefers-reduced-motion` respected everywhere.
+- **Motion:** the weave band draws once under the hero. Two scroll-linked effects stay because they carry meaning (R5, R10): the Problem wireframe rises from flat to real relief, and the ridgelines behind the closing CTA drift at depth-true rates. Everything else answers a user action. All of it holds still under `prefers-reduced-motion`; WebGL stops drawing when offscreen.
 - **Truth rule:** every number, claim, review, photo, phone number or email on the site traces to data in this repo, a cited source, or the user. Never invent any of them. If it can't be sourced, it doesn't ship.
 - **Mobile floor:** 360 px wide, no horizontal page scroll (gate: Task 2).
 - **Supabase free tier pauses when idle.** Before any task that touches the database, run the Supabase MCP `get_project` for the project and `restore_project` if `status` isn't `ACTIVE_HEALTHY`.
@@ -77,7 +77,7 @@ Everything below was checked in this repo, the running app, or the live Supabase
 | C2 | `/robots.txt` and `/sitemap.xml` return 404. | 17 |
 | C3 | Favicon exists, but `app/icon.svg` and `app/apple-icon.tsx` use `#1e4d3a` pine green, the retired palette. `app/opengraph-image.tsx` uses `#14352a` green, amber `#e0a84f` and Georgia. Every share preview shows the old brand. | 10 |
 | C4 | No structured data. **LocalBusiness doesn't apply:** Baguio 3D isn't a business with premises. Use WebSite, TouristAttraction and BreadcrumbList. | 12 |
-| C5 | Images: one `<img>` in the whole app (map sheet media, alt from the DB; the media table has 0 rows). Nothing raster to compress yet. The homepage ships three.js and a 62 KB heightmap only for a decorative wireframe; removed in Task 26. New posters (Task 22) are budgeted at 250 KB each. | 22, 26 |
+| C5 | Images: one `<img>` in the whole app (map sheet media, alt from the DB; the media table has 0 rows). Nothing raster to compress yet. The homepage ships three.js and a 62 KB heightmap on first paint for a decorative hero wireframe; Task 24 moves the wireframe to the Problem section and loads both only when that section nears the viewport. New posters (Task 22) are budgeted at 250 KB each. | 22, 24 |
 
 ### Security
 
@@ -127,11 +127,11 @@ Everything below was checked in this repo, the running app, or the live Supabase
 | H4 | Generic rounded cards | Leftovers on the home transit/eat lists, transit page, detail page (`rounded-xl`), 404, error page, loading skeletons, map sheet. Square them. | 14, 26, 27 |
 | H5 | Bento grid | Hero four-cell stat grid. Goes with the hero rewrite. | 23 |
 | H6 | Lucide defaults | 14 files. Map HUD keeps them (functional). Marketing pages lose the arrow icons on CTAs (3 places) and the menu icon. | 18, 27 |
-| H7 | Fade-up on scroll | 17 `ScrollReveal`/`ParallaxLayer` uses on the homepage. Keep one (weave band). | 26 |
+| H7 | Fade-up on scroll | 17 `ScrollReveal`/`ParallaxLayer` uses on the homepage. Fade-ups: keep one (weave band). Parallax: kept by owner decision, moved behind the closing CTA (R10). | 23–26 |
 | H8 | Hover with nothing behind it | `VenueCard` highlights on hover but the card isn't a link. `DestinationCard` already uses a stretched link (pass). | 6 |
 | H9 | Space Grotesk as the only font | Not used. Archivo + Geist Mono. Pass. | none |
 | H10 | Vague hero | "The Summer Capital, in three dimensions." is atmosphere, not a statement of what the site does. | 23 |
-| H11 | No live product demo | The hero wireframe is decorative. Nothing on the homepage is the product. | 22, 25 |
+| H11 | No live product demo | The hero wireframe is decorative. Nothing on the homepage is the product. The fix: the live map in Solution, steered by the carousel. | 22, 25 |
 | H12 | Text-only logo | Pine mark + wordmark. Pass. Favicon in the retired green: Task 10. | 10 |
 | H13 | Default Vercel/Lovable URL or badge | No badge. Unused create-next-app SVGs in `public/`. | 3 |
 | H14 | Fake-looking numbers | Hero counts (22, 6, 30, 4) are real but read as vanity metrics. Wrong elevations (A9). Unsourced fares (A8). Five of six routes have exactly 5 stops, which looks templated: label routes approximate. | 4, 5, 23 |
@@ -144,8 +144,10 @@ Everything below was checked in this repo, the running app, or the live Supabase
 - **R1 Proof is sources and measurements, not testimonials.** None exist; inventing them is forbidden. *Cost if wrong:* none. Real ones can be added when they exist.
 - **R2 Footer drops the page list** (per the brief). Pages stay reachable through the nav, the homepage sections, in-page links and `sitemap.xml`. *Cost:* restore one array.
 - **R3 Nav = Destinations, Jeepneys, Eat & stay, plus "Open the 3D map".** "Map" duplicated the CTA. History leaves the nav; it's linked from the homepage Solution section, every destination page with an era, and the sitemap. *Cost:* one line.
-- **R4 Coverflow carousel and `swiper` removed.** Not in the new section list, and its clipped side slides failed legibility (screenshot 4). *Cost:* restore from commit `96e99f3`.
-- **R5 Hero shows a real still of the map; the live demo sits in Solution.** One MapLibre instance on the homepage, and the largest paint is an image, not WebGL. `TerrainCanvas` and `baguio-heightmap.json` are deleted; `three` stays installed for Phase 9. *Cost:* restore from `fa4d73f`.
+- **R4 The coverflow carousel stays, as the live map's controller** (owner decision, 2026-09-24). In Solution, each place a visitor lands on, the map flies to. Its legibility problems (screenshot 4) are fixed at the cause: slides carry only a name and a measured height, and the arrows move below the slides. It also gains the Swiper `A11y` module it was missing, which is what gives its arrows a button role and a label. *Cost if wrong:* none; it's opt-in motion driven by the visitor.
+- **R5 The hero shows a real still of the map; the wireframe moves to the Problem section** (owner decision, 2026-09-24, to keep it). There it starts as a flat grid, "a flat map", and rises into Baguio's real relief as the section scrolls in. It's no longer decoration; it's the section's argument. The hero's largest paint stays an image rather than WebGL, and the wireframe with its 62 KB heightmap loads only when the Problem section is about to scroll into view, then stops drawing when offscreen. *Cost if wrong:* two WebGL contexts can be alive at once (wireframe + live map) on phones; Task 26 checks for context loss.
+- **R10 Parallax stays, behind the closing CTA** (owner decision, 2026-09-24). The three ridgelines that sat behind the history teaser now rise behind "See the hills before you climb them.", far ridge slowest. This overrides the audit's fade-up/parallax tell (H7) for this one use; the fade-up reveals still go. *Cost if wrong:* none; it holds still under reduced motion.
+- **R11 The Problem visual is the rising wireframe, not a separate relief chart.** The earlier draft drew a 2D relief strip; with the wireframe carrying the argument, a second chart would repeat it. The destination heights stay available to screen readers as a table in the same figure. *Cost if wrong:* the strip can be added back under the wireframe from `lib/relief.ts`.
 - **R6 A corrections form, not a mailto link.** The brief asks for a thank-you page, success and error states, and a response-time promise; a form is the only way to have them. Stored in Supabase (no email service, no new dependency). Rate limiting is one global hourly cap, so **no IP addresses are stored**. *Cost:* a spammer can exhaust the hourly cap; upgrade to per-client limits if that happens.
 - **R7 GA4 in basic consent mode.** The tag doesn't load at all until the visitor allows it: the most privacy-preserving way to meet "set up Google Analytics". Cookieless alternative with no banner: Vercel Web Analytics, a one-component swap. *Cost:* fewer counted visits than an always-on tag.
 - **R8 CSP ships report-only.** Enforcing it without checking reports risks blanking the map (MapLibre `blob:` workers, three tile hosts, inline styles from Emotion and MapLibre). *Cost:* no XSS protection from CSP until promoted.
@@ -181,7 +183,7 @@ Everything below was checked in this repo, the running app, or the live Supabase
 | `lib/sources.ts` | Data sources and the measured OSM building count |
 | `lib/relief.ts` | Heights and distances for the Problem section |
 | `lib/map/sources.ts` | Basemap styles, DEM source, terrain setup (extracted from `MapView`) |
-| `components/home/*.tsx` | `Hero`, `Proof`, `Problem`, `ReliefStrip`, `Solution`, `MapDemo`, `Faq`, `ClosingCta` |
+| `components/home/*.tsx` | `Hero`, `Proof`, `Problem`, `LazyTerrain` (wireframe, loaded near view), `Solution`, `TerrainTour` (carousel steering the map), `MapDemo`, `Faq`, `Ridgelines` (parallax), `ClosingCta` |
 | `components/site/StickyCta.tsx`, `components/site/Analytics.tsx` | Mobile CTA bar; GA4 consent |
 | `app/robots.ts`, `app/sitemap.ts` | Crawler files |
 | `app/(legal)/layout.tsx`, `app/(legal)/privacy/page.tsx`, `app/(legal)/terms/page.tsx`, `app/about/page.tsx` | Legal and about pages |
@@ -192,7 +194,9 @@ Everything below was checked in this repo, the running app, or the live Supabase
 | `supabase/migrations/20260924090200_corrections.sql`, `prisma/migrations/20260924090200_corrections/migration.sql` | Corrections table |
 | `public/home/hero-map.jpg`, `public/home/demo-map.jpg` | Map posters |
 
-**Delete:** `proxy.ts`; `public/{file,globe,next,vercel,window}.svg`; `components/site/TerrainCanvas.tsx`; `public/baguio-heightmap.json`; `components/site/DestinationCarousel.tsx`; the `swiper` package and `.baguio-swiper` CSS; `ParallaxLayer`; unused atmosphere and icon exports.
+**Modify (kept with new jobs):** `components/site/TerrainCanvas.tsx` (rise on scroll, pause offscreen), `components/site/DestinationCarousel.tsx` (reports the active place, A11y module, compact slides), `.baguio-swiper` CSS (arrows below slides). `ParallaxLayer` and `public/baguio-heightmap.json` are reused unchanged.
+
+**Delete:** `proxy.ts`; `public/{file,globe,next,vercel,window}.svg`; `FogBank`, `FogIcon`, `PineIcon` if nothing uses them after the rewrite.
 
 ---
 
@@ -2832,9 +2836,13 @@ git commit -m "Pin a map button to the bottom on phones after the first screen"
 
 Design plan (from the frontend-design brief, reviewed against the audit):
 - **Identity unchanged:** bone ground, warp text, madder as the one accent, Archivo wide display, mono only for measurements.
-- **The one bold thing:** the Problem section's relief strip, where every place in the guide hangs from a "flat map" line down to its real height on warp threads. It's the product's argument drawn from its own corrected data.
-- **Layout:** left-aligned editorial column, `max-w-6xl`, sections divided by hairlines. No eyebrow labels, no stat strips, no cards-for-everything. Section order is the brief's: Hero, Proof, Problem, Solution, FAQ, CTA.
-- **Motion:** the weave band draws once under the hero. The live map moves only when asked.
+- **The one bold thing:** the Problem section's wireframe. Baguio's real ground, sampled from the same terrain model the map uses, starts as a flat grid and rises into relief as the section scrolls in, with the madder ridges surfacing last. The product's whole argument in one motion.
+- **Three existing pieces, each given a new job** (owner decision, 2026-09-24):
+  - the **wireframe** moves from hero decoration to the Problem section, where rising from flat *is* the point;
+  - the **coverflow carousel** stops being a highlights reel and becomes the controller for the live map in Solution: pick a place, the map flies there;
+  - the **parallax ridgelines** move from behind the history teaser to behind the closing CTA, whose line is about the hills.
+- **Layout:** left-aligned editorial column, `max-w-6xl`, sections divided by hairlines. No eyebrow labels, no stat strips. Section order is the brief's: Hero, Proof, Problem, Solution, FAQ, CTA.
+- **Motion:** the weave band draws once under the hero; the wireframe rises and the ridgelines drift with scroll; the map moves only when a visitor picks a place. All of it holds still under `prefers-reduced-motion`, and WebGL stops drawing when offscreen.
 
 ### Task 21: Pull the map's data sources out of MapView
 
@@ -2878,8 +2886,8 @@ git commit -m "Move basemap styles and terrain setup into lib/map/sources"
 - Create: `scripts/capture-map-posters.mjs`, `public/home/hero-map.jpg`, `public/home/demo-map.jpg`, `components/home/MapDemo.tsx`, `tests/unit/posters.test.ts`
 
 **Interfaces:**
-- Consumes: `BASEMAP_STYLE`, `DEM_SOURCE`, `applyTerrain` (Task 21), `applyWeaveBasemap` (`components/map/basemapTheme.ts`), `CAMERA_PRESETS`, `DEFAULT_CAMERA` (`lib/constants.ts`).
-- Produces: `<MapDemo />` (client, no props).
+- Consumes: `BASEMAP_STYLE`, `DEM_SOURCE`, `applyTerrain` (Task 21), `applyWeaveBasemap` (`components/map/basemapTheme.ts`), `DEFAULT_CAMERA` (`lib/constants.ts`).
+- Produces: `DemoTarget = { slug: string; name: string; lng: number; lat: number }` and `<MapDemo target={DemoTarget | null} />` (client). The map flies to `target` whenever it changes; Task 25's carousel supplies it. With `target` null the map never moves on its own.
 
 - [ ] **Step 1: Capture the posters**
 
@@ -2939,28 +2947,30 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { applyWeaveBasemap } from "@/components/map/basemapTheme";
-import { CAMERA_PRESETS, DEFAULT_CAMERA } from "@/lib/constants";
+import { DEFAULT_CAMERA } from "@/lib/constants";
 import { BASEMAP_STYLE, DEM_SOURCE, applyTerrain } from "@/lib/map/sources";
 import { cn } from "@/lib/utils";
 
-const STOPS = [
-  { key: "burnham-park", label: "Burnham Park" },
-  { key: "session-road", label: "Session Road" },
-  { key: "mines-view", label: "Mines View" },
-] as const;
+export interface DemoTarget {
+  slug: string;
+  name: string;
+  lng: number;
+  lat: number;
+}
 
 type Stage = "poster" | "loading" | "live";
 
 /**
  * The real map, on the homepage. MapLibre loads only when this scrolls into
  * view (and not at all on Save-Data), so the page's first paint is an image.
+ * It moves only when `target` changes, and `target` only changes when a
+ * visitor picks a place in the carousel.
  */
-export function MapDemo() {
+export function MapDemo({ target }: { target: DemoTarget | null }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const [stage, setStage] = useState<Stage>("poster");
-  const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -3007,15 +3017,15 @@ export function MapDemo() {
     };
   }, []);
 
-  function fly(key: (typeof STOPS)[number]["key"]) {
+  // Fly to the picked place. If the map is still loading, this runs again
+  // once it's live, so the visitor's last pick is where it lands.
+  useEffect(() => {
     const map = mapRef.current;
-    const cam = CAMERA_PRESETS[key];
-    if (!map || !cam) return;
-    setActive(key);
-    const to = { center: cam.center as [number, number], zoom: cam.zoom, pitch: cam.pitch, bearing: cam.bearing };
+    if (!map || stage !== "live" || !target) return;
+    const to = { center: [target.lng, target.lat] as [number, number], zoom: 15.2, pitch: 62, bearing: -20 };
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) map.jumpTo(to);
     else map.flyTo({ ...to, duration: 2400 });
-  }
+  }, [target, stage]);
 
   return (
     <figure className="weave-edge border-y border-r border-border bg-card">
@@ -3029,23 +3039,15 @@ export function MapDemo() {
           className={cn("pointer-events-none object-cover transition-opacity duration-500", stage === "live" && "opacity-0")}
         />
       </div>
-      <figcaption className="flex flex-wrap items-center gap-2 border-t border-border p-3">
-        <span className="mr-1 text-sm text-muted-foreground">Fly to</span>
-        {STOPS.map((s) => (
-          <button
-            key={s.key}
-            type="button"
-            disabled={stage !== "live"}
-            aria-pressed={active === s.key}
-            onClick={() => fly(s.key)}
-            className="border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:border-primary aria-pressed:border-primary aria-pressed:text-primary disabled:opacity-50"
-          >
-            {s.label}
-          </button>
-        ))}
-        <span className="ml-auto text-xs text-muted-foreground">
-          {stage === "loading" ? "Loading the terrain…" : "Map data © OpenStreetMap contributors, OpenFreeMap"}
-        </span>
+      <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-border px-4 py-3">
+        <p role="status" className="text-sm font-medium">
+          {target
+            ? `Showing ${target.name} on the map`
+            : stage === "loading"
+              ? "Loading the terrain…"
+              : "Pick a place below and the map flies there"}
+        </p>
+        <span className="text-xs text-muted-foreground">Map data © OpenStreetMap contributors, OpenFreeMap</span>
       </figcaption>
     </figure>
   );
@@ -3229,18 +3231,19 @@ git commit -m "Homepage hero says what the site does and shows the map; proof fr
 
 ---
 
-### Task 24: Problem section and relief strip
+### Task 24: Problem section, with the wireframe rising from a flat map
 
 **Files:**
-- Create: `lib/relief.ts`, `tests/unit/relief.test.ts`, `components/home/ReliefStrip.tsx`, `components/home/Problem.tsx`
-- Modify: `app/page.tsx` (insert after Proof; remove the old Highlights/carousel section), `tests/e2e/home.spec.ts`
+- Create: `lib/relief.ts`, `tests/unit/relief.test.ts`, `components/home/LazyTerrain.tsx`, `components/home/Problem.tsx`
+- Modify: `components/site/TerrainCanvas.tsx` (scroll-linked rise, offscreen pause), `app/page.tsx` (insert after Proof; remove the old Highlights section, whose carousel returns with a new job in Task 25), `tests/e2e/home.spec.ts`
 
 **Interfaces:**
-- Consumes: corrected `elevationM` (Task 4).
-- Produces: `relief(origin, places): Relief` with `Relief = { points: ReliefPoint[]; lowest; highest; spanM }` and `ReliefPoint = { slug; name; elevationM; km }`; `<Problem … />`.
+- Consumes: corrected `elevationM` (Task 4); `public/baguio-heightmap.json` (existing: 96×96 Terrarium z13 samples over exactly the model bounds, 153–2,230 m).
+- Produces: `relief(origin, places): Relief` with `Relief = { points: ReliefPoint[]; lowest; highest; spanM }` and `ReliefPoint = { slug; name; elevationM; km }`; `<TerrainCanvas riseOnScroll? />`; `<LazyTerrain className? />`; `<Problem relief originName minFare withHours total />`.
 
 - [ ] **Step 1: Write the failing unit test**
 
+`tests/unit/relief.test.ts`:
 ```ts
 import { expect, it } from "vitest";
 import { relief } from "@/lib/relief";
@@ -3281,9 +3284,9 @@ export interface Relief {
 }
 
 /**
- * Places laid out by distance from `origin` and by height, for the homepage's
- * "flat map hides the hills" strip. Heights are the terrain-sampled values
- * from scripts/fix-elevations.py, so every number shown is measured.
+ * Places by distance from `origin` and by height, for the homepage Problem
+ * section's copy and its screen-reader table. Heights are the terrain-sampled
+ * values from scripts/fix-elevations.py, so every number shown is measured.
  */
 export function relief(
   origin: { lng: number; lat: number },
@@ -3302,82 +3305,119 @@ export function relief(
 ```
 Run → PASS.
 
-- [ ] **Step 3: The strip** `components/home/ReliefStrip.tsx`:
-```tsx
-import type { Relief } from "@/lib/relief";
+- [ ] **Step 3: Teach the wireframe to rise, and to rest offscreen**
 
-const FLAT_Y = 44;
-const TOP = 120;
-const BOTTOM = 300;
+`components/site/TerrainCanvas.tsx`. Update the doc comment's first line from "The hero's 3D element" to "Baguio's actual topography as a wireframe (homepage Problem section)". Then:
+
+Add the prop:
+```tsx
+export function TerrainCanvas({
+  className,
+  style,
+  riseOnScroll = false,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+  /** Start as a flat grid and rise to full relief as the element scrolls into view. */
+  riseOnScroll?: boolean;
+}) {
+```
+Add, right after `const reduced = …`:
+```ts
+    // Mid-page WebGL shouldn't spend frames nobody can see.
+    let onScreen = true;
+    const visibility = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+      },
+      { rootMargin: "100px" },
+    );
+    visibility.observe(host);
+
+    // Flat as the element enters the viewport, full relief once its top has
+    // travelled 80% of the viewport height. The flat grid is the flat map; the
+    // rise is the ground it hides.
+    const riseNow = () => {
+      if (!riseOnScroll || reduced) return 1;
+      const top = host.getBoundingClientRect().top;
+      const vh = window.innerHeight;
+      return Math.min(1, Math.max(0.02, (vh - top) / (vh * 0.8)));
+    };
+```
+Replace `tick`:
+```ts
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      if (!onScreen) return;
+      const t = (performance.now() - start) / 1000;
+      const rise = riseNow();
+      if (mesh && ridge) {
+        // Heights live on the plane's local z (it's rotated flat), so scaling
+        // z lifts the relief without moving the grid.
+        mesh.scale.z = rise;
+        ridge.scale.z = rise;
+        // The madder ridges surface last, arriving with the relief.
+        (ridge.material as THREE.LineBasicMaterial).opacity = 0.85 * rise * rise;
+      }
+      if (!reduced) {
+        group.rotation.z = Math.sin(t * 0.055) * 0.14;
+        camera.position.x += (target.x * 1.5 - camera.position.x) * 0.035;
+        camera.position.y += (7.6 - target.y * 0.9 - camera.position.y) * 0.035;
+        camera.lookAt(0, -0.6, 0);
+      }
+      renderer.render(scene, camera);
+    };
+```
+Add `visibility.disconnect();` to the cleanup, and `riseOnScroll` to the effect's dependency array.
+
+- [ ] **Step 4: Load it only when it's about to be seen** `components/home/LazyTerrain.tsx`:
+```tsx
+"use client";
+
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
+
+const TerrainCanvas = dynamic(
+  () => import("@/components/site/TerrainCanvas").then((m) => m.TerrainCanvas),
+  { ssr: false },
+);
 
 /**
- * Every place pinned to one line, the way a flat map shows it, then dropped on
- * a thread to its real height. Two drawings share the data: a wide one for
- * tablets and up, and a narrow one whose text stays readable on a phone.
+ * Mounts the three.js wireframe, and fetches its heightmap, only when the
+ * Problem section is about to scroll into view. Nothing loads for visitors
+ * who never scroll that far.
  */
-function Chart({ data, width, fontSize, className }: { data: Relief; width: number; fontSize: number; className: string }) {
-  const left = 16;
-  const right = width - 16;
-  const maxKm = Math.max(...data.points.map((p) => p.km), 0.1);
-  const x = (km: number) => left + (km / maxKm) * (right - left);
-  const y = (m: number) => TOP + ((data.highest.elevationM - m) / Math.max(data.spanM, 1)) * (BOTTOM - TOP);
-  const labelled = [data.points[0], data.highest, data.lowest].filter((p, i, a) => a.findIndex((q) => q.slug === p.slug) === i);
-  const anchor = (px: number) => (px < width * 0.2 ? "start" : px > width * 0.8 ? "end" : "middle");
+export function LazyTerrain({ className }: { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setNear(true);
+        io.disconnect();
+      },
+      { rootMargin: "200px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <svg viewBox={`0 0 ${width} 340`} className={className} aria-hidden="true" style={{ fontSize }}>
-      <line x1={left} x2={right} y1={FLAT_Y} y2={FLAT_Y} stroke="var(--border)" />
-      <text x={left} y={FLAT_Y - 14} fill="var(--muted-foreground)">On a flat map</text>
-      <text x={left} y={TOP - 22} fill="var(--muted-foreground)">On the ground</text>
-      {data.points.map((p) => (
-        <g key={p.slug}>
-          <line x1={x(p.km)} x2={x(p.km)} y1={FLAT_Y} y2={y(p.elevationM)} stroke="var(--madder)" strokeOpacity={0.35} />
-          <circle cx={x(p.km)} cy={FLAT_Y} r={3} fill="var(--foreground)" />
-          <circle cx={x(p.km)} cy={y(p.elevationM)} r={4} fill="var(--foreground)" />
-        </g>
-      ))}
-      {labelled.map((p) => (
-        <g key={`label-${p.slug}`}>
-          <circle cx={x(p.km)} cy={y(p.elevationM)} r={6} fill="var(--madder)" />
-          <text x={x(p.km)} y={y(p.elevationM) + fontSize + 10} textAnchor={anchor(x(p.km))} fill="var(--foreground)">
-            {p.name}{" "}
-            <tspan fill="var(--muted-foreground)" fontFamily="var(--font-geist-mono)">{p.elevationM.toLocaleString("en-PH")} m</tspan>
-          </text>
-        </g>
-      ))}
-    </svg>
-  );
-}
-
-export function ReliefStrip({ data, originName }: { data: Relief; originName: string }) {
-  const maxKm = Math.max(...data.points.map((p) => p.km));
-  return (
-    <figure className="mt-10">
-      <Chart data={data} width={1000} fontSize={14} className="hidden h-auto w-full sm:block" />
-      <Chart data={data} width={420} fontSize={15} className="h-auto w-full sm:hidden" />
-      <figcaption className="mt-3 text-sm text-muted-foreground">
-        Distance from {originName} runs left to right, out to {maxKm.toFixed(1)} km. Heights are sampled from the terrain model.
-      </figcaption>
-      <table className="sr-only">
-        <caption>Height of each place in the guide</caption>
-        <thead>
-          <tr><th>Place</th><th>Distance from {originName}</th><th>Height</th></tr>
-        </thead>
-        <tbody>
-          {data.points.map((p) => (
-            <tr key={p.slug}><td>{p.name}</td><td>{p.km.toFixed(1)} km</td><td>{p.elevationM} m</td></tr>
-          ))}
-        </tbody>
-      </table>
-    </figure>
+    <div ref={ref} className={className}>
+      {near ? <TerrainCanvas riseOnScroll className="size-full" /> : null}
+    </div>
   );
 }
 ```
 
-- [ ] **Step 4: The section** `components/home/Problem.tsx`:
+- [ ] **Step 5: The section** `components/home/Problem.tsx`:
 ```tsx
 import type { Relief } from "@/lib/relief";
-import { ReliefStrip } from "./ReliefStrip";
+import { LazyTerrain } from "./LazyTerrain";
 
 export function Problem({
   relief,
@@ -3399,7 +3439,26 @@ export function Problem({
         <h2 className="max-w-[18ch] font-display text-4xl leading-[1.02] text-balance sm:text-5xl">
           A flat map hides the hills.
         </h2>
-        <ReliefStrip data={relief} originName={originName} />
+
+        <figure className="mt-8">
+          {/* The edges fade so the grid reads as a landscape, not a box. */}
+          <LazyTerrain className="h-[280px] w-full [mask-image:linear-gradient(to_right,transparent,#000_10%,#000_90%,transparent)] sm:h-[440px]" />
+          <figcaption className="mt-3 max-w-[60ch] text-sm text-muted-foreground">
+            The real ground under the map area, drawn from the terrain model the 3D map uses.
+          </figcaption>
+          <table className="sr-only">
+            <caption>Height of each place in the guide</caption>
+            <thead>
+              <tr><th>Place</th><th>Distance from {originName}</th><th>Height</th></tr>
+            </thead>
+            <tbody>
+              {relief.points.map((p) => (
+                <tr key={p.slug}><td>{p.name}</td><td>{p.km.toFixed(1)} km</td><td>{p.elevationM} m</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </figure>
+
         <div className="mt-12 grid gap-10 md:grid-cols-3">
           <p className="leading-7 text-muted-foreground">
             <span className="font-medium text-foreground">The climbs are real.</span> {relief.lowest.name} sits{" "}
@@ -3421,8 +3480,9 @@ export function Problem({
   );
 }
 ```
+(`mask-image` hides pixels; it paints nothing, so it isn't the gradient tell.)
 
-- [ ] **Step 5: Mount it.** In `app/page.tsx`: compute, then render `<Problem>` right after `<Proof>`; delete the whole `{/* Highlights */}` section (carousel).
+- [ ] **Step 6: Mount it and gate it.** In `app/page.tsx`: compute, then render `<Problem>` right after `<Proof>`; delete the whole `{/* Highlights */}` section (the carousel returns in Task 25).
 ```tsx
   const origin = destinations.find((d) => d.slug === "burnham-park") ?? destinations[0];
   const places = [...destinations, ...venues];
@@ -3439,61 +3499,201 @@ export function Problem({
 ```
 Add to `tests/e2e/home.spec.ts`:
 ```ts
-test("the problem section draws every destination at its real height", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("heading", { name: "A flat map hides the hills." })).toBeVisible();
-  await expect(page.locator("table.sr-only tbody tr")).toHaveCount(22);
+test("the wireframe loads only as the problem section nears, and every height is listed", async ({ page }) => {
+  const requests: string[] = [];
+  page.on("request", (r) => requests.push(r.url()));
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(1000);
+  expect(requests.some((u) => u.includes("baguio-heightmap.json"))).toBe(false);
+
+  const heading = page.getByRole("heading", { name: "A flat map hides the hills." });
+  await heading.scrollIntoViewIfNeeded();
+  await expect.poll(() => requests.some((u) => u.includes("baguio-heightmap.json"))).toBe(true);
+  const problem = page.locator("section", { has: heading });
+  await expect(problem.locator("canvas")).toBeAttached();
+  await expect(problem.locator("table.sr-only tbody tr")).toHaveCount(22);
 });
 ```
 
-- [ ] **Step 6: Run** unit + e2e (home, overflow at 360/375/414) → PASS. Screenshot the strip at 1440 and 375 and check labels don't collide; if two labelled points sit within 60 px, drop the origin label.
+- [ ] **Step 7: Run and look.** Unit + e2e (home; overflow at 360/375/414) → PASS. Then in the Playwright browser at 1440×900, screenshot the figure twice: once with the section's top just inside the bottom of the viewport (expect a near-flat grid, no madder), once with the section centered (expect full relief, madder ridges). Repeat with `page.emulateMedia({ reducedMotion: "reduce" })`: full relief both times, no drift.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add lib/relief.ts components/home/ReliefStrip.tsx components/home/Problem.tsx app/page.tsx tests
-git commit -m "Problem section: every destination hung from a flat line to its measured height"
+git add lib/relief.ts components/site/TerrainCanvas.tsx components/home/LazyTerrain.tsx components/home/Problem.tsx app/page.tsx tests
+git commit -m "Problem section: the real terrain rises out of a flat grid as it scrolls in"
 ```
 
 ---
 
-### Task 25: Solution section with the live demo
+### Task 25: Solution section, where the carousel steers the live map
 
 **Files:**
-- Create: `components/home/Solution.tsx`
-- Modify: `app/page.tsx` (replace the History and Transit + Eat sections), `tests/e2e/home.spec.ts`
+- Create: `components/home/TerrainTour.tsx`, `components/home/Solution.tsx`
+- Modify: `components/site/DestinationCarousel.tsx` (reports the active place, loads the A11y module, compact slides), `app/globals.css` (arrows below the slides), `app/page.tsx` (replace the History and Transit + Eat sections), `tests/e2e/home.spec.ts`
 
 **Interfaces:**
-- Consumes: `<MapDemo />` (Task 22), `OpenNowBadge`, `PriceGlyphs`, `ContourIcon`, `RouteIcon`.
-- Produces: `<Solution routes venues eras />`, section `id="how-it-works"`.
+- Consumes: `<MapDemo target />` and `DemoTarget` (Task 22), `OpenNowBadge`, `PriceGlyphs`, `ContourIcon`, `RouteIcon`.
+- Produces: `<DestinationCarousel destinations onActiveChange? />`; `<TerrainTour destinations />`; `<Solution featured routes venues eras />`, section `id="how-it-works"`.
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Write the failing tests**
 
+Add to `tests/e2e/home.spec.ts`:
 ```ts
-test("the solution section runs the real map and links every guide page", async ({ page }) => {
+test("the carousel steers the live map", async ({ page }) => {
   await page.goto("/");
   const how = page.locator("#how-it-works");
   await how.scrollIntoViewIfNeeded();
   await expect(how.locator("canvas.maplibregl-canvas")).toBeAttached({ timeout: 20_000 });
+  await how.getByRole("button", { name: "Next destination" }).click();
+  await expect(how.locator("figure").getByRole("status")).toHaveText(/^Showing .+ on the map$/);
   for (const href of ["/map", "/transit", "/eat-stay", "/history"]) {
     await expect(how.locator(`a[href="${href}"]`).first()).toBeVisible();
   }
 });
-```
-Run → FAIL.
 
-- [ ] **Step 2: Implement** `components/home/Solution.tsx`:
+test("carousel arrows sit below the slides, never over their text", async ({ page }) => {
+  await page.goto("/");
+  const how = page.locator("#how-it-works");
+  await how.scrollIntoViewIfNeeded();
+  const next = await how.getByRole("button", { name: "Next destination" }).boundingBox();
+  const slide = await how.locator(".swiper-slide-active article").boundingBox();
+  expect(next!.y).toBeGreaterThanOrEqual(slide!.y + slide!.height);
+});
+```
+Run → FAIL. (Today there is no "Next destination" button at all: the carousel passes `a11y` messages but never loads Swiper's `A11y` module, so its arrows are unlabeled divs. That's a bug in its own right.)
+
+- [ ] **Step 2: Refit the carousel** `components/site/DestinationCarousel.tsx`:
+```tsx
+"use client";
+
+import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { A11y, EffectCoverflow, Keyboard, Mousewheel, Navigation, Parallax } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-coverflow";
+import "swiper/css/navigation";
+
+import type { Destination } from "@/lib/content";
+import { formatElevation } from "@/components/site/labels";
+
+/**
+ * Coverflow of places, used as the controller for the homepage's live map:
+ * each slide you land on, the map flies to.
+ *
+ * The 3D tilt isn't decoration: slides rake back like ridgelines receding into
+ * haze, which is how Baguio reads from a viewpoint. Slides carry only a name
+ * and a measured height, so the receding ones never show clipped paragraphs.
+ */
+export function DestinationCarousel({
+  destinations,
+  onActiveChange,
+}: {
+  destinations: Destination[];
+  onActiveChange?: (destination: Destination) => void;
+}) {
+  return (
+    <div className="baguio-swiper relative">
+      <Swiper
+        modules={[A11y, EffectCoverflow, Navigation, Keyboard, Mousewheel, Parallax]}
+        effect="coverflow"
+        grabCursor
+        centeredSlides
+        parallax
+        loop
+        keyboard={{ enabled: true }}
+        mousewheel={{ forceToAxis: true }}
+        navigation
+        onSlideChange={(swiper) => onActiveChange?.(destinations[swiper.realIndex])}
+        slidesPerView={1.3}
+        spaceBetween={16}
+        coverflowEffect={{ rotate: 0, stretch: 0, depth: 130, modifier: 1, slideShadows: false }}
+        breakpoints={{
+          640: { slidesPerView: 2, spaceBetween: 20 },
+          1024: { slidesPerView: 2.4, spaceBetween: 24 },
+        }}
+        a11y={{ prevSlideMessage: "Previous destination", nextSlideMessage: "Next destination" }}
+      >
+        {destinations.map((d) => (
+          <SwiperSlide key={d.slug}>
+            <article className="weave-edge h-full border-y border-r border-border bg-card px-5 py-5">
+              <h3 className="font-display text-xl leading-tight" data-swiper-parallax="-40">
+                <Link href={`/destinations/${d.slug}`} className="hover:text-primary">
+                  {d.name}
+                </Link>
+              </h3>
+              {d.elevationM != null ? (
+                <p className="readout mt-2 text-muted-foreground" data-swiper-parallax="-20">
+                  {formatElevation(d.elevationM)}
+                </p>
+              ) : null}
+            </article>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
+}
+```
+`onSlideChange` doesn't fire on first render, so the map stays put until someone swipes, clicks an arrow or presses an arrow key.
+
+`app/globals.css`, in the Swiper block: replace the `.baguio-swiper .swiper { padding-block: … }` rule and add the arrow placement:
+```css
+.baguio-swiper .swiper { padding-block: 0.5rem 4rem; }
+/* Arrows sit under the slides, left-aligned, so they never cover text (they
+   used to overlay the middle of the cards). */
+.baguio-swiper .swiper-button-prev,
+.baguio-swiper .swiper-button-next { top: auto; bottom: 0; margin-top: 0; }
+.baguio-swiper .swiper-button-prev { left: 0; right: auto; }
+.baguio-swiper .swiper-button-next { left: 3.25rem; right: auto; }
+```
+
+- [ ] **Step 3: Couple it to the map** `components/home/TerrainTour.tsx`:
+```tsx
+"use client";
+
+import { useState } from "react";
+import type { Destination } from "@/lib/content";
+import { DestinationCarousel } from "@/components/site/DestinationCarousel";
+import { MapDemo, type DemoTarget } from "./MapDemo";
+
+/** The carousel steers the live map: each place a visitor lands on, the map flies to. */
+export function TerrainTour({ destinations }: { destinations: Destination[] }) {
+  const [target, setTarget] = useState<DemoTarget | null>(null);
+  return (
+    <div className="min-w-0 space-y-6">
+      <MapDemo target={target} />
+      <DestinationCarousel
+        destinations={destinations}
+        onActiveChange={(d) => setTarget({ slug: d.slug, name: d.name, lng: d.lng, lat: d.lat })}
+      />
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: The section** `components/home/Solution.tsx`:
 ```tsx
 import Link from "next/link";
-import type { TransitRouteContent, Venue } from "@/lib/content";
+import type { Destination, TransitRouteContent, Venue } from "@/lib/content";
 import { ContourIcon, RouteIcon } from "@/components/site/AnimatedIcons";
 import { OpenNowBadge } from "@/components/site/OpenNowBadge";
 import { PriceGlyphs } from "@/components/site/badges";
-import { MapDemo } from "./MapDemo";
+import { TerrainTour } from "./TerrainTour";
 
 const more = "text-sm font-medium text-primary underline-offset-4 hover:underline";
 
-export function Solution({ routes, venues, eras }: { routes: TransitRouteContent[]; venues: Venue[]; eras: number }) {
+export function Solution({
+  featured,
+  routes,
+  venues,
+  eras,
+}: {
+  featured: Destination[];
+  routes: TransitRouteContent[];
+  venues: Venue[];
+  eras: number;
+}) {
   const sample = venues.filter((v) => v.hours != null).slice(0, 4);
   return (
     <section id="how-it-works" className="scroll-mt-20 border-b border-border">
@@ -3502,17 +3702,18 @@ export function Solution({ routes, venues, eras }: { routes: TransitRouteContent
           One map for the climb, the ride and the table.
         </h2>
 
-        {/* Terrain: the live product */}
+        {/* Terrain: the live product, steered by the carousel */}
         <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:gap-14">
           <div className="min-w-0">
             <ContourIcon className="size-6 text-primary" />
             <h3 className="mt-3 font-display text-2xl">Fly the terrain</h3>
             <p className="mt-3 leading-7 text-muted-foreground">
-              Every landmark sits on real ground heights. Tilt, turn and fly between them before you walk it.
+              Every landmark sits on real ground heights. Pick a place and the map flies you over the ridges to it,
+              before you walk it.
             </p>
             <Link href="/map" className={`mt-4 inline-block ${more}`}>Open the full map</Link>
           </div>
-          <MapDemo />
+          <TerrainTour destinations={featured} />
         </div>
 
         {/* Jeepneys */}
@@ -3572,33 +3773,49 @@ export function Solution({ routes, venues, eras }: { routes: TransitRouteContent
   );
 }
 ```
-(Confirm `TransitRouteContent` and `Venue` are exported from `lib/content.ts`; they are interfaces there.)
 
-- [ ] **Step 3: Mount it.** In `app/page.tsx`, delete the `{/* History */}` and `{/* Transit + Eat */}` sections and render after `<Problem>`:
+- [ ] **Step 5: Mount it.** In `app/page.tsx`, delete the `{/* History */}` and `{/* Transit + Eat */}` sections and render after `<Problem>`:
 ```tsx
-      <Solution routes={routes} venues={venues} eras={history.eras.length} />
+const FEATURED_SLUGS = [
+  "burnham-park",
+  "mines-view-park",
+  "camp-john-hay",
+  "session-road",
+  "bencab-museum",
+  "tam-awan-village",
+];
+```
+```tsx
+  const featured = FEATURED_SLUGS.map((slug) => destinations.find((d) => d.slug === slug)).filter((d) => d != null);
+```
+```tsx
+      <Solution featured={featured} routes={routes} venues={venues} eras={history.eras.length} />
 ```
 
-- [ ] **Step 4: Run** home + overflow + links gates → PASS.
+- [ ] **Step 6: Run** home + overflow (360/375/414) + links gates → PASS. In the Playwright browser, press the "Next destination" arrow three times and confirm the map lands on each place in turn; with reduced motion emulated, it jumps instead of flying.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add components/home/Solution.tsx app/page.tsx tests/e2e/home.spec.ts
-git commit -m "Solution section: the live map, real routes and real open-now listings"
+git add components/site/DestinationCarousel.tsx components/home/TerrainTour.tsx components/home/Solution.tsx app/globals.css app/page.tsx tests/e2e/home.spec.ts
+git commit -m "Solution section: the coverflow carousel now steers the live map"
 ```
 
 ---
 
-### Task 26: FAQ, closing CTA, and clearing out the old homepage
+### Task 26: FAQ, and a closing CTA over parallax ridgelines
 
 **Files:**
-- Create: `components/home/Faq.tsx`, `components/home/ClosingCta.tsx`
-- Modify: `app/page.tsx` (final form), `components/site/Motion.tsx` (drop `ParallaxLayer`), `components/site/atmosphere.tsx`, `components/site/AnimatedIcons.tsx`, `app/globals.css`, `package.json`
-- Delete: `components/site/TerrainCanvas.tsx`, `public/baguio-heightmap.json`, `components/site/DestinationCarousel.tsx`
+- Create: `components/home/Faq.tsx`, `components/home/Ridgelines.tsx`, `components/home/ClosingCta.tsx`
+- Modify: `app/page.tsx` (final form), `components/site/atmosphere.tsx`, `components/site/AnimatedIcons.tsx`, `tests/e2e/home.spec.ts`
 
-- [ ] **Step 1: Write the failing test**
+**Interfaces:**
+- Consumes: `ParallaxLayer` (`components/site/Motion.tsx`, unchanged).
+- Produces: `<Faq />`, `<Ridgelines />`, `<ClosingCta />`.
 
+- [ ] **Step 1: Write the failing tests**
+
+Add to `tests/e2e/home.spec.ts`:
 ```ts
 test("the homepage runs hero, proof, problem, solution, FAQ, CTA in that order", async ({ page }) => {
   await page.goto("/");
@@ -3619,11 +3836,25 @@ test("FAQ answers open natively", async ({ page }) => {
   await expect(page.getByText(/confirm with the driver/i).first()).toBeVisible();
 });
 
-test("the homepage no longer ships the decorative 3D wireframe", async ({ page }) => {
-  const requests: string[] = [];
-  page.on("request", (r) => requests.push(r.url()));
-  await page.goto("/", { waitUntil: "domcontentloaded" });
-  expect(requests.some((u) => u.includes("baguio-heightmap.json"))).toBe(false);
+test("the ridgelines behind the closing CTA drift with scroll", async ({ page }) => {
+  await page.goto("/");
+  const cta = page.locator("section", { has: page.getByRole("heading", { name: "See the hills before you climb them." }) });
+  await cta.scrollIntoViewIfNeeded();
+  const layer = cta.locator(".parallax-layer").last();
+  const before = await layer.evaluate((el) => getComputedStyle(el).transform);
+  await page.mouse.wheel(0, 250);
+  await page.waitForTimeout(250);
+  const after = await layer.evaluate((el) => getComputedStyle(el).transform);
+  expect(after).not.toBe(before);
+});
+
+test("the ridgelines hold still for reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const cta = page.locator("section", { has: page.getByRole("heading", { name: "See the hills before you climb them." }) });
+  await cta.scrollIntoViewIfNeeded();
+  const transforms = await cta.locator(".parallax-layer").evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
+  expect(transforms.every((t) => t === "none")).toBe(true);
 });
 ```
 Run → FAIL.
@@ -3683,14 +3914,47 @@ export function Faq() {
 }
 ```
 
-- [ ] **Step 3: Closing CTA** `components/home/ClosingCta.tsx`:
+- [ ] **Step 3: Ridgelines** `components/home/Ridgelines.tsx`, the three ridge paths from the old history section, now behind the CTA:
+```tsx
+import { ParallaxLayer } from "@/components/site/Motion";
+
+// Far to near. The far ridge moves least, which is how depth reads across a
+// valley. Each layer carries a solid block under its ridge so rising never
+// opens a gap at the section's bottom edge.
+const RIDGES = [
+  { speed: -0.05, height: 220, opacity: 0.06, d: "M0 200 L120 120 L260 168 L420 88 L560 150 L700 96 L860 160 L1010 110 L1200 170 V220 H0 Z" },
+  { speed: -0.11, height: 180, opacity: 0.1, d: "M0 170 L160 104 L320 150 L480 76 L640 138 L820 92 L980 146 L1200 104 V180 H0 Z" },
+  { speed: -0.19, height: 140, opacity: 0.16, d: "M0 130 L140 78 L300 120 L470 60 L620 112 L790 70 L960 118 L1200 82 V140 H0 Z" },
+];
+
+export function Ridgelines() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 z-0">
+      {RIDGES.map((r) => (
+        <ParallaxLayer key={r.d} speed={r.speed} className="absolute inset-x-0 -bottom-24">
+          <div style={{ opacity: r.opacity }}>
+            <svg viewBox={`0 0 1200 ${r.height}`} preserveAspectRatio="none" className="block w-full" style={{ height: r.height }}>
+              <path d={r.d} fill="currentColor" />
+            </svg>
+            <div className="h-24 bg-current" />
+          </div>
+        </ParallaxLayer>
+      ))}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 4: Closing CTA** `components/home/ClosingCta.tsx`:
 ```tsx
 import { LinkButton } from "@/components/ui/LinkButton";
+import { Ridgelines } from "./Ridgelines";
 
 export function ClosingCta() {
   return (
-    <section className="bg-foreground text-background">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-16 sm:px-6 sm:py-20 lg:flex-row lg:items-end lg:justify-between">
+    <section className="relative overflow-hidden bg-foreground text-background">
+      <Ridgelines />
+      <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-8 px-4 pb-40 pt-16 sm:px-6 sm:pb-48 sm:pt-20 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="max-w-[16ch] font-display text-4xl leading-[1.02] text-balance sm:text-5xl">
             See the hills before you climb them.
@@ -3709,8 +3973,9 @@ export function ClosingCta() {
   );
 }
 ```
+(The deep bottom padding is where the ridges live, below the copy.)
 
-- [ ] **Step 4: Final `app/page.tsx`**
+- [ ] **Step 5: Final `app/page.tsx`**
 
 ```tsx
 import type { Metadata } from "next";
@@ -3727,6 +3992,16 @@ import { ClosingCta } from "@/components/home/ClosingCta";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
+// The places first-time visitors ask about; they fill the map carousel.
+const FEATURED_SLUGS = [
+  "burnham-park",
+  "mines-view-park",
+  "camp-john-hay",
+  "session-road",
+  "bencab-museum",
+  "tam-awan-village",
+];
+
 export default async function Home() {
   const [destinations, venues, history, routes] = await Promise.all([
     getDestinations(),
@@ -3735,6 +4010,7 @@ export default async function Home() {
     getTransitRoutes(),
   ]);
 
+  const featured = FEATURED_SLUGS.map((slug) => destinations.find((d) => d.slug === slug)).filter((d) => d != null);
   const origin = destinations.find((d) => d.slug === "burnham-park") ?? destinations[0];
   const places = [...destinations, ...venues];
   const withHours = places.filter((p) => p.hours != null).length;
@@ -3751,7 +4027,7 @@ export default async function Home() {
         withHours={withHours}
         total={places.length}
       />
-      <Solution routes={routes} venues={venues} eras={history.eras.length} />
+      <Solution featured={featured} routes={routes} venues={venues} eras={history.eras.length} />
       <Faq />
       <ClosingCta />
     </div>
@@ -3759,27 +4035,20 @@ export default async function Home() {
 }
 ```
 
-- [ ] **Step 5: Delete what nothing uses now**
-
+- [ ] **Step 6: Remove only what's truly unused.** The carousel, wireframe, `swiper`, `three` and `ParallaxLayer` all stay (owner decision). Delete `FogBank` from `components/site/atmosphere.tsx` and `FogIcon`/`PineIcon` from `components/site/AnimatedIcons.tsx` only if `grep -rn "FogBank\|FogIcon\|PineIcon" app components` finds no remaining use. Check the three reused pieces are each mounted exactly once on the homepage:
 ```bash
-git rm components/site/TerrainCanvas.tsx public/baguio-heightmap.json components/site/DestinationCarousel.tsx
-npm uninstall swiper
+grep -rn "LazyTerrain\|TerrainTour\|Ridgelines" components/home app/page.tsx
 ```
-- `components/site/Motion.tsx`: delete `ParallaxLayer`; `app/globals.css`: delete `.parallax-layer` and `.baguio-swiper` rules.
-- `components/site/atmosphere.tsx`: delete `FogBank` if `grep -rn FogBank app components` finds no use.
-- `components/site/AnimatedIcons.tsx`: delete `FogIcon` and `PineIcon` if unused.
-- Keep the `three` dependency: Phase 9's landmark layer needs it (ruling R5).
-Check: `grep -rnE "TerrainCanvas|DestinationCarousel|ParallaxLayer|swiper" app components` → no output.
 
-- [ ] **Step 6: Run everything**
+- [ ] **Step 7: Run everything**
 
-`npm test`, `npx tsc --noEmit`, `npm run lint` (only the 3 known MapView errors), `npm run build`, `npm run test:e2e` → PASS. Screenshot `/` full page at 1440 and 375; review against the design plan.
+`npm test`, `npx tsc --noEmit`, `npm run lint` (only the 3 known MapView errors), `npm run build`, `npm run test:e2e` → PASS. Screenshot `/` full page at 1440 and 375; review against the design plan. On a mid-range phone profile (Pixel 7), scroll from top to bottom and read the console: no WebGL context-lost warnings with the wireframe and the live map both mounted.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add -A app/page.tsx components app/globals.css package.json package-lock.json tests
-git commit -m "Finish the homepage with FAQ and a closing CTA; remove the carousel, wireframe and parallax"
+git add -A app/page.tsx components tests
+git commit -m "Finish the homepage: FAQ, and a closing CTA over parallax ridgelines"
 ```
 
 ---
@@ -4041,7 +4310,7 @@ The full specification is `docs/baguio-3d-model-plan.md` (15 sections: aerial an
 
 1. **Terrain is removed during every basemap swap.** Since commit `3f58ad5`, `MapView` calls `map.setTerrain(null)` before `setStyle({ diff: false })` to stop a render-loop crash. In that window `queryTerrainElevation()` returns `null`, and `setStyle` also removes every custom layer. So the landmark `CustomLayerInterface` must be installed from a `MapLayers` hook (which remounts on each `styleGeneration`), query terrain on its first render after `style.load`, and never cache an altitude across a swap. This extends spec §10 step 4, which only mentions the `styleInFlightRef` guard.
 2. **The basemap is re-dyed and hill-shaded** (`components/map/basemapTheme.ts`). Material and lighting review in spec §13 must be done against both the weave basemap and satellite.
-3. **`three` has no other user.** Task 26 removed `TerrainCanvas`, so three.js enters the map bundle only through the landmark layer, loaded lazily when the first destination sheet opens (spec §9).
+3. **three.js has two users.** The homepage wireframe (Problem section, loaded as the section nears; Task 24) and the landmark layer. The landmark layer must load it lazily too, when the first destination sheet opens (spec §9), so `/map` doesn't pay for it up front.
 4. **The homepage demo shares `lib/map/sources.ts`.** Landmarks can appear in the demo later with no new plumbing, as long as spec §9's budget holds (≤ 2 MB total 3D payload, ≤ 60 KB per tier-1 landmark).
 
 ### Milestones and gates
@@ -4101,7 +4370,7 @@ Per the plan-writing rule for separate subsystems, M1–M8 get their own bite-si
 | og:image | Task 10 (+ real origin in Task 3) |
 | Local business schema | Not applicable (C4); WebSite + TouristAttraction + BreadcrumbList instead, Task 12 |
 | Alt text on every image | Gate in Task 27; new images in Tasks 22, 23 |
-| Compress images | Posters budgeted and tested (Task 22); heavy decorative assets removed (Task 26) |
+| Compress images | Posters budgeted and tested (Task 22); the wireframe's three.js and heightmap load only near their section (Task 24) |
 | Real reviews; flag fake ones | None exist, none written (F1, R1) |
 | Response-time promise near the form | Task 15 |
 | FAQ, 5 questions | Task 26 (6 questions) |
@@ -4124,7 +4393,8 @@ Per the plan-writing rule for separate subsystems, M1–M8 get their own bite-si
 | Cancel as easy as sign-up | Not applicable: no sign-up (E3) |
 | Renewal reminders | Not applicable: no billing (E3) |
 | AI chat self-harm handling | Not applicable: no chat; standing rule recorded (E3) |
-| Gradients, glass, pills, rounded cards, bento, Lucide, fade-ups, empty hovers | H1–H8; Tasks 6, 18, 23, 26, 27 |
+| Gradients, glass, pills, rounded cards, bento, Lucide, fade-ups, empty hovers | H1–H8; Tasks 6, 18, 23, 26, 27. Parallax kept by owner decision (R10) |
+| Keep the carousel, wireframe and parallax, used differently | Carousel steers the live map (Task 25, R4); wireframe rises in Problem (Task 24, R5); ridgelines behind the closing CTA (Task 26, R10) |
 | Space Grotesk only | Pass (H9) |
 | Vague hero | Task 23 |
 | No live demo | Tasks 22, 25 |
