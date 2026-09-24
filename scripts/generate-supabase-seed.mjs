@@ -8,11 +8,18 @@
 // Run: npm run seed:supabase:generate
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
+import { uuidV5 } from "./uuid-v5.mjs";
 
 const ROOT = process.argv[2] ?? process.cwd();
 const DATA_DIR = path.join(ROOT, "data", "geojson");
 const OUT = path.join(ROOT, "supabase", "seed.sql");
+
+// Fixed project namespace for deterministic (UUID v5) row ids — MUST NEVER
+// CHANGE. Every id below is uuidV5("<table>:<natural key>", NAMESPACE), so
+// changing this constant would silently reassign every row's id on the next
+// regeneration. Generated once with `node -e "console.log(crypto.randomUUID())"`.
+const NAMESPACE = "229b2fcb-b1a1-47f4-9d7c-777db19230c7";
+const id5 = (naturalKey) => uuidV5(naturalKey, NAMESPACE);
 
 const readJson = (f) => {
   const full = path.join(DATA_DIR, f);
@@ -61,7 +68,7 @@ let landmarkCount = 0;
 for (const f of feats(landmarksFc)) {
   const p = f.properties ?? {};
   const [lng, lat] = f.geometry.coordinates;
-  const id = randomUUID();
+  const id = id5(`destinations:${p.slug}`);
   out.push(
     `INSERT INTO "destinations" ("id","slug","name","description","category","elevation_m","hours","era_key","geom") VALUES (` +
       `${q(id)}, ${q(p.slug)}, ${q(p.name)}, ${q(p.description)}, ${q(p.category)}::"Category", ` +
@@ -71,7 +78,7 @@ for (const f of feats(landmarksFc)) {
   if (p.meshUrl) {
     out.push(
       `INSERT INTO "landmarks" ("id","destination_id","mesh_url","mesh_scale","rotation_deg","altitude_m") VALUES (` +
-        `${q(randomUUID())}, ${q(id)}, ${q(p.meshUrl)}, 1, 0, 0);`,
+        `${q(id5(`landmarks:${p.slug}`))}, ${q(id)}, ${q(p.meshUrl)}, 1, 0, 0);`,
     );
     landmarkCount++;
   }
@@ -84,7 +91,7 @@ for (const ev of events) {
   const c = ev.coord;
   out.push(
     `INSERT INTO "historical_events" ("id","era_key","title","year","description","geom") VALUES (` +
-      `${q(randomUUID())}, ${q(ev.era)}::"EraKey", ${q(ev.title)}, ${num(ev.year)}, ` +
+      `${q(id5(`historical_events:${ev.era}:${ev.year}:${ev.title}`))}, ${q(ev.era)}::"EraKey", ${q(ev.title)}, ${num(ev.year)}, ` +
       `${q(ev.description)}, ${c ? pt(c[0], c[1]) : "NULL"});`,
   );
 }
@@ -93,7 +100,7 @@ counts.events = events.length;
 let stopCount = 0;
 for (const f of feats(routesFc)) {
   const p = f.properties ?? {};
-  const id = randomUUID();
+  const id = id5(`transit_routes:${p.code}`);
   out.push(
     `INSERT INTO "transit_routes" ("id","code","name","kind","fare_base","fare_per_km","geom") VALUES (` +
       `${q(id)}, ${q(p.code)}, ${q(p.name)}, ${q(p.kind)}::"TransitKind", ` +
@@ -103,7 +110,7 @@ for (const f of feats(routesFc)) {
     const [lng, lat] = s.coord;
     out.push(
       `INSERT INTO "transit_stops" ("id","route_id","seq","name","geom") VALUES (` +
-        `${q(randomUUID())}, ${q(id)}, ${num(s.seq)}, ${q(s.name)}, ${pt(lng, lat)});`,
+        `${q(id5(`transit_stops:${p.code}:${s.seq}`))}, ${q(id)}, ${num(s.seq)}, ${q(s.name)}, ${pt(lng, lat)});`,
     );
     stopCount++;
   }
@@ -121,7 +128,7 @@ for (const f of feats(venuesFc)) {
   const [lng, lat] = f.geometry.coordinates;
   out.push(
     `INSERT INTO "venues" ("id","slug","name","category","price_range","amenities","hours","description","geom") VALUES (` +
-      `${q(randomUUID())}, ${q(p.slug)}, ${q(p.name)}, ${q(p.category)}::"VenueCategory", ` +
+      `${q(id5(`venues:${p.slug}`))}, ${q(p.slug)}, ${q(p.name)}, ${q(p.category)}::"VenueCategory", ` +
       `${num(p.priceRange)}, ${json(p.amenities ?? null)}, ${json(p.hours ?? null)}, ` +
       `${q(p.description)}, ${pt(lng, lat)});`,
   );
@@ -131,7 +138,7 @@ counts.venues = feats(venuesFc).length;
 for (const f of feats(districtsFc)) {
   const p = f.properties ?? {};
   out.push(
-    `INSERT INTO "districts" ("id","name","geom") VALUES (${q(randomUUID())}, ${q(p.name)}, ${geom(f.geometry)});`,
+    `INSERT INTO "districts" ("id","name","geom") VALUES (${q(id5(`districts:${p.name}`))}, ${q(p.name)}, ${geom(f.geometry)});`,
   );
 }
 counts.districts = feats(districtsFc).length;
