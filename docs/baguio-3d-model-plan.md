@@ -623,3 +623,15 @@ Seeded data        22 destinations · 0 landmarks · 6 routes · 31 stops
 CAMERA_PRESETS     burnham-park · session-road · mines-view
                    camp-john-hay · kennon-road
 ```
+
+---
+
+## Addendum, 24 September 2026
+
+Changes since this spec was written. The execution order now lives in Phase 9 of `docs/superpowers/plans/2026-09-24-baguio-3d-site-overhaul.md`.
+
+1. **§5 range check is wrong for the model bounds.** 910 to 1,667 m is the range inside Baguio's city limits. A z13 Terrarium survey of exactly `[120.5, 16.3, 120.7, 16.5]` reads **153 to 2,230 m**, because the bounds take in lowland valleys and ground above 2,000 m. Validate terrain against the 15 trusted anchors in §3(c) instead, and apply the 910 to 1,667 m check only to samples inside the city limits.
+2. **Terrain is removed during every basemap swap.** Since commit `3f58ad5`, `MapView` calls `map.setTerrain(null)` before `setStyle({ diff: false })`, which stopped a render-loop crash that blanked the satellite view. In that window `queryTerrainElevation()` returns `null`, and `setStyle` removes custom layers. The landmark layer from §10 must be installed from a `MapLayers` hook (remounted on each `styleGeneration`), query terrain on its first render after `style.load`, and never cache an altitude across a swap. This extends §10 step 4.
+3. **The basemap is re-dyed and hill-shaded** (`components/map/basemapTheme.ts`). §13's visual review must cover both the weave basemap and satellite.
+4. **§15 step 4 (correct `elevation_m`) moved into the site overhaul** as its Task 4, ahead of any landmark work.
+5. **`three` loses its only other user** when the homepage wireframe is removed (overhaul Task 26), so three.js reaches the browser only through the lazy landmark layer (§9).
