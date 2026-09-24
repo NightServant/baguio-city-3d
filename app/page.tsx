@@ -227,7 +227,7 @@ export default async function Home() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
         <div className="grid gap-12 lg:grid-cols-2">
           {/* Transit teaser */}
-          <ScrollReveal>
+          <ScrollReveal className="min-w-0">
             <SectionHeading
               eyebrow="Getting around"
               title="Ride the jeepney lines"
@@ -262,7 +262,7 @@ export default async function Home() {
           </ScrollReveal>
 
           {/* Eat & Stay teaser */}
-          <ScrollReveal delay={1}>
+          <ScrollReveal delay={1} className="min-w-0">
             <SectionHeading
               eyebrow="Eat & stay"
               title="Ube jam, strawberry cake, pine-side lodges"
