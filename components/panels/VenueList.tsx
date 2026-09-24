@@ -122,13 +122,13 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
   return (
     <section className="flex flex-col gap-2">
       {state.error && (
-        <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+        <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
           Venues aren&apos;t loading right now. The map still works — try again in a moment.
         </p>
       )}
 
       {!state.error && !state.loading && state.items.length === 0 && (
-        <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+        <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
           Nothing matches these filters yet. Loosen one and more places will appear.
         </p>
       )}
@@ -140,7 +140,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
               type="button"
               onClick={() => showVenue(venue)}
               className={cn(
-                "group flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors hover:bg-muted",
+                "group flex w-full items-start gap-2.5 px-2.5 py-2 text-left transition-colors hover:bg-muted",
                 focusRing,
               )}
             >
@@ -162,7 +162,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
       {state.loading && (
         <div className="flex flex-col gap-1.5" aria-hidden>
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-12 animate-pulse rounded-xl bg-muted" />
+            <div key={i} className="h-12 animate-pulse bg-muted" />
           ))}
         </div>
       )}
@@ -172,7 +172,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
           type="button"
           onClick={loadMore}
           className={cn(
-            "h-9 rounded-xl bg-muted text-xs font-medium text-foreground transition-colors hover:bg-primary hover:text-primary-foreground active:translate-y-px",
+            "h-9 bg-muted text-xs font-medium text-foreground transition-colors hover:bg-primary hover:text-primary-foreground active:translate-y-px",
             focusRing,
           )}
         >

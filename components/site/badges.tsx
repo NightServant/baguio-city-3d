@@ -14,7 +14,7 @@ export function Pill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 border px-2.5 py-0.5 text-xs font-medium",
         className,
       )}
     >
@@ -43,7 +43,7 @@ export function EraBadge({ era }: { era: Era }) {
 export function PriceGlyphs({ priceRange }: { priceRange: PriceRange }) {
   return (
     <span
-      className="font-mono text-xs tracking-widest"
+      className="shrink-0 whitespace-nowrap font-mono text-xs tracking-widest"
       aria-label={`Price range ${priceRange} of 4`}
       title={["Budget", "Moderate", "Upscale", "Premium"][priceRange - 1]}
     >

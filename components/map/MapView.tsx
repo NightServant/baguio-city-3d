@@ -15,6 +15,7 @@ import { useMapStore, type Basemap } from "@/stores/useMapStore";
 import { BAGUIO_BOUNDS, DEFAULT_CAMERA } from "@/lib/constants";
 import type { TerrainConfig } from "@/types/api";
 import { MapLayers } from "./MapLayers";
+import { applyWeaveBasemap } from "./basemapTheme";
 
 // Keyless basemap style (OpenFreeMap "Liberty"). No token required.
 const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
@@ -137,10 +138,12 @@ export function MapView() {
       m.setTerrain({ source: DEM_SOURCE, exaggeration: exag });
       // Cheap atmospheric sky/fog for the 3D horizon (MapLibre 5+ supports setSky).
       try {
+        // Atmosphere in the weave palette: bone sky, ecru horizon, so the
+        // terrain sits in the same light as the chrome around it.
         m.setSky({
-          "sky-color": "#a7c4e0",
-          "horizon-color": "#eaf1f7",
-          "fog-color": "#dfe7ee",
+          "sky-color": "#DCD3C4",
+          "horizon-color": "#F5F0E6",
+          "fog-color": "#E8DFD0",
           "sky-horizon-blend": 0.6,
           "horizon-fog-blend": 0.5,
           "fog-ground-blend": 0.4,
@@ -172,6 +175,11 @@ export function MapView() {
     const onStyleLoad = () => {
       styleInFlightRef.current = false;
       applyTerrain(map, exaggeration);
+      // Liberty only. Satellite imagery carries its own colour and its own
+      // shading, so re-dyeing or hillshading it would fight the photograph.
+      if (pendingBasemapRef.current === "terrain") {
+        applyWeaveBasemap(map, DEM_SOURCE);
+      }
       useMapStore.getState().bumpStyleGeneration();
       setAppliedBasemap(pendingBasemapRef.current);
       setReady(true);
@@ -292,6 +300,16 @@ export function MapView() {
     if (appliedBasemap === basemap) return;
     pendingBasemapRef.current = basemap;
     styleInFlightRef.current = true;
+    // Drop terrain BEFORE the swap. setStyle({diff:false}) unloads the style,
+    // but terrain stays configured on the map — and the terrain render path
+    // (Painter.maybeDrawDepth -> terrainDepth -> useProgram) dereferences
+    // style.projection.shaderPreludeCode on the very next frame, which is
+    // undefined while the style is gone. That throw happens inside MapLibre's
+    // rAF callback, so it kills the render loop outright: the canvas goes blank
+    // and every in-flight tile request is aborted, permanently. (Reproduced on
+    // both the ?basemap=satellite deep link and the satellite toggle.)
+    // onStyleLoad's applyTerrain restores it once the new style is in.
+    map.setTerrain(null);
     map.setStyle(basemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE, { diff: false });
   }, [basemap, appliedBasemap, ready]);
 
@@ -305,7 +323,7 @@ export function MapView() {
       {tileError && (
         <div
           role="status"
-          className="absolute left-1/2 top-16 z-hud flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 items-center gap-3 rounded-2xl bg-card/95 px-4 py-2.5 shadow-lg ring-1 ring-foreground/10 backdrop-blur animate-in fade-in slide-in-from-top-2 duration-200 ease-out motion-reduce:animate-none"
+          className="absolute left-1/2 top-16 z-hud flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 items-center gap-3 bg-card/95 px-4 py-2.5 shadow-lg ring-1 ring-foreground/10 backdrop-blur animate-in fade-in slide-in-from-top-2 duration-200 ease-out motion-reduce:animate-none"
         >
           <div className="flex min-w-0 flex-col">
             <span className="readout text-muted-foreground">Map tiles</span>
@@ -314,7 +332,7 @@ export function MapView() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="shrink-0 rounded-lg bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="shrink-0 bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Reload
           </button>
@@ -325,7 +343,7 @@ export function MapView() {
               errorDismissed.current = true;
               setTileError(false);
             }}
-            className="flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex size-7 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <X className="size-4" />
           </button>

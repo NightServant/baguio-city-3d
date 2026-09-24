@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -9,8 +8,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-display);
-  --font-heading: var(--font-display);
+  --font-display: var(--font-sans);
+  --font-heading: var(--font-sans);
   --color-amber: var(--amber);
   --color-amber-foreground: var(--amber-foreground);
   --color-contour: var(--contour);
@@ -53,85 +52,66 @@
 }
 
 /*
-  Baguio 3D identity — a mountain hill-station in the Cordilleras.
-  Pine green carries the brand (primary); fog-tinted cool neutrals ground it;
-  a single sunset/strawberry amber is the sparing accent. Tokens are retheme-only
-  so the map HUD (semantic classes) inherits the identity automatically.
+  Baguio 3D identity — "Cordillera Weave".
+
+  Grounded in the textiles of the peoples native to Benguet (Ibaloi, Kankanaey,
+  Kalanguya, Karao): the Kankanaey tapis is woven in stripes of black, white and
+  red. We abstract the STRUCTURE of that weaving — warp banding, repetition,
+  rigid geometry — and deliberately do not reproduce specific motifs, whose
+  meanings are not ours to assign.
+
+  Three colours only — the Kankanaey tapis triad:
+
+  warp   #16130F  warm near-black. Structure and type. Carries real weight,
+                  not just text colour — black is a full third of the cloth.
+  bone   #F5F0E6  undyed cotton ground
+  madder #8C2318  the single accent. Deep oxblood earth red.
+
+  No green: the palette is the textile's, not the landscape's. The terrain
+  supplies its own colour; the chrome stays black, white and red.
 */
 :root {
-  --background: oklch(0.98 0.008 152);
-  --foreground: oklch(0.24 0.021 158);
-  --card: oklch(0.995 0.004 150);
-  --card-foreground: oklch(0.24 0.021 158);
-  --popover: oklch(0.995 0.004 150);
-  --popover-foreground: oklch(0.24 0.021 158);
-  --primary: oklch(0.40 0.068 160);
-  --primary-foreground: oklch(0.98 0.012 150);
-  --secondary: oklch(0.945 0.014 155);
-  --secondary-foreground: oklch(0.32 0.045 160);
-  --muted: oklch(0.955 0.009 152);
-  --muted-foreground: oklch(0.50 0.021 155);
-  --accent: oklch(0.945 0.032 78);
-  --accent-foreground: oklch(0.34 0.052 68);
+  --background: oklch(0.956 0.014 84.6);
+  --foreground: oklch(0.189 0.009 75.1);
+  --card: oklch(0.985 0.008 84.0);
+  --card-foreground: oklch(0.189 0.009 75.1);
+  --popover: oklch(0.985 0.008 84.0);
+  --popover-foreground: oklch(0.189 0.009 75.1);
+  --primary: oklch(0.426 0.142 30.0);
+  --primary-foreground: oklch(0.956 0.014 84.6);
+  --secondary: oklch(0.907 0.022 80.7);
+  --secondary-foreground: oklch(0.189 0.009 75.1);
+  --muted: oklch(0.907 0.022 80.7);
+  --muted-foreground: oklch(0.480 0.015 76.0);
+  --accent: oklch(0.189 0.009 75.1);
+  --accent-foreground: oklch(0.956 0.014 84.6);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.905 0.01 152);
-  --input: oklch(0.905 0.01 152);
-  --ring: oklch(0.55 0.055 160);
-  --chart-1: oklch(0.52 0.088 160);
-  --chart-2: oklch(0.70 0.132 74);
-  --chart-3: oklch(0.48 0.062 210);
-  --chart-4: oklch(0.62 0.142 32);
-  --chart-5: oklch(0.68 0.072 138);
-  --radius: 0.5rem;
-  --amber: oklch(0.70 0.14 66);
-  --amber-foreground: oklch(0.99 0.012 82);
-  --contour: oklch(0.40 0.05 160 / 0.10);
-  --sidebar: oklch(0.985 0.006 150);
-  --sidebar-foreground: oklch(0.24 0.021 158);
-  --sidebar-primary: oklch(0.40 0.068 160);
-  --sidebar-primary-foreground: oklch(0.98 0.012 150);
-  --sidebar-accent: oklch(0.945 0.014 155);
-  --sidebar-accent-foreground: oklch(0.32 0.045 160);
-  --sidebar-border: oklch(0.905 0.01 152);
-  --sidebar-ring: oklch(0.55 0.055 160);
+  --border: oklch(0.845 0.018 80.0);
+  --input: oklch(0.845 0.018 80.0);
+  --ring: oklch(0.426 0.142 30.0);
+  --chart-1: oklch(0.426 0.142 30.0);
+  --chart-2: oklch(0.189 0.009 75.1);
+  --chart-3: oklch(0.480 0.015 76.0);
+  --chart-4: oklch(0.537 0.152 32.2);
+  --chart-5: oklch(0.845 0.018 80.0);
+  --radius: 0.125rem;
+  --madder: oklch(0.426 0.142 30.0);
+  --madder-lt: oklch(0.537 0.152 32.2);
+  --warp: oklch(0.189 0.009 75.1);
+  --ecru: oklch(0.907 0.022 80.7);
+  --amber: oklch(0.426 0.142 30.0);
+  --amber-foreground: oklch(0.956 0.014 84.6);
+  --contour: oklch(0.189 0.009 75.1 / 0.08);
+  --sidebar: oklch(0.956 0.014 84.6);
+  --sidebar-foreground: oklch(0.189 0.009 75.1);
+  --sidebar-primary: oklch(0.426 0.142 30.0);
+  --sidebar-primary-foreground: oklch(0.956 0.014 84.6);
+  --sidebar-accent: oklch(0.907 0.022 80.7);
+  --sidebar-accent-foreground: oklch(0.189 0.009 75.1);
+  --sidebar-border: oklch(0.845 0.018 80.0);
+  --sidebar-ring: oklch(0.426 0.142 30.0);
 }
 
-.dark {
-  --background: oklch(0.19 0.018 160);
-  --foreground: oklch(0.93 0.01 150);
-  --card: oklch(0.23 0.022 160);
-  --card-foreground: oklch(0.93 0.01 150);
-  --popover: oklch(0.23 0.022 160);
-  --popover-foreground: oklch(0.93 0.01 150);
-  --primary: oklch(0.70 0.10 152);
-  --primary-foreground: oklch(0.19 0.02 160);
-  --secondary: oklch(0.27 0.025 160);
-  --secondary-foreground: oklch(0.92 0.01 150);
-  --muted: oklch(0.27 0.02 160);
-  --muted-foreground: oklch(0.72 0.02 150);
-  --accent: oklch(0.31 0.032 78);
-  --accent-foreground: oklch(0.90 0.035 80);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.60 0.07 155);
-  --chart-1: oklch(0.66 0.10 155);
-  --chart-2: oklch(0.78 0.14 72);
-  --chart-3: oklch(0.62 0.07 210);
-  --chart-4: oklch(0.68 0.15 34);
-  --chart-5: oklch(0.74 0.08 140);
-  --amber: oklch(0.78 0.14 68);
-  --amber-foreground: oklch(0.20 0.02 60);
-  --contour: oklch(0.85 0.04 150 / 0.08);
-  --sidebar: oklch(0.21 0.02 160);
-  --sidebar-foreground: oklch(0.93 0.01 150);
-  --sidebar-primary: oklch(0.70 0.10 152);
-  --sidebar-primary-foreground: oklch(0.19 0.02 160);
-  --sidebar-accent: oklch(0.27 0.025 160);
-  --sidebar-accent-foreground: oklch(0.92 0.01 150);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.60 0.07 155);
-}
 
 @layer base {
   * {
@@ -143,10 +123,14 @@
   html {
     @apply font-sans;
   }
-  /* Editorial display face with tightened tracking for large headlines. */
+  /* Display is the SAME family as body, pushed to the far end of Archivo's
+     width axis. The stretch is the point: type under tension, like warp. */
   .font-display {
-    font-optical-sizing: auto;
-    letter-spacing: -0.015em;
+    font-family: var(--font-sans);
+    font-variation-settings: "wdth" 125;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-transform: none;
   }
 }
 
@@ -180,13 +164,61 @@
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
-  /* Survey-readout label: mono, spaced, uppercase — the site's field-notes voice. */
+  /* ---------------------------------------------------------------- Weave
+     The one bold element. Warp banding abstracted from Benguet textiles,
+     drawn with gradients so it costs no image bytes and scales to any width.
+
+     .weave-band  — a woven rule that separates sections (replaces hairlines)
+     .weave-edge  — a warp edge on a block (replaces uniform card borders)
+     .warp-rule   — the finest version, for inline separation
+  */
+  .weave-band {
+    height: 0.625rem;
+    background-color: var(--ecru);
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--warp) 0 0.5rem,
+      transparent 0.5rem 0.75rem,
+      var(--madder) 0.75rem 1.25rem,
+      transparent 1.25rem 1.5rem,
+      var(--warp) 1.5rem 1.625rem,
+      transparent 1.625rem 2rem
+    );
+  }
+
+  .weave-edge {
+    border-left: 4px solid transparent;
+    border-image: repeating-linear-gradient(
+        180deg,
+        var(--warp) 0 0.75rem,
+        var(--madder) 0.75rem 1.5rem,
+        var(--warp) 1.5rem 1.625rem,
+        var(--ecru) 1.625rem 2rem
+      )
+      1;
+  }
+
+  .warp-rule {
+    height: 3px;
+    background-color: var(--ecru);
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--warp) 0 0.375rem,
+      transparent 0.375rem 0.5rem,
+      var(--madder) 0.5rem 0.875rem,
+      transparent 0.875rem 1.25rem
+    );
+  }
+
+  /* Numeric readout. Mono is kept ONLY for real measurements — coordinates,
+     elevations, fares, years. It is no longer a decorative label style, and
+     no longer uppercase-tracked (that treatment read as generic chrome). */
   .readout {
     font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 0.6875rem;
-    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8125rem;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
   }
   /* Slow ambient fog drift for hero atmosphere; disabled under reduced-motion. */
   .animate-fog {
@@ -207,4 +239,107 @@
   .animate-fog {
     animation: none;
   }
+}
+
+/* ==========================================================================
+   Motion layer.
+
+   Everything here describes the subject: the pine sways, fog drifts, route
+   dashes travel, contour rings breathe outward, sections weave in as they
+   enter the viewport, and ridge layers parallax at different depths the way
+   real ridges do. Every rule is disabled under prefers-reduced-motion at the
+   bottom of this block.
+   ========================================================================== */
+
+@keyframes icon-sway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50%      { transform: rotate(2.5deg); }
+}
+@keyframes icon-drift {
+  0%   { transform: translateX(-3px); opacity: 0.45; }
+  50%  { transform: translateX(3px);  opacity: 1; }
+  100% { transform: translateX(-3px); opacity: 0.45; }
+}
+@keyframes icon-route {
+  to { stroke-dashoffset: -16; }
+}
+@keyframes icon-ring {
+  0%, 100% { transform: scale(0.94); opacity: 0.5; }
+  50%      { transform: scale(1.06); opacity: 1; }
+}
+
+.icon-sway  { animation: icon-sway 4.5s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
+.icon-drift { animation: icon-drift 5.5s ease-in-out infinite; }
+.icon-route { animation: icon-route 1.4s linear infinite; }
+.icon-ring  { animation: icon-ring 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+
+/* --- Scroll reveal -------------------------------------------------------
+   Sections weave in: the warp edge draws down, then content settles. Driven
+   by IntersectionObserver adding .is-visible (see ScrollReveal). */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 700ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.is-visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: 90ms; }
+.reveal-delay-2 { transition-delay: 180ms; }
+.reveal-delay-3 { transition-delay: 270ms; }
+
+/* The weave band draws itself across rather than fading in. */
+.reveal-weave { clip-path: inset(0 100% 0 0); transition: clip-path 900ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.reveal-weave.is-visible { clip-path: inset(0 0 0 0); }
+
+/* --- Parallax ------------------------------------------------------------
+   Ridge layers move at different rates. --p is set per element by the
+   ParallaxLayer component from a rAF-throttled scroll listener. */
+.parallax-layer { transform: translate3d(0, calc(var(--p, 0) * 1px), 0); will-change: transform; }
+
+/* --- Swiper, themed to the weave ----------------------------------------- */
+.baguio-swiper .swiper { padding-block: 0.5rem 2.5rem; }
+.baguio-swiper .swiper-slide { height: auto; transition: opacity 400ms ease; }
+.baguio-swiper .swiper-slide-shadow-left,
+.baguio-swiper .swiper-slide-shadow-right { background: none; }
+/* Slides recede into haze, like ridgelines. */
+.baguio-swiper .swiper-slide:not(.swiper-slide-active) { opacity: 0.42; }
+.baguio-swiper .swiper-slide-active { z-index: 2; }
+.baguio-swiper .swiper-button-next,
+.baguio-swiper .swiper-button-prev {
+  color: var(--warp);
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.baguio-swiper .swiper-button-next:hover,
+.baguio-swiper .swiper-button-prev:hover { background: var(--ecru); border-color: var(--warp); }
+.baguio-swiper .swiper-button-next::after,
+.baguio-swiper .swiper-button-prev::after { font-size: 1rem; font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-sway, .icon-drift, .icon-route, .icon-ring { animation: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .reveal-weave { clip-path: none !important; transition: none !important; }
+  .parallax-layer { transform: none !important; }
+}
+
+/* Page transition: the incoming page settles downward into place, matching
+   the scroll-reveal easing so navigation reads as the same descending motion
+   the elevation rail tracks. */
+.route-transition {
+  transition: opacity 280ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.route-transition[data-route-stage="in"] {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.route-transition[data-route-stage="settled"] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-transition { transition: none !important; opacity: 1 !important; transform: none !important; }
 }

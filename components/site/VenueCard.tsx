@@ -9,10 +9,10 @@ const MAX_AMENITIES = 4;
 export function VenueCard({ venue }: { venue: Venue }) {
   const v = venue;
   return (
-    <article className="flex flex-col rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 transition hover:shadow-md hover:shadow-primary/5 hover:ring-primary/40">
+    <article className="weave-edge group flex flex-col border-y border-r border-border bg-card py-5 pl-5 pr-5 transition-colors hover:bg-secondary">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-display text-base font-semibold leading-snug tracking-tight">
+          <h3 className="font-display text-lg leading-snug">
             {v.name}
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -31,7 +31,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
           {v.amenities.slice(0, MAX_AMENITIES).map((a) => (
             <li
               key={a}
-              className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+              className="border border-border/70 px-2 py-0.5 text-xs text-muted-foreground"
             >
               {a}
             </li>

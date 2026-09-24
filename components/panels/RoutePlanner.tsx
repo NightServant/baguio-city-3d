@@ -83,19 +83,19 @@ export function RoutePlanner() {
         {state.loading && (
           <div className="flex flex-col gap-1.5" aria-hidden>
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-11 animate-pulse rounded-xl bg-muted" />
+              <div key={i} className="h-11 animate-pulse bg-muted" />
             ))}
           </div>
         )}
 
         {state.error && (
-          <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+          <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
             Jeepney routes aren&apos;t loading right now. Try again in a moment.
           </p>
         )}
 
         {!state.error && !state.loading && state.routes.length === 0 && (
-          <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+          <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
             No jeepney routes to show yet. Check back in a moment.
           </p>
         )}
@@ -110,7 +110,7 @@ export function RoutePlanner() {
                   aria-pressed={active}
                   onClick={() => pickRoute(route)}
                   className={cn(
-                    "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors active:translate-y-px",
+                    "flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors active:translate-y-px",
                     focusRing,
                     active
                       ? "bg-primary text-primary-foreground"
@@ -137,7 +137,7 @@ export function RoutePlanner() {
           <ol className="ml-1.5 flex flex-col border-l border-border pl-3 text-xs text-muted-foreground">
             {activeRoute.properties.stops.map((stop) => (
               <li key={stop.seq} className="relative py-1">
-                <span className="absolute -left-[17px] top-1/2 size-2 -translate-y-1/2 rounded-full bg-primary" />
+                <span className="absolute -left-[17px] top-1/2 size-2 -translate-y-1/2 bg-primary" />
                 {stop.name}
               </li>
             ))}
@@ -241,7 +241,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
               setError(null);
             }}
             className={cn(
-              "flex h-9 items-center justify-center gap-1.5 rounded-xl text-xs font-medium transition-colors active:translate-y-px",
+              "flex h-9 items-center justify-center gap-1.5 text-xs font-medium transition-colors active:translate-y-px",
               focusRing,
               mode === key
                 ? "bg-primary text-primary-foreground"
@@ -255,7 +255,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
       </div>
 
       {mode === "jeepney" && !activeRoute && (
-        <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">
+        <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
           Pick a route above first — jeepney fares follow the route&apos;s own rates.
         </p>
       )}
@@ -267,7 +267,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
             <select
               value={fromStop}
               onChange={(e) => setFromStop(e.target.value === "" ? "" : Number(e.target.value))}
-              className="h-9 rounded-xl border border-border bg-background px-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="h-9 border border-border bg-background px-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <option value="">Choose a stop</option>
               {stops.map((s, i) => (
@@ -282,7 +282,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
             <select
               value={toStop}
               onChange={(e) => setToStop(e.target.value === "" ? "" : Number(e.target.value))}
-              className="h-9 rounded-xl border border-border bg-background px-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              className="h-9 border border-border bg-background px-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <option value="">Choose a stop</option>
               {stops.map((s, i) => (
@@ -308,7 +308,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
               type="button"
               onClick={() => setFareQuery({ picking: picking === key ? null : key })}
               className={cn(
-                "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm transition-colors active:translate-y-px",
+                "flex items-center gap-2.5 px-3 py-2.5 text-left text-sm transition-colors active:translate-y-px",
                 focusRing,
                 picking === key
                   ? "bg-primary text-primary-foreground"
@@ -335,7 +335,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
         disabled={!(jeepneyReady || taxiReady) || loading}
         onClick={calculate}
         className={cn(
-          "h-10 rounded-xl bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/85 active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
+          "h-10 bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/85 active:translate-y-px disabled:pointer-events-none disabled:opacity-50",
           focusRing,
         )}
       >
@@ -343,11 +343,11 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
       </button>
 
       {error && (
-        <p className="rounded-xl bg-muted px-3 py-2.5 text-xs text-muted-foreground">{error}</p>
+        <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">{error}</p>
       )}
 
       {result && (
-        <div className="rounded-2xl bg-muted p-4">
+        <div className="bg-muted p-4">
           <div className="flex items-baseline justify-between">
             <span className="text-xs text-muted-foreground">
               {result.mode === "jeepney" ? "Jeepney fare" : "Taxi estimate"} ·{" "}

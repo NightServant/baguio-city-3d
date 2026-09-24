@@ -18,8 +18,10 @@ export function DestinationCard({
   return (
     <article
       className={cn(
-        "group relative flex flex-col rounded-2xl bg-card p-5 shadow-sm ring-1 ring-foreground/5 transition-shadow hover:shadow-md hover:shadow-primary/5 has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring",
-        featured && "lg:col-span-2 lg:p-7",
+        // No rounded-card/shadow kit: the warp edge carries the identity and
+        // the border is a flat hairline. Hover shifts the ground, not a shadow.
+        "weave-edge group relative flex flex-col border-y border-r border-border bg-card py-5 pl-5 pr-5 transition-colors hover:bg-secondary has-[a:focus-visible]:outline has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-ring",
+        featured && "lg:col-span-2 lg:py-7 lg:pl-7",
         className,
       )}
     >
@@ -46,10 +48,20 @@ export function DestinationCard({
         />
       </div>
 
-      <p className="readout mt-2 text-muted-foreground">
-        {d.elevationM != null ? `ELEV ${formatElevation(d.elevationM)} · ` : ""}
-        {formatCoord(d.lng, d.lat)}
-      </p>
+      {/* Measurements sit in labelled columns rather than a middot-joined
+          string — the reader can scan elevation without parsing a sentence. */}
+      <dl className="mt-3 flex gap-6">
+        {d.elevationM != null ? (
+          <div>
+            <dt className="text-[0.6875rem] text-muted-foreground">Elevation</dt>
+            <dd className="readout">{formatElevation(d.elevationM)}</dd>
+          </div>
+        ) : null}
+        <div>
+          <dt className="text-[0.6875rem] text-muted-foreground">Position</dt>
+          <dd className="readout">{formatCoord(d.lng, d.lat)}</dd>
+        </div>
+      </dl>
 
       <p
         className={cn(

@@ -9,7 +9,10 @@ interface SectionHeadingProps {
   as?: "h1" | "h2";
 }
 
-/** Editorial section header: mono eyebrow, Fraunces title, optional lede. */
+/**
+ * Section header. The eyebrow is a woven warp rule rather than a tracked mono
+ * label — the band encodes "new section" structurally instead of decorating it.
+ */
 export function SectionHeading({
   eyebrow,
   title,
@@ -26,8 +29,13 @@ export function SectionHeading({
         className,
       )}
     >
-      {eyebrow ? <p className="readout text-primary">{eyebrow}</p> : null}
-      <Heading className="font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+      {eyebrow ? (
+        <div className={cn("flex items-center gap-3", align === "center" && "justify-center")}>
+          <span className="warp-rule w-10 shrink-0" aria-hidden="true" />
+          <p className="text-sm text-muted-foreground">{eyebrow}</p>
+        </div>
+      ) : null}
+      <Heading className="font-display text-4xl leading-[1.02] text-balance sm:text-5xl">
         {title}
       </Heading>
       {lede ? (

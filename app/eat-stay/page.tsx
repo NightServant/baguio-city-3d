@@ -60,7 +60,7 @@ export default async function EatStayPage({
       {category ? (
         // Filtered: single grid
         shown.length > 0 ? (
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
             {shown.map((v) => (
               <VenueCard key={v.slug} venue={v} />
             ))}
@@ -84,7 +84,7 @@ export default async function EatStayPage({
                   </h2>
                   <p className="readout text-muted-foreground">{group.length} listed</p>
                 </div>
-                <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-6 grid gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
                   {group.map((v) => (
                     <VenueCard key={v.slug} venue={v} />
                   ))}

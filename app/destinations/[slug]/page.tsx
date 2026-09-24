@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { LinkButton } from "@/components/ui/LinkButton";
 import { getDestinationBySlug, getDestinations, getHistory, getVenues } from "@/lib/content";
 import { haversineKm } from "@/lib/geo/fare";
 import { CategoryBadge, EraBadge } from "@/components/site/badges";
@@ -112,7 +111,7 @@ export default async function DestinationPage({
                   href="/history"
                   className="mt-4 inline-block text-sm font-medium text-accent-foreground underline-offset-4 hover:underline"
                 >
-                  Read the full timeline →
+                  Read the full timeline
                 </Link>
               </section>
             ) : null}
@@ -147,13 +146,13 @@ export default async function DestinationPage({
                 </dd>
               </div>
             </dl>
-            <Link
+            <LinkButton
               href={`/map?dest=${destination.slug}`}
-              className={cn(buttonVariants(), "mt-6 w-full rounded-full")}
+              className="mt-6 w-full"
+              endIcon={<ArrowRight className="size-4" />}
             >
               Fly there on the map
-              <ArrowRight data-icon="inline-end" />
-            </Link>
+            </LinkButton>
           </aside>
         </div>
 

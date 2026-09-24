@@ -55,8 +55,10 @@ function resetView() {
   });
 }
 
+// Instrument chrome: square, hard-edged, sitting ON the terrain rather than
+// floating above it on a shadow. Border, not ring; ecru hover, not a tint.
 const controlButton =
-  "flex size-10 items-center justify-center rounded-xl bg-card/90 text-foreground shadow-sm ring-1 ring-foreground/10 backdrop-blur transition-colors hover:bg-card active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "flex size-10 items-center justify-center border border-border bg-background/92 text-foreground backdrop-blur transition-colors hover:bg-secondary active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function MapControls() {
   const basemap = useBasemap();
@@ -67,14 +69,14 @@ export function MapControls() {
     <>
       {/* Preset chips — top center, horizontally scrollable on small screens */}
       <div className="pointer-events-none absolute inset-x-0 top-3 z-hud flex justify-center px-3">
-        <div className="scrollbar-none pointer-events-auto flex max-w-full gap-1.5 overflow-x-auto rounded-2xl bg-card/80 p-1.5 shadow-sm ring-1 ring-foreground/10 backdrop-blur">
+        <div className="scrollbar-none pointer-events-auto flex max-w-full gap-px overflow-x-auto border border-border bg-border/60 backdrop-blur">
           {Object.keys(CAMERA_PRESETS).map((key) => (
             <button
               key={key}
               type="button"
               onClick={() => flyToPreset(key)}
               className={cn(
-                "h-9 shrink-0 rounded-xl px-3 text-xs font-medium text-foreground",
+                "h-9 shrink-0 bg-background/92 px-3.5 text-xs font-medium text-foreground",
                 "transition-colors hover:bg-primary hover:text-primary-foreground active:translate-y-px",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}

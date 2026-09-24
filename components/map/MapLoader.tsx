@@ -10,12 +10,12 @@ function MapSkeleton() {
     <div className="absolute inset-0 overflow-hidden bg-muted">
       {/* Preset chip bar — echoes the real HUD's top-center rail. */}
       <div className="absolute inset-x-0 top-3 flex justify-center px-3">
-        <div className="h-12 w-full max-w-md animate-pulse rounded-2xl bg-card/80" />
+        <div className="h-12 w-full max-w-md animate-pulse border border-border bg-card/80" />
       </div>
       {/* Mode dock — top-left on desktop. */}
       <div className="absolute left-3 top-3 hidden flex-col gap-1.5 sm:flex">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="h-10 w-28 animate-pulse rounded-xl bg-card/80" />
+          <div key={i} className="h-10 w-28 animate-pulse border border-border bg-card/80" />
         ))}
       </div>
       {/* On-voice line, centered over the shimmering canvas. */}

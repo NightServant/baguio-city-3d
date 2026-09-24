@@ -1,19 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
+import Button from "@mui/material/Button";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 import { PineMark } from "@/components/site/PineMark";
-import {
-  Sheet,
-  SheetTrigger,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 
 const NAV_LINKS = [
   { href: "/map", label: "Map" },
@@ -25,6 +20,7 @@ const NAV_LINKS = [
 
 export function SiteNav() {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
@@ -37,7 +33,7 @@ export function SiteNav() {
             Baguio<span className="text-primary"> 3D</span>
           </span>
           <span className="readout mt-0.5 hidden text-muted-foreground lg:inline">
-            ELEV 1500 M
+            1,500 m
           </span>
         </Link>
 
@@ -61,64 +57,55 @@ export function SiteNav() {
               </Link>
             );
           })}
-          <Link
-            href="/map"
-            className={cn(buttonVariants({ size: "sm" }), "ml-2 rounded-full px-4")}
-          >
+          <Button component={Link} href="/map" size="small" className="ml-2">
             Open the map
-          </Link>
+          </Button>
         </nav>
 
         {/* Mobile menu */}
         <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
-              aria-label="Open menu"
-            >
-              <Menu className="size-5" />
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <PineMark className="size-4 text-primary" />
-                  Baguio 3D
-                </SheetTitle>
-              </SheetHeader>
-              <nav className="flex flex-col gap-1 px-4" aria-label="Mobile">
-                {NAV_LINKS.map((link) => {
-                  const active = isActive(link.href);
-                  return (
-                    <SheetClose
-                      key={link.href}
-                      render={
-                        <Link
-                          href={link.href}
-                          aria-current={active ? "page" : undefined}
-                          className={cn(
-                            "rounded-md px-3 py-2.5 text-base font-medium transition-colors hover:bg-muted",
-                            active ? "bg-muted text-foreground" : "text-foreground",
-                          )}
-                        />
-                      }
-                    >
-                      {link.label}
-                    </SheetClose>
-                  );
-                })}
-                <SheetClose
-                  render={
-                    <Link
-                      href="/map"
-                      className={cn(buttonVariants(), "mt-3 rounded-full")}
-                    />
-                  }
-                >
-                  Open the map
-                </SheetClose>
-              </nav>
-            </SheetContent>
-          </Sheet>
+          <IconButton onClick={() => setMenuOpen(true)} aria-label="Open menu">
+            <Menu className="size-5" />
+          </IconButton>
+          <Drawer
+            anchor="right"
+            open={menuOpen}
+            onClose={() => setMenuOpen(false)}
+            slotProps={{ paper: { sx: { width: 288 } } }}
+          >
+            <div className="flex items-center gap-2 px-4 py-4 font-display text-lg">
+              <PineMark className="size-4 text-primary" />
+              Baguio 3D
+            </div>
+            <div className="weave-band" aria-hidden="true" />
+            <nav className="flex flex-col gap-1 p-4" aria-label="Mobile">
+              {NAV_LINKS.map((link) => {
+                const active = isActive(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "px-3 py-2.5 text-base font-medium transition-colors hover:bg-muted",
+                      active ? "bg-muted text-foreground" : "text-foreground",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+              <Button
+                component={Link}
+                href="/map"
+                onClick={() => setMenuOpen(false)}
+                className="mt-3"
+              >
+                Open the map
+              </Button>
+            </nav>
+          </Drawer>
         </div>
       </div>
     </header>

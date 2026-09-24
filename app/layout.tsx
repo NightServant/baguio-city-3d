@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
-import { Fraunces, Geist_Mono, Inter } from "next/font/google";
+import { Archivo, Geist_Mono } from "next/font/google";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { theme } from "./theme";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { ElevationRail } from "@/components/site/ElevationRail";
+import { RouteTransition } from "@/components/site/RouteTransition";
 
-// Body / UI text — clean, quiet grotesk.
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-
-// Display face — Fraunces carries the editorial, heritage-warm personality.
-const fraunces = Fraunces({
+// One family, worked at two extremes. Archivo is variable on BOTH weight and
+// width, so the width axis becomes an active design element: display type is
+// stretched like warp under tension, body text sits at normal width.
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-sans",
   display: "swap",
-  axes: ["opsz"],
+  axes: ["wdth"],
 });
 
 // Mono — the "survey readout" voice for coordinates, elevations, fares, years.
@@ -57,22 +62,31 @@ export default function RootLayout({
       lang="en"
       className={cn(
         "h-full antialiased",
-        inter.variable,
-        fraunces.variable,
+        archivo.variable,
         geistMono.variable,
         "font-sans",
       )}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <a
-          href="#main-content"
-          className="sr-only z-50 focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
-        >
-          Skip to content
-        </a>
-        <SiteNav />
-        <main id="main-content" className="flex-1">{children}</main>
-        <SiteFooter />
+        {/* AppRouterCacheProvider collects Emotion's CSS while Next streams
+            chunks; without it MUI styles flash in after hydration. */}
+        <AppRouterCacheProvider options={{ key: "mui" }}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <a
+              href="#main-content"
+              className="sr-only z-50 focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+            >
+              Skip to content
+            </a>
+            <SiteNav />
+            <ElevationRail />
+            <main id="main-content" className="flex-1">
+              <RouteTransition>{children}</RouteTransition>
+            </main>
+            <SiteFooter />
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );
