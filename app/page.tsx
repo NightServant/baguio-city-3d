@@ -301,7 +301,7 @@ export default async function Home() {
             See the city the way the clouds do.
           </h2>
           <p className="mx-auto mt-4 max-w-md text-base leading-7 text-primary-foreground/80">
-            Terrain, landmarks, and live routes — the whole plateau in one view.
+            Terrain, landmarks and jeepney routes, all on one map.
           </p>
           <LinkButton
             href="/map"

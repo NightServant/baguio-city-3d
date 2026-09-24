@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { theme } from "./theme";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { ElevationRail } from "@/components/site/ElevationRail";
@@ -29,7 +30,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://baguio3d.example"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Baguio 3D — Explore the Summer Capital in three dimensions",
     template: "%s — Baguio 3D",
