@@ -9,11 +9,16 @@ const MAX_AMENITIES = 4;
 export function VenueCard({ venue }: { venue: Venue }) {
   const v = venue;
   return (
-    <article className="weave-edge group flex flex-col border-y border-r border-border bg-card py-5 pl-5 pr-5 transition-colors hover:bg-secondary">
+    <article className="weave-edge group relative flex flex-col border-y border-r border-border bg-card py-5 pl-5 pr-5 transition-colors hover:bg-secondary focus-within:ring-2 focus-within:ring-ring">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h3 className="font-display text-lg leading-snug">
-            {v.name}
+            <Link
+              href={`/map?venue=${v.slug}`}
+              className="after:absolute after:inset-0 focus-visible:outline-none"
+            >
+              {v.name}
+            </Link>
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {VENUE_CATEGORY_SINGULAR[v.category]}
@@ -46,12 +51,12 @@ export function VenueCard({ venue }: { venue: Venue }) {
 
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-border/70 pt-3">
         <OpenNowBadge hours={v.hours} />
-        <Link
-          href={`/map?venue=${v.slug}`}
-          className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+        <span
+          className="text-xs font-medium text-primary group-hover:underline"
+          aria-hidden="true"
         >
           View on map
-        </Link>
+        </span>
       </div>
     </article>
   );
