@@ -1,0 +1,23 @@
+-- elevation_m resampled from the AWS Terrarium DEM at z15 by scripts/fix-elevations.py.
+update destinations set elevation_m = 1442 where slug = 'burnham-park';
+update destinations set elevation_m = 1449 where slug = 'session-road';
+update destinations set elevation_m = 1523 where slug = 'mines-view-park';
+update destinations set elevation_m = 1503 where slug = 'camp-john-hay';
+update destinations set elevation_m = 1453 where slug = 'baguio-cathedral';
+update destinations set elevation_m = 1448 where slug = 'wright-park';
+update destinations set elevation_m = 1466 where slug = 'the-mansion';
+update destinations set elevation_m = 1501 where slug = 'botanical-garden';
+update destinations set elevation_m = 1482 where slug = 'baguio-public-market';
+update destinations set elevation_m = 1476 where slug = 'tam-awan-village';
+update destinations set elevation_m = 979 where slug = 'bencab-museum';
+update destinations set elevation_m = 1359 where slug = 'philippine-military-academy';
+update destinations set elevation_m = 1332 where slug = 'la-trinidad-strawberry-farms';
+update destinations set elevation_m = 1430 where slug = 'lourdes-grotto';
+update destinations set elevation_m = 1523 where slug = 'diplomat-hotel-ruins';
+update destinations set elevation_m = 1550 where slug = 'good-shepherd-convent';
+update destinations set elevation_m = 1298 where slug = 'lions-head-kennon-road';
+update destinations set elevation_m = 1521 where slug = 'igorot-stone-kingdom';
+update destinations set elevation_m = 1487 where slug = 'baguio-city-hall';
+update destinations set elevation_m = 1464 where slug = 'teachers-camp';
+update destinations set elevation_m = 1473 where slug = 'baguio-museum';
+update destinations set elevation_m = 1502 where slug = 'mile-hi-cjh-viewdeck';

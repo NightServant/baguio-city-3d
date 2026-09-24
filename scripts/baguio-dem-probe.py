@@ -64,23 +64,24 @@ def elevation(lon, lat, z=14):
     R, G, B = row[px*nch], row[px*nch+1], row[px*nch+2]
     return (R * 256 + G + B / 256.0) - 32768.0, url, (px, py)
 
-# Known values from data/geojson/landmarks.geojson (elevation_m) + app constants
-POINTS = [
-    ("burnham-park",     120.5936, 16.4116, 1400),
-    ("mines-view-park",  120.6305, 16.4145, 1540),
-    ("session-road",     120.5967, 16.4118, None),
-    ("camp-john-hay",    120.6187, 16.3956, None),
-    ("BAGUIO_CENTER",    120.5960, 16.4023, None),
-    ("kennon-road(low)", 120.6050, 16.3650, None),
-]
+if __name__ == "__main__":
+    # Known values from data/geojson/landmarks.geojson (elevation_m) + app constants
+    POINTS = [
+        ("burnham-park",     120.5936, 16.4116, 1400),
+        ("mines-view-park",  120.6305, 16.4145, 1540),
+        ("session-road",     120.5967, 16.4118, None),
+        ("camp-john-hay",    120.6187, 16.3956, None),
+        ("BAGUIO_CENTER",    120.5960, 16.4023, None),
+        ("kennon-road(low)", 120.6050, 16.3650, None),
+    ]
 
-print(f"{'point':18} {'DEM m':>9} {'DB m':>7} {'delta':>8}")
-print("-" * 46)
-for name, lon, lat, db in POINTS:
-    try:
-        e, url, px = elevation(lon, lat)
-        d = f"{e-db:+.0f}" if db else "--"
-        dbs = str(db) if db else "--"
-        print(f"{name:18} {e:9.1f} {dbs:>7} {d:>8}")
-    except Exception as ex:
-        print(f"{name:18} ERROR {ex}")
+    print(f"{'point':18} {'DEM m':>9} {'DB m':>7} {'delta':>8}")
+    print("-" * 46)
+    for name, lon, lat, db in POINTS:
+        try:
+            e, url, px = elevation(lon, lat)
+            d = f"{e-db:+.0f}" if db else "--"
+            dbs = str(db) if db else "--"
+            print(f"{name:18} {e:9.1f} {dbs:>7} {d:>8}")
+        except Exception as ex:
+            print(f"{name:18} ERROR {ex}")
