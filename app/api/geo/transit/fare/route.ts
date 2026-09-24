@@ -4,7 +4,7 @@
 import type { NextRequest } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { haversineKm, jeepneyFare, taxiFare } from "@/lib/geo/fare";
+import { haversineKm, jeepneyFare, modernJeepneyFare, taxiFare } from "@/lib/geo/fare";
 import { errorResponse } from "@/lib/http";
 import type { FareResponse } from "@/types/api";
 
@@ -65,11 +65,13 @@ export async function GET(request: NextRequest) {
     if (!route) return errorResponse("route not found", 404);
 
     const result = jeepneyFare(distanceKm, Number(route.fareBase), Number(route.farePerKm));
+    const modern = modernJeepneyFare(distanceKm);
     const body: FareResponse = {
       mode: "jeepney",
       distanceKm: result.distanceKm,
       fare: result.fare,
       breakdown: result.breakdown,
+      modern: { fare: modern.fare, breakdown: modern.breakdown },
     };
     return Response.json(body);
   } catch {

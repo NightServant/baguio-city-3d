@@ -119,8 +119,14 @@ export type FareMode = "jeepney" | "taxi";
 export interface FareResponse {
   mode: FareMode;
   distanceKm: number;
+  /** Traditional-rate estimate (top-level, unchanged shape for existing clients). */
   fare: number;
   breakdown: Record<string, number>;
+  /** Modern/electric-rate estimate. Only present for jeepney mode. */
+  modern?: {
+    fare: number;
+    breakdown: Record<string, number>;
+  };
 }
 
 // ---------------------------------------------------------------------------

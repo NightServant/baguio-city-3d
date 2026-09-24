@@ -13,6 +13,7 @@ import {
 } from "@/stores/useMapStore";
 import type { FareResponse, TransitRouteFeature, TransitRoutesResponse } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { FARE_SOURCE } from "@/lib/geo/fare";
 import { focusRing } from "./controlStyles";
 
 interface RoutesState {
@@ -21,12 +22,23 @@ interface RoutesState {
   error: boolean;
 }
 
+// Only these breakdown keys are peso amounts. jeepneyFare()'s breakdown also
+// carries baseCoversKm/extraKm (km counts, not money) — rendering every key
+// blindly would show e.g. "baseCoversKm ₱4.00", which is false.
 const BREAKDOWN_LABELS: Record<string, string> = {
   base: "Base fare",
-  distance: "Distance charge",
+  distanceCharge: "Distance charge",
   flagdown: "Flag-down",
   perKm: "Per-km charge",
 };
+
+function moneyEntries(breakdown: Record<string, number>): [string, number][] {
+  return Object.entries(breakdown).filter(([k]) => k in BREAKDOWN_LABELS);
+}
+
+// "19 March 2026" — day, then month name, then year.
+const formatLongDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
 function peso(n: number): string {
   return `₱${n.toFixed(2)}`;
@@ -347,24 +359,59 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
       )}
 
       {result && (
-        <div className="bg-muted p-4">
-          <div className="flex items-baseline justify-between">
-            <span className="text-xs text-muted-foreground">
-              {result.mode === "jeepney" ? "Jeepney fare" : "Taxi estimate"} ·{" "}
-              {result.distanceKm.toFixed(1)} km
-            </span>
-            <span className="font-mono text-xl font-semibold tabular-nums text-foreground">
-              {peso(result.fare)}
-            </span>
+        <div className="flex flex-col gap-3">
+          <div className="bg-muted p-4">
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs text-muted-foreground">
+                {result.mode === "jeepney" ? "Traditional jeepney" : "Taxi estimate"} for{" "}
+                {result.distanceKm.toFixed(1)} km
+              </span>
+              <span className="font-mono text-xl font-semibold tabular-nums text-foreground">
+                {peso(result.fare)}
+              </span>
+            </div>
+            <dl className="mt-2.5 flex flex-col gap-1 border-t border-border pt-2.5 text-xs">
+              {moneyEntries(result.breakdown).map(([k, v]) => (
+                <div key={k} className="flex justify-between text-muted-foreground">
+                  <dt>{BREAKDOWN_LABELS[k]}</dt>
+                  <dd className="font-mono tabular-nums">{peso(v)}</dd>
+                </div>
+              ))}
+            </dl>
+            {result.mode === "jeepney" && !FARE_SOURCE.traditional.verified && (
+              <p className="mt-2.5 border-t border-border pt-2.5 text-[11px] text-muted-foreground">
+                Not yet checked against a current LTFRB issuance.
+              </p>
+            )}
           </div>
-          <dl className="mt-2.5 flex flex-col gap-1 border-t border-border pt-2.5 text-xs">
-            {Object.entries(result.breakdown).map(([k, v]) => (
-              <div key={k} className="flex justify-between text-muted-foreground">
-                <dt>{BREAKDOWN_LABELS[k] ?? k}</dt>
-                <dd className="font-mono tabular-nums">{peso(v)}</dd>
+
+          {result.mode === "jeepney" && result.modern && (
+            <div className="bg-muted p-4">
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs text-muted-foreground">
+                  Modern jeepney for {result.distanceKm.toFixed(1)} km
+                </span>
+                <span className="font-mono text-xl font-semibold tabular-nums text-foreground">
+                  {peso(result.modern.fare)}
+                </span>
               </div>
-            ))}
-          </dl>
+              <dl className="mt-2.5 flex flex-col gap-1 border-t border-border pt-2.5 text-xs">
+                {moneyEntries(result.modern.breakdown).map(([k, v]) => (
+                  <div key={k} className="flex justify-between text-muted-foreground">
+                    <dt>{BREAKDOWN_LABELS[k]}</dt>
+                    <dd className="font-mono tabular-nums">{peso(v)}</dd>
+                  </div>
+                ))}
+              </dl>
+              {FARE_SOURCE.modern.verified && (
+                <p className="mt-2.5 border-t border-border pt-2.5 text-[11px] text-muted-foreground">
+                  Per the {FARE_SOURCE.modern.label}, issued as valid until{" "}
+                  {formatLongDate(FARE_SOURCE.modern.validUntil)}. Confirm the fare with the
+                  driver.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </section>

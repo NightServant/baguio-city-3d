@@ -94,23 +94,78 @@ export function taxiFare(distanceKm: number): FareResult {
   };
 }
 
+// Modern/electric jeepney fare (national LTFRB rate, not per-route — the DB's
+// per-route fareBase/farePerKm columns hold the traditional rate only).
+// Source: FARE_SOURCE.modern, the LTFRB Non-Aircon Modern and Electric PUJ
+// General Fare Guide the owner supplied (2026-09-24).
+export const MODERN_JEEPNEY_BASE_PHP = 17.0;
+export const MODERN_JEEPNEY_PER_KM_PHP = 2.0;
+export const MODERN_JEEPNEY_DISCOUNTED_BASE_PHP = 13.6; // student/elderly/PWD, 20% off
+export const MODERN_JEEPNEY_DISCOUNTED_PER_KM_PHP = 1.6;
+const MODERN_JEEPNEY_ROUNDING_PHP = 0.25; // the guide: "rounded off to the nearest 25 centavos"
+
+function roundToQuarterPeso(n: number): number {
+  return Math.round(n / MODERN_JEEPNEY_ROUNDING_PHP) * MODERN_JEEPNEY_ROUNDING_PHP;
+}
+
 /**
- * Where the fare figures come from. Update the figures, the date and the URLs
- * together. `jeepney.verified` and `taxi.verified` stay false unless the
- * figures above were read directly on an official LTFRB page (ltfrb.gov.ph or
- * its Region CAR office) on `checkedOn` — a news report or a memory of an
- * announced rate doesn't count.
+ * Modern/electric jeepney fare per the LTFRB guide: `MODERN_JEEPNEY_BASE_PHP`
+ * for the first `JEEPNEY_BASE_KM` km, then `MODERN_JEEPNEY_PER_KM_PHP` per km
+ * (or the `discounted` student/elderly/PWD rate), the whole fare rounded to
+ * the nearest 25 centavos as the guide states — rounding the total once
+ * (not each component) is what reproduces the guide's own worked table
+ * exactly, including its discounted-fare rounding (e.g. 13.60 -> 13.50).
+ */
+export function modernJeepneyFare(distanceKm: number, discounted = false): FareResult {
+  const base = discounted ? MODERN_JEEPNEY_DISCOUNTED_BASE_PHP : MODERN_JEEPNEY_BASE_PHP;
+  const perKm = discounted ? MODERN_JEEPNEY_DISCOUNTED_PER_KM_PHP : MODERN_JEEPNEY_PER_KM_PHP;
+  const extraKm = Math.max(0, distanceKm - JEEPNEY_BASE_KM);
+  const roundedBase = roundToQuarterPeso(base);
+  const fare = roundToQuarterPeso(base + extraKm * perKm);
+  return {
+    distanceKm: round2(distanceKm),
+    fare,
+    breakdown: {
+      base: roundedBase,
+      distanceCharge: round2(fare - roundedBase),
+    },
+  };
+}
+
+/**
+ * Where the fare figures come from. Update the figures, the date/URLs and
+ * `verified` together — `verified` stays false unless the figures were read
+ * directly on an official LTFRB page (or, for `modern`, an official LTFRB
+ * document) on `checkedOn` — a news report or a memory of an announced rate
+ * doesn't count.
  *
- * 2026-09-24 check: ltfrb.gov.ph (home, /fare-rates/, /car/, and the www.
- * variant) returned Cloudflare's "Performing security verification" 403 to
- * automated access on every attempt, so the current jeepney and taxi figures
- * could not be confirmed on an official page. Kept the existing figures
- * (₱13 base / ₱1.80 per km) rather than adopting unverified numbers from news
- * coverage of a reported March 2026 fare order. See task-5-report.md for the
- * full research ledger.
+ * `traditional` (the six routes' generic ₱13/₱1.80 DB rate): 2026-09-24
+ * check — ltfrb.gov.ph (home, /fare-rates/, /car/, and the www. variant)
+ * returned Cloudflare's "Performing security verification" 403 to automated
+ * access on every attempt, so this figure could not be confirmed on an
+ * official page. Kept as-is rather than adopting unverified numbers from
+ * news coverage of a reported March 2026 fare order. See task-5-report.md
+ * for the full research ledger.
+ *
+ * `modern`: verified 2026-09-24 against the LTFRB Non-Aircon Modern and
+ * Electric PUJ General Fare Guide the owner supplied directly (PDF), which
+ * states it is valid until 2026-06-30 and advises operators to secure an
+ * individual fare matrix — so this is a time-boxed interim rate, not a
+ * standing one.
  */
 export const FARE_SOURCE = {
   checkedOn: "2026-09-24",
-  jeepney: { label: "LTFRB fare matrix", url: "https://ltfrb.gov.ph/fare-rates/", verified: false },
+  traditional: {
+    label: "LTFRB fare matrix",
+    url: "https://ltfrb.gov.ph/fare-rates/",
+    verified: false,
+  },
+  modern: {
+    label: "LTFRB Non-Aircon Modern and Electric PUJ General Fare Guide",
+    url: "https://ltfrb.gov.ph/fare-rates/",
+    verified: true,
+    effective: "2026-03-19",
+    validUntil: "2026-06-30",
+  },
   taxi: { label: "LTFRB taxi fares", url: "https://ltfrb.gov.ph/fare-rates/", verified: false },
 } as const;

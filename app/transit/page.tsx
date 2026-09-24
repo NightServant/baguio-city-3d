@@ -7,6 +7,8 @@ import { getTransitRoutes } from "@/lib/content";
 import {
   FARE_SOURCE,
   JEEPNEY_BASE_KM,
+  MODERN_JEEPNEY_BASE_PHP,
+  MODERN_JEEPNEY_PER_KM_PHP,
   TAXI_FLAGDOWN_PHP,
   TAXI_PER_METER_UNIT_M,
   TAXI_PER_UNIT_PHP,
@@ -24,12 +26,20 @@ export const metadata: Metadata = {
 const peso = (n: number) =>
   `₱${n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+// "19 March 2026" — day, then month name, then year.
+const formatLongDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+
 // Worked example for the taxi explainer: Plaza to Mines View is ~3.5 km.
 const SAMPLE_KM = 3.5;
 
 export default async function TransitPage() {
   const routes = await getTransitRoutes();
   const sample = taxiFare(SAMPLE_KM);
+  // The six routes all currently share the same traditional rate; read it
+  // from the data rather than duplicating the figure as a literal.
+  const traditionalBase = routes[0]?.fareBase ?? 13;
+  const traditionalPerKm = routes[0]?.farePerKm ?? 1.8;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
@@ -39,24 +49,26 @@ export default async function TransitPage() {
         title="Jeepney lines & fares"
         lede={`Every line starts at the City Plaza terminal downtown. Base fare covers the first ${JEEPNEY_BASE_KM} km; the meter of the mountains is the barker's call, so round up and pay forward.`}
       />
-      {FARE_SOURCE.jeepney.verified ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Fares checked{" "}
-          {new Date(FARE_SOURCE.checkedOn).toLocaleDateString("en-PH", { dateStyle: "long" })}{" "}
-          against the{" "}
-          <a
-            href={FARE_SOURCE.jeepney.url}
-            className="text-primary underline underline-offset-4"
-          >
-            {FARE_SOURCE.jeepney.label}
-          </a>
-          . {FARE_SOURCE.taxi.verified ? null : "Taxi figures are estimates. "}Confirm the fare
-          with the driver.
-        </p>
-      ) : (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Fares follow the LTFRB fare structure and haven&apos;t been checked against a current
-          LTFRB issuance. Confirm the fare with the driver.
+      <p className="mt-4 text-sm text-muted-foreground">
+        Traditional jeepney: {peso(traditionalBase)} for the first {JEEPNEY_BASE_KM} km, then{" "}
+        {peso(traditionalPerKm)} per km
+        {FARE_SOURCE.traditional.verified
+          ? ""
+          : ", not yet checked against a current LTFRB issuance"}
+        .
+      </p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Modern jeepney: {peso(MODERN_JEEPNEY_BASE_PHP)} for the first {JEEPNEY_BASE_KM} km, then{" "}
+        {peso(MODERN_JEEPNEY_PER_KM_PHP)} per km
+        {FARE_SOURCE.modern.verified
+          ? `, per the ${FARE_SOURCE.modern.label} effective ${formatLongDate(FARE_SOURCE.modern.effective)}`
+          : ", not yet checked against a current LTFRB issuance"}
+        .
+      </p>
+      {FARE_SOURCE.modern.verified && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          That guide was issued as valid until {formatLongDate(FARE_SOURCE.modern.validUntil)}, so
+          confirm the fare with the driver.
         </p>
       )}
       <p className="mt-2 text-sm text-muted-foreground">
