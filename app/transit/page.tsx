@@ -75,7 +75,7 @@ export default async function TransitPage() {
               <h2 className="min-w-0 font-display text-lg font-semibold leading-snug tracking-tight">
                 {route.name}
               </h2>
-              <span className="readout shrink-0 text-muted-foreground">
+              <span className="readout text-muted-foreground">
                 {peso(route.fareBase)} base · {peso(route.farePerKm)}/km after
               </span>
             </div>
