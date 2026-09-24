@@ -9,6 +9,6 @@ alter default privileges in schema public revoke all on sequences from anon, aut
 
 -- Intentionally not revoking EXECUTE on functions/from PUBLIC here:
 -- baguio_app calls PostGIS functions (e.g. ST_MakePoint, ST_Simplify) through
--- that grant, and PUBLIC's default EXECUTE isn't part of the Data API attack
--- surface this migration is closing — it's an authenticated, direct-Postgres
--- role's own permission to call ordinary functions, not a PostgREST exposure.
+-- that grant. While `public` is exposed, PUBLIC EXECUTE also makes these
+-- functions callable as PostgREST RPC; that exposure is closed by removing
+-- `public` from the Data API's exposed schemas (dashboard), not here.
