@@ -72,7 +72,7 @@ export default async function TransitPage() {
             className="flex flex-col rounded-2xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 transition hover:shadow-md hover:shadow-primary/5 hover:ring-primary/40"
           >
             <div className="flex items-center justify-between gap-3">
-              <h2 className="min-w-0 font-display text-lg font-semibold leading-snug tracking-tight">
+              <h2 className="font-display text-lg font-semibold leading-snug tracking-tight">
                 {route.name}
               </h2>
               <span className="readout text-muted-foreground">
