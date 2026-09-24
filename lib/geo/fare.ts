@@ -93,3 +93,24 @@ export function taxiFare(distanceKm: number): FareResult {
     },
   };
 }
+
+/**
+ * Where the fare figures come from. Update the figures, the date and the URLs
+ * together. `jeepney.verified` and `taxi.verified` stay false unless the
+ * figures above were read directly on an official LTFRB page (ltfrb.gov.ph or
+ * its Region CAR office) on `checkedOn` — a news report or a memory of an
+ * announced rate doesn't count.
+ *
+ * 2026-09-24 check: ltfrb.gov.ph (home, /fare-rates/, /car/, and the www.
+ * variant) returned Cloudflare's "Performing security verification" 403 to
+ * automated access on every attempt, so the current jeepney and taxi figures
+ * could not be confirmed on an official page. Kept the existing figures
+ * (₱13 base / ₱1.80 per km) rather than adopting unverified numbers from news
+ * coverage of a reported March 2026 fare order. See task-5-report.md for the
+ * full research ledger.
+ */
+export const FARE_SOURCE = {
+  checkedOn: "2026-09-24",
+  jeepney: { label: "LTFRB fare matrix", url: "https://ltfrb.gov.ph/fare-rates/", verified: false },
+  taxi: { label: "LTFRB taxi fares", url: "https://ltfrb.gov.ph/fare-rates/", verified: false },
+} as const;

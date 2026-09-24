@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { getTransitRoutes } from "@/lib/content";
 import {
+  FARE_SOURCE,
   JEEPNEY_BASE_KM,
   TAXI_FLAGDOWN_PHP,
   TAXI_PER_METER_UNIT_M,
@@ -38,6 +39,30 @@ export default async function TransitPage() {
         title="Jeepney lines & fares"
         lede={`Every line starts at the City Plaza terminal downtown. Base fare covers the first ${JEEPNEY_BASE_KM} km; the meter of the mountains is the barker's call, so round up and pay forward.`}
       />
+      {FARE_SOURCE.jeepney.verified ? (
+        <p className="mt-4 text-sm text-muted-foreground">
+          Fares checked{" "}
+          {new Date(FARE_SOURCE.checkedOn).toLocaleDateString("en-PH", { dateStyle: "long" })}{" "}
+          against the{" "}
+          <a
+            href={FARE_SOURCE.jeepney.url}
+            className="text-primary underline underline-offset-4"
+          >
+            {FARE_SOURCE.jeepney.label}
+          </a>
+          . {FARE_SOURCE.taxi.verified ? null : "Taxi figures are estimates. "}Confirm the fare
+          with the driver.
+        </p>
+      ) : (
+        <p className="mt-4 text-sm text-muted-foreground">
+          Fares follow the LTFRB fare structure and haven&apos;t been checked against a current
+          LTFRB issuance. Confirm the fare with the driver.
+        </p>
+      )}
+      <p className="mt-2 text-sm text-muted-foreground">
+        Route lines are approximate: they join the stops in order and may not follow every street
+        the jeepney takes.
+      </p>
 
       {/* Route cards */}
       <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -47,16 +72,13 @@ export default async function TransitPage() {
             className="flex flex-col rounded-2xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 transition hover:shadow-md hover:shadow-primary/5 hover:ring-primary/40"
           >
             <div className="flex items-center justify-between gap-3">
-              <span className="rounded bg-primary px-2.5 py-1 font-mono text-xs font-semibold tracking-wider text-primary-foreground">
-                {route.code}
-              </span>
-              <span className="readout text-muted-foreground">
+              <h2 className="min-w-0 font-display text-lg font-semibold leading-snug tracking-tight">
+                {route.name}
+              </h2>
+              <span className="readout shrink-0 text-muted-foreground">
                 {peso(route.fareBase)} base · {peso(route.farePerKm)}/km after
               </span>
             </div>
-            <h2 className="mt-4 font-display text-lg font-semibold leading-snug tracking-tight">
-              {route.name}
-            </h2>
 
             {/* Route-line motif */}
             <ol className="relative mt-5 flex-1 space-y-3 pl-4">
