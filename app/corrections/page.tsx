@@ -9,9 +9,11 @@ export const metadata: Metadata = {
   alternates: { canonical: "/corrections" },
 };
 
-export default async function CorrectionsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+export default async function CorrectionsPage({ searchParams }: { searchParams: Promise<{ page?: string | string[] }> }) {
   const { page } = await searchParams;
-  const fromPage = page && page.startsWith("/") && page.length <= 200 ? page : "";
+  // Next passes a repeated query parameter (?page=/a&page=/b) as string[],
+  // not string — only a single string value is a page path we'll accept.
+  const fromPage = typeof page === "string" && page.startsWith("/") && page.length <= 200 ? page : "";
   // Rendered on the server so the time check works without JavaScript. This
   // is a Server Component (runs once per request, never memoized/replayed
   // by the React Compiler), so the timestamp is exactly what the compiler's

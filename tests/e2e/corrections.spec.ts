@@ -10,6 +10,12 @@ test("a too-short report shows an error and keeps the text", async ({ page }) =>
   await expect(page.getByLabel("What's wrong?")).toHaveValue("closed");
 });
 
+test("a repeated page parameter doesn't crash the page", async ({ page }) => {
+  const response = await page.goto("/corrections?page=/a&page=/b");
+  expect(response?.status()).toBe(200);
+  await expect(page.getByLabel("Which page?")).toHaveValue("");
+});
+
 test("a valid report lands on the thank-you page", async ({ page }) => {
   test.skip(!process.env.E2E_DB, "needs a reachable database: set E2E_DB=1");
   await page.goto("/corrections");
