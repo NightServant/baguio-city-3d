@@ -7,7 +7,8 @@ import { Treeline } from "@/components/site/atmosphere";
 export const metadata: Metadata = {
   title: "History",
   description:
-    "Four eras of Baguio — Ibaloi Kafagway, the American hill station, wartime ruin and rebuilding, and the contemporary Creative City — on one timeline.",
+    "Four eras of Baguio, from Ibaloi Kafagway through the American hill station, wartime ruin and rebuilding, to the contemporary Creative City.",
+  alternates: { canonical: "/history" },
 };
 
 function eraYears(startYear: number, endYear: number | null): string {

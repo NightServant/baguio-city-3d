@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/LinkButton";
@@ -15,6 +16,8 @@ import { PineIcon, FogIcon, RouteIcon, ContourIcon } from "@/components/site/Ani
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ERA_YEARS, VENUE_CATEGORY_LABELS } from "@/components/site/labels";
 import type { VenueCategory } from "@/types/venue";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 // Curated landing highlights — the places first-time visitors ask about.
 const FEATURED_SLUGS = [

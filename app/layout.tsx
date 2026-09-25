@@ -32,13 +32,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Baguio 3D — Explore the Summer Capital in three dimensions",
-    template: "%s — Baguio 3D",
+    default: "Baguio 3D | A 3D map of Baguio City",
+    template: "%s | Baguio 3D",
   },
   description:
-    "An interactive 3D map and field guide to Baguio City: pine-forest viewpoints, American-era heritage, jeepney routes, and where to eat and stay in the Summer Capital of the Philippines.",
+    "A free 3D map of Baguio City: tilt the terrain, find landmarks and viewpoints, check jeepney routes and fares, and see what's open to eat and stay.",
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Baguio 3D — Explore the Summer Capital in three dimensions",
+    title: "Baguio 3D | A 3D map of Baguio City",
     description:
       "Fly over the City of Pines. Discover viewpoints, heritage, jeepney routes, and mountain food and lodging on an interactive 3D map.",
     siteName: "Baguio 3D",
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Baguio 3D — Explore the Summer Capital in three dimensions",
+    title: "Baguio 3D | A 3D map of Baguio City",
     description:
       "Fly over the City of Pines. Discover viewpoints, heritage, jeepney routes, and mountain food and lodging on an interactive 3D map.",
   },

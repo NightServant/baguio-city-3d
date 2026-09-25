@@ -19,9 +19,10 @@ import {
 import { SectionHeading } from "@/components/site/SectionHeading";
 
 export const metadata: Metadata = {
-  title: "Transit",
+  title: "Jeepney routes and fares",
   description:
-    "Baguio jeepney routes from the City Plaza terminal — stops, fares, and a taxi fare estimator for the City of Pines.",
+    "Baguio jeepney routes from the City Plaza terminal: stops, fares and a taxi fare estimator for getting around the City of Pines.",
+  alternates: { canonical: "/transit" },
 };
 
 const peso = (n: number) =>

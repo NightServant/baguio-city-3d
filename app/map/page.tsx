@@ -8,9 +8,10 @@ import { PanelChrome } from "@/components/panels/PanelChrome";
 import { DeepLink } from "@/components/map/DeepLink";
 
 export const metadata: Metadata = {
-  title: "Interactive 3D Map — Baguio City",
+  title: "Interactive 3D map",
   description:
-    "Fly over Baguio's ridges in 3D — find viewpoints, heritage sites, jeepney routes, fares, and the city's history on one living map.",
+    "Fly over Baguio's ridges in 3D: find viewpoints, heritage sites, jeepney routes, fares and the city's history on one map.",
+  alternates: { canonical: "/map" },
 };
 
 export default function MapPage() {

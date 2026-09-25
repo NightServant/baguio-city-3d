@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { getDestinationBySlug, getDestinations, getHistory, getVenues } from "@/lib/content";
 import { haversineKm } from "@/lib/geo/fare";
+import { clip } from "@/lib/site";
 import { CategoryBadge, EraBadge } from "@/components/site/badges";
 import { OpenNowBadge } from "@/components/site/OpenNowBadge";
 import { VenueCard } from "@/components/site/VenueCard";
@@ -30,7 +31,8 @@ export async function generateMetadata({
   if (!destination) return { title: "Destination not found" };
   return {
     title: destination.name,
-    description: destination.description.slice(0, 160),
+    description: clip(destination.description),
+    alternates: { canonical: `/destinations/${destination.slug}` },
   };
 }
 

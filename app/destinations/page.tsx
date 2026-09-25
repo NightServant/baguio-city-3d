@@ -9,7 +9,8 @@ import type { LandmarkCategory } from "@/types/geo";
 export const metadata: Metadata = {
   title: "Destinations",
   description:
-    "Every landmark in the Baguio 3D field guide — parks, viewpoints, heritage sites, museums, and markets across the City of Pines.",
+    "Every landmark in the Baguio 3D field guide: parks, viewpoints, heritage sites, museums and markets across the City of Pines.",
+  alternates: { canonical: "/destinations" },
 };
 
 const CATEGORY_ORDER: LandmarkCategory[] = [

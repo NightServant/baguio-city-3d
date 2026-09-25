@@ -9,7 +9,8 @@ import type { VenueCategory } from "@/types/venue";
 export const metadata: Metadata = {
   title: "Eat & Stay",
   description:
-    "Where to eat, snack, shop, and sleep in Baguio — restaurants, ube-jam counters, pine-side hotels, and budget transient houses with hours and price ranges.",
+    "Where to eat, snack, shop and sleep in Baguio: restaurants, ube-jam counters, pine-side hotels and budget transient houses, with hours and price ranges.",
+  alternates: { canonical: "/eat-stay" },
 };
 
 const CATEGORY_ORDER: VenueCategory[] = [
