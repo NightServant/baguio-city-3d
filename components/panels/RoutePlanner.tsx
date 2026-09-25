@@ -13,7 +13,7 @@ import {
 } from "@/stores/useMapStore";
 import type { FareResponse, TransitRouteFeature, TransitRoutesResponse } from "@/types/api";
 import { cn } from "@/lib/utils";
-import { FARE_SOURCE } from "@/lib/geo/fare";
+import { FARE_SOURCE, JEEPNEY_BASE_KM, formatLongDate } from "@/lib/geo/fare";
 import { focusRing } from "./controlStyles";
 
 interface RoutesState {
@@ -22,23 +22,24 @@ interface RoutesState {
   error: boolean;
 }
 
-// Only these breakdown keys are peso amounts. jeepneyFare()'s breakdown also
-// carries baseCoversKm/extraKm (km counts, not money) — rendering every key
-// blindly would show e.g. "baseCoversKm ₱4.00", which is false.
+// Only these breakdown keys are peso amounts that actually make up a fare's
+// total (jeepneyFare()'s breakdown also carries baseCoversKm/extraKm — km
+// counts, not money — and perKm is a rate, not a charge; rendering those
+// blindly would show e.g. "baseCoversKm ₱4.00" and the shown rows wouldn't
+// sum to the shown total). Every block's rows must add up to its fare.
 const BREAKDOWN_LABELS: Record<string, string> = {
   base: "Base fare",
   distanceCharge: "Distance charge",
   flagdown: "Flag-down",
-  perKm: "Per-km charge",
+  waitingCharge: "Waiting charge",
 };
 
-function moneyEntries(breakdown: Record<string, number>): [string, number][] {
+// Exported so tests can check the invariant this exists to guarantee — the
+// keys it keeps, summed, must equal the fare they're a breakdown of — against
+// the real function rather than a second, driftable copy of the key list.
+export function moneyEntries(breakdown: Record<string, number>): [string, number][] {
   return Object.entries(breakdown).filter(([k]) => k in BREAKDOWN_LABELS);
 }
-
-// "19 March 2026" — day, then month name, then year.
-const formatLongDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
 function peso(n: number): string {
   return `₱${n.toFixed(2)}`;
@@ -135,8 +136,8 @@ export function RoutePlanner() {
                       {route.properties.name}
                     </span>
                     <span className={cn("block text-xs", active ? "opacity-80" : "text-muted-foreground")}>
-                      {route.properties.code} · {route.properties.stops.length} stops · base{" "}
-                      {peso(route.properties.fareBase)}
+                      {route.properties.code} · {route.properties.stops.length} stops · Traditional{" "}
+                      {peso(route.properties.fareBase)} for the first {JEEPNEY_BASE_KM} km
                     </span>
                   </span>
                 </button>

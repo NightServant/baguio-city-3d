@@ -115,11 +115,17 @@ function roundToQuarterPeso(n: number): number {
  * the nearest 25 centavos as the guide states — rounding the total once
  * (not each component) is what reproduces the guide's own worked table
  * exactly, including its discounted-fare rounding (e.g. 13.60 -> 13.50).
+ *
+ * The guide's table is keyed by whole kilometres; it says nothing about how
+ * part-kilometres are charged. Rounding the distance UP to the next whole km
+ * before pricing it means every fare this function returns is a value that's
+ * actually printed in the guide, and it never under-quotes a rider.
  */
 export function modernJeepneyFare(distanceKm: number, discounted = false): FareResult {
   const base = discounted ? MODERN_JEEPNEY_DISCOUNTED_BASE_PHP : MODERN_JEEPNEY_BASE_PHP;
   const perKm = discounted ? MODERN_JEEPNEY_DISCOUNTED_PER_KM_PHP : MODERN_JEEPNEY_PER_KM_PHP;
-  const extraKm = Math.max(0, distanceKm - JEEPNEY_BASE_KM);
+  const wholeKm = Math.max(1, Math.ceil(distanceKm));
+  const extraKm = Math.max(0, wholeKm - JEEPNEY_BASE_KM);
   const roundedBase = roundToQuarterPeso(base);
   const fare = roundToQuarterPeso(base + extraKm * perKm);
   return {
@@ -130,6 +136,22 @@ export function modernJeepneyFare(distanceKm: number, discounted = false): FareR
       distanceCharge: round2(fare - roundedBase),
     },
   };
+}
+
+/**
+ * "30 June 2026" — day, then month name, then year, in UTC. FARE_SOURCE
+ * stores plain ISO dates ("2026-06-30"), which `new Date(...)` parses as UTC
+ * midnight; without pinning `timeZone: "UTC"` here, formatting that same
+ * instant in a zone west of UTC (e.g. America/New_York) renders it as the
+ * day before ("29 June 2026").
+ */
+export function formatLongDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 /**
@@ -151,7 +173,10 @@ export function modernJeepneyFare(distanceKm: number, discounted = false): FareR
  * Electric PUJ General Fare Guide the owner supplied directly (PDF), which
  * states it is valid until 2026-06-30 and advises operators to secure an
  * individual fare matrix — so this is a time-boxed interim rate, not a
- * standing one.
+ * standing one. It has no `url`: the guessed ltfrb.gov.ph link 403'd during
+ * research (see task-5-report.md) and isn't actually where this came from —
+ * `source` records the real provenance instead of a page nobody fetched it
+ * from.
  */
 export const FARE_SOURCE = {
   checkedOn: "2026-09-24",
@@ -162,7 +187,7 @@ export const FARE_SOURCE = {
   },
   modern: {
     label: "LTFRB Non-Aircon Modern and Electric PUJ General Fare Guide",
-    url: "https://ltfrb.gov.ph/fare-rates/",
+    source: "PDF supplied directly by the site owner (no confirmed public LTFRB URL)",
     verified: true,
     effective: "2026-03-19",
     validUntil: "2026-06-30",

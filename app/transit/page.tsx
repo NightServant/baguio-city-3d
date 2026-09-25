@@ -13,6 +13,7 @@ import {
   TAXI_PER_METER_UNIT_M,
   TAXI_PER_UNIT_PHP,
   TAXI_PER_MINUTE_WAIT_PHP,
+  formatLongDate,
   taxiFare,
 } from "@/lib/geo/fare";
 import { SectionHeading } from "@/components/site/SectionHeading";
@@ -25,10 +26,6 @@ export const metadata: Metadata = {
 
 const peso = (n: number) =>
   `₱${n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-// "19 March 2026" — day, then month name, then year.
-const formatLongDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
 // Worked example for the taxi explainer: Plaza to Mines View is ~3.5 km.
 const SAMPLE_KM = 3.5;
@@ -88,7 +85,8 @@ export default async function TransitPage() {
                 {route.name}
               </h2>
               <span className="readout text-muted-foreground">
-                {peso(route.fareBase)} base · {peso(route.farePerKm)}/km after
+                Traditional {peso(route.fareBase)} for the first {JEEPNEY_BASE_KM} km ·{" "}
+                {peso(route.farePerKm)}/km after
               </span>
             </div>
 

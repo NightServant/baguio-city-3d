@@ -4,6 +4,10 @@ test("the transit page shows both the traditional and modern jeepney fares", asy
   await page.goto("/transit");
   await expect(page.getByText(/Traditional jeepney/)).toBeVisible();
   await expect(page.getByText(/Modern jeepney/)).toBeVisible();
+  // The truth lines: traditional is unverified, and the modern guide's
+  // stated validity window doesn't mean it's still in force.
+  await expect(page.getByText(/not yet checked/)).toBeVisible();
+  await expect(page.getByText(/valid until 30 June 2026/)).toBeVisible();
   await expect(page.getByText(/Route lines are approximate/)).toBeVisible();
 });
 
