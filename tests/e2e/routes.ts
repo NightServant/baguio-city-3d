@@ -7,4 +7,5 @@ export const PAGES: string[] = [
   "/eat-stay",
   "/history",
   "/transit",
+  "/corrections",
 ];

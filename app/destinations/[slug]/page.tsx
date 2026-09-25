@@ -180,6 +180,9 @@ export default async function DestinationPage({
             >
               Fly there on the map
             </LinkButton>
+            <Link href={`/corrections?page=/destinations/${destination.slug}`} className="mt-4 block text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+              Something wrong here? Suggest a correction
+            </Link>
           </aside>
         </div>
 

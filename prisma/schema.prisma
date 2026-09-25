@@ -181,3 +181,15 @@ model District {
 
   @@map("districts")
 }
+
+model Correction {
+  id         BigInt    @id @default(autoincrement())
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  pagePath   String    @map("page_path")
+  message    String
+  replyEmail String?   @map("reply_email")
+  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz(6)
+
+  @@index([createdAt])
+  @@map("corrections")
+}
