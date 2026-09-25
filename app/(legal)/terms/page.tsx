@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { FARE_SOURCE, formatLongDate } from "@/lib/geo/fare";
+import { fareAccuracyNote } from "@/lib/geo/fare";
 import { CONTACT_EMAIL } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -23,13 +23,10 @@ export default function TermsPage() {
 
         <h2>Check before you travel</h2>
         <p>
-          Modern jeepney fares follow the {FARE_SOURCE.modern.label}, effective{" "}
-          {formatLongDate(FARE_SOURCE.modern.effective)}, which was issued as valid until{" "}
-          {formatLongDate(FARE_SOURCE.modern.validUntil)}. Traditional jeepney and taxi fares
-          haven&apos;t been checked against a current LTFRB issuance. Opening hours can go out of
-          date. Heights come from a terrain model and positions from OpenStreetMap, and both can be
-          off by a few metres. Confirm fares with the driver and hours with the place before you
-          rely on them. We aren&apos;t responsible for decisions made on this information.
+          {fareAccuracyNote()} Opening hours can go out of date. Heights come from a terrain
+          model, and both heights and map positions can be off. Confirm fares with the driver and
+          hours with the place before you rely on them. We aren&apos;t responsible for decisions
+          made on this information.
         </p>
 
         <h2>Map data and credits</h2>

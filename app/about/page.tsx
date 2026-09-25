@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { FARE_SOURCE, formatLongDate } from "@/lib/geo/fare";
+import { fareAccuracyNote } from "@/lib/geo/fare";
 import { DATA_SOURCES, OSM_BUILDINGS } from "@/lib/sources";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "How Baguio 3D is built: the open data behind the 3D map, how heights and fares were checked, and how to report a mistake.",
+  description: "How Baguio 3D is built: the open data behind the 3D map, how heights were checked and where fares come from, and how to report a mistake.",
   alternates: { canonical: "/about" },
 };
 
@@ -38,11 +38,8 @@ export default function AboutPage() {
         <h2>How it was checked</h2>
         <p>
           Every destination&apos;s height was re-sampled from the same terrain model the map draws, after the
-          original figures turned out to be off by up to 441 m. Modern jeepney fares follow the{" "}
-          {FARE_SOURCE.modern.label}, effective {formatLongDate(FARE_SOURCE.modern.effective)}, which was
-          issued as valid until {formatLongDate(FARE_SOURCE.modern.validUntil)}. Traditional jeepney and
-          taxi fares haven&apos;t been checked against a current LTFRB issuance. The terrain is drawn 1.35
-          times taller than life so slopes read on a phone screen.
+          original figures turned out to be off by up to 441 m. {fareAccuracyNote()} The terrain is drawn
+          1.35 times taller than life so slopes read on a phone screen.
         </p>
 
         <h2>Found a mistake?</h2>

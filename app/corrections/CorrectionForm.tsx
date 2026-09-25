@@ -52,7 +52,7 @@ export function CorrectionForm({ page, startedAt, responseDays }: { page: string
       <div>
         <label htmlFor="email" className="font-medium">Email <span className="font-normal text-muted-foreground">(optional)</span></label>
         <input id="email" name="email" type="email" autoComplete="email" defaultValue={f?.email} aria-invalid={!!e.email} aria-describedby={e.email ? "email-error" : "email-hint"} className={input} />
-        <p id="email-hint" className="mt-1.5 text-sm text-muted-foreground">Only if you want to hear back. We use it for this report and delete it once we reply.</p>
+        <p id="email-hint" className="mt-1.5 text-sm text-muted-foreground">Only if you want to hear back. We use it only for this report, and delete it once the report is resolved or after 90 days.</p>
         {e.email ? <p id="email-error" className="mt-1.5 text-sm text-primary">{e.email}</p> : null}
       </div>
 

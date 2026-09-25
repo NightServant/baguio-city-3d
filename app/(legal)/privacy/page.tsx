@@ -37,9 +37,12 @@ export default function PrivacyPage() {
         <ul>
           <li>OpenFreeMap, for the street map and labels (<code>tiles.openfreemap.org</code>)</li>
           <li>Amazon Web Services, for terrain heights (<code>s3.amazonaws.com</code>)</li>
-          <li>Esri, only when you switch to satellite imagery (<code>server.arcgisonline.com</code>)</li>
-          <li>{HOST}, which hosts this site and keeps standard request logs</li>
+          <li>
+            Esri, only when you switch to satellite imagery or open a link that starts on it (
+            <code>server.arcgisonline.com</code>)
+          </li>
         </ul>
+        <p>{HOST} hosts this site and keeps standard request logs.</p>
         <p>Fonts are served from this site, so your browser doesn&apos;t contact Google Fonts.</p>
 
         <h2>Analytics</h2>
@@ -48,9 +51,9 @@ export default function PrivacyPage() {
         <h2>Correction reports</h2>
         <p>
           If you send a correction, we store what you wrote and the page it&apos;s about, plus your email
-          only if you give one. We use the email only to reply about that report, and it&apos;s deleted once
-          the report is resolved or after 90 days, whichever comes first. The report itself stays, without
-          the email, as a record of what changed. We don&apos;t store your IP address with it. Reports are
+          only if you give one. We use the email only to reply about that report; it&apos;s cleared by a
+          daily job once the report is resolved, or once it&apos;s 90 days old. The report stays without the
+          email, as a record of what changed. We don&apos;t store your IP address with it. Reports are
           stored in a database hosted by Supabase.
         </p>
 

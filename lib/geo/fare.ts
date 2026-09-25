@@ -194,3 +194,31 @@ export const FARE_SOURCE = {
   },
   taxi: { label: "LTFRB taxi fares", url: "https://ltfrb.gov.ph/fare-rates/", verified: false },
 } as const;
+
+/**
+ * One or two plain-text sentences summarising which fare figures are backed
+ * by a verified LTFRB issuance, built from `FARE_SOURCE.*.verified` rather
+ * than hardcoded, so the legal and about pages can't drift out of sync with
+ * the data the way a copy-pasted sentence did.
+ */
+export function fareAccuracyNote(): string {
+  const sentences: string[] = [];
+  if (FARE_SOURCE.modern.verified) {
+    sentences.push(
+      `Modern jeepney fares follow the ${FARE_SOURCE.modern.label}, effective ` +
+        `${formatLongDate(FARE_SOURCE.modern.effective)}, which was issued as valid until ` +
+        `${formatLongDate(FARE_SOURCE.modern.validUntil)}.`,
+    );
+  }
+  const unverified = [
+    !FARE_SOURCE.traditional.verified && "traditional jeepney",
+    !FARE_SOURCE.taxi.verified && "taxi",
+  ].filter((name): name is string => Boolean(name));
+  if (unverified.length > 0) {
+    const names = unverified.join(" and ");
+    sentences.push(
+      `${names.charAt(0).toUpperCase()}${names.slice(1)} fares haven't been checked against a current LTFRB issuance.`,
+    );
+  }
+  return sentences.join(" ");
+}
