@@ -37,7 +37,6 @@ export const metadata: Metadata = {
   },
   description:
     "A free 3D map of Baguio City: tilt the terrain, find landmarks and viewpoints, check jeepney routes and fares, and see what's open to eat and stay.",
-  alternates: { canonical: "/" },
   openGraph: {
     title: "Baguio 3D | A 3D map of Baguio City",
     description:

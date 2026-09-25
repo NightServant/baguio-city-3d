@@ -14,5 +14,8 @@ test("every page has a unique title, a description and an absolute canonical URL
     expect(description.length, `${path} description`).toBeGreaterThanOrEqual(50);
     expect(description.length, `${path} description`).toBeLessThanOrEqual(160);
     expect(canonical, `${path} canonical`).toMatch(/^https?:\/\//);
+    const canonicalUrl = new URL(canonical);
+    expect(canonicalUrl.pathname, `${path} canonical path`).toBe(path);
+    expect(canonicalUrl.origin, `${path} canonical origin`).toBe(new URL(page.url()).origin);
   }
 });
