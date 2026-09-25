@@ -127,8 +127,14 @@ export default async function DestinationPage({
               <section className="max-w-2xl border-t border-border pt-6">
                 <h2 className="font-display text-xl">Getting here</h2>
                 <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                  The {ride.route.name} jeepney stops at {ride.stop.name},{" "}
-                  <span className="font-mono text-foreground">{Math.round(ride.km * 1000)} m</span> away.
+                  {ride.km < 0.05 ? (
+                    <>The {ride.route.name} jeepney stops at {ride.stop.name}.</>
+                  ) : (
+                    <>
+                      The {ride.route.name} jeepney stops at {ride.stop.name},{" "}
+                      <span className="font-mono text-foreground">{Math.round(ride.km * 1000)} m</span> away.
+                    </>
+                  )}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
                   <Link href={`/map?route=${ride.route.code}`} className="text-primary underline-offset-4 hover:underline">Show the route on the map</Link>
