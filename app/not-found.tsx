@@ -1,28 +1,35 @@
-// Branded 404. Minimal, semantic tokens, a way back to the map.
 import Link from "next/link";
-import { PineMark } from "@/components/site/PineMark";
+import { SetDocumentTitle } from "@/components/site/SetDocumentTitle";
+
+const WAYS_BACK = [
+  { href: "/map", name: "The 3D map", note: "Tilt the terrain and find a place." },
+  { href: "/destinations", name: "Destinations", note: "Every landmark in the guide, by kind." },
+  { href: "/eat-stay", name: "Eat and stay", note: "Food, lodging and pasalubong." },
+] as const;
+
+const TITLE = "Page not found | Baguio 3D";
 
 export default function NotFound() {
   return (
-    <div className="mx-auto flex min-h-[60dvh] max-w-md flex-col items-center justify-center px-6 py-20 text-center">
-      <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        <PineMark className="size-7" />
-      </div>
-      <p className="readout text-muted-foreground">Error 404</p>
-      <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight text-foreground">
-        Off the map
+    <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6 sm:py-28">
+      <title>{TITLE}</title>
+      <SetDocumentTitle title={TITLE} />
+      <h1 className="max-w-[16ch] font-display text-4xl leading-[1.02] text-balance sm:text-6xl">
+        This page isn&apos;t on the map.
       </h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        This page isn&apos;t on any of our ridges. Head back to the map and pick a trail.
+      <p className="mt-5 max-w-[52ch] text-lg leading-8 text-muted-foreground">
+        The link may be old, or the address has a typo. Everything in the guide starts from one of these.
       </p>
-      <p className="readout mt-6 text-muted-foreground">Off the trail</p>
-      <Link
-        href="/map"
-        className="mt-3 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      >
-        <PineMark className="size-4" aria-hidden="true" />
-        Open the map
-      </Link>
+      <ul className="mt-12 grid gap-px border border-border bg-border sm:grid-cols-3">
+        {WAYS_BACK.map((w) => (
+          <li key={w.href} className="bg-card">
+            <Link href={w.href} className="block h-full p-6 transition-colors hover:bg-secondary">
+              <span className="font-display text-xl">{w.name}</span>
+              <span className="mt-2 block text-sm text-muted-foreground">{w.note}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
