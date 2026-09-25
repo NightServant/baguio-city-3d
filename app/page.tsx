@@ -8,7 +8,7 @@ import {
   getTransitRoutes,
   getVenues,
 } from "@/lib/content";
-import { FogBank, Treeline } from "@/components/site/atmosphere";
+import { FogBank } from "@/components/site/atmosphere";
 import { TerrainCanvas } from "@/components/site/TerrainCanvas";
 import { DestinationCarousel } from "@/components/site/DestinationCarousel";
 import { ScrollReveal, ParallaxLayer } from "@/components/site/Motion";
@@ -319,7 +319,6 @@ export default async function Home() {
             Open the 3D map
           </LinkButton>
         </div>
-        <Treeline className="relative text-primary-foreground/20" />
       </section>
     </div>
   );

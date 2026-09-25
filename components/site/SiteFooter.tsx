@@ -1,63 +1,68 @@
 import Link from "next/link";
 import { Treeline } from "@/components/site/atmosphere";
+import { PineMark } from "@/components/site/PineMark";
+import { CONTACT_EMAIL } from "@/lib/site";
 
-const EXPLORE_LINKS = [
-  { href: "/map", label: "3D map" },
-  { href: "/destinations", label: "Destinations" },
-  { href: "/history", label: "History" },
-  { href: "/transit", label: "Jeepneys & fares" },
-  { href: "/eat-stay", label: "Eat & Stay" },
+// Page links live in the nav, the homepage and the sitemap (ruling R2).
+const LEGAL = [
+  { href: "/privacy", label: "Privacy policy" },
+  { href: "/terms", label: "Terms of use" },
+  { href: "/about#sources", label: "Data sources" },
 ] as const;
+
+const link = "text-sm text-foreground/80 underline-offset-4 transition-colors hover:text-foreground hover:underline";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16">
+    <footer>
       <Treeline className="text-primary/70" />
-      <div className="border-t border-border bg-secondary/60">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
+      {/* Bottom padding on phones leaves room for the sticky map button. */}
+      <div className="border-t border-border bg-secondary/60 pb-20 md:pb-0">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="space-y-3">
-            <p className="font-display text-lg font-semibold tracking-tight">
-              Baguio<span className="text-primary"> 3D</span>
+            <p className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
+              <PineMark className="size-4 text-primary" />
+              <span>
+                Baguio<span className="text-primary"> 3D</span>
+              </span>
             </p>
             <p className="max-w-xs text-sm leading-6 text-muted-foreground">
-              A field guide to the Summer Capital of the Philippines — pine
-              forests, fog, heritage, and jeepney routes, mapped in three
-              dimensions.
-            </p>
-            <p className="font-mono text-[0.6875rem] uppercase tracking-wider tabular-nums text-muted-foreground">
-              16.4023° N · 120.5960° E · 1500 M
+              A 3D map and field guide to Baguio City, free to use without an account.
             </p>
           </div>
-          <nav aria-label="Footer" className="space-y-3">
-            <p className="readout text-muted-foreground">Explore</p>
+          <nav aria-label="Legal" className="space-y-3">
+            <h2 className="text-sm font-medium">Legal</h2>
             <ul className="space-y-2">
-              {EXPLORE_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-foreground/80 transition-colors hover:text-foreground"
-                  >
-                    {link.label}
-                  </Link>
+              {LEGAL.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className={link}>{l.label}</Link>
                 </li>
               ))}
             </ul>
           </nav>
           <div className="space-y-3">
-            <p className="readout text-muted-foreground">About the data</p>
-            <p className="max-w-xs text-sm leading-6 text-muted-foreground">
-              Places, routes, and history are curated from public sources.
-              Jeepney and taxi fares are estimates in the LTFRB style — always
-              confirm on board. Opening hours follow Asia/Manila time.
-            </p>
+            <h2 className="text-sm font-medium">Contact</h2>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/corrections" className={link}>Suggest a correction</Link>
+              </li>
+              {CONTACT_EMAIL ? (
+                <li>
+                  <a href={`mailto:${CONTACT_EMAIL}`} className={link}>{CONTACT_EMAIL}</a>
+                </li>
+              ) : null}
+            </ul>
           </div>
         </div>
         <div className="border-t border-border/60">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:px-6">
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Baguio 3D
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-xs text-muted-foreground sm:px-6">
+            <p>© {new Date().getFullYear()} Baguio 3D</p>
+            <p>
+              Map data ©{" "}
+              <a href="https://www.openstreetmap.org/copyright" className="underline underline-offset-4 hover:text-foreground">
+                OpenStreetMap contributors
+              </a>
             </p>
-            <p className="readout text-muted-foreground">City of Pines · Est. 1909</p>
           </div>
         </div>
       </div>
