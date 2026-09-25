@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/LinkButton";
-import { getDestinationBySlug, getDestinations, getHistory, getVenues } from "@/lib/content";
-import { haversineKm } from "@/lib/geo/fare";
+import { getDestinationBySlug, getDestinations, getHistory, getTransitRoutes, getVenues } from "@/lib/content";
 import { clip } from "@/lib/site";
 import { attractionJsonLd } from "@/lib/jsonld";
+import { nearest } from "@/lib/nearby";
 import { CategoryBadge, EraBadge } from "@/components/site/badges";
 import { OpenNowBadge } from "@/components/site/OpenNowBadge";
 import { VenueCard } from "@/components/site/VenueCard";
@@ -40,6 +40,7 @@ export async function generateMetadata({
 }
 
 const NEARBY_COUNT = 3;
+const WALKABLE_KM = 0.8;
 
 export default async function DestinationPage({
   params,
@@ -50,19 +51,25 @@ export default async function DestinationPage({
   const destination = await getDestinationBySlug(slug);
   if (!destination) notFound();
 
-  const [history, venues] = await Promise.all([getHistory(), getVenues()]);
+  const [history, venues, destinations, routes] = await Promise.all([
+    getHistory(),
+    getVenues(),
+    getDestinations(),
+    getTransitRoutes(),
+  ]);
 
   const era = destination.era
     ? history.eras.find((e) => e.key === destination.era) ?? null
     : null;
 
-  const nearby = venues
-    .map((v) => ({
-      venue: v,
-      km: haversineKm([destination.lng, destination.lat], [v.lng, v.lat]),
-    }))
-    .sort((a, b) => a.km - b.km)
-    .slice(0, NEARBY_COUNT);
+  const nearby = nearest(destination, venues, NEARBY_COUNT);
+
+  const nearbyPlaces = nearest(destination, destinations.filter((d) => d.slug !== destination.slug), NEARBY_COUNT);
+
+  // The jeepney that stops closest to this place, if one stops within walking distance.
+  const ride = routes
+    .flatMap((route) => nearest(destination, route.stops, 1).map(({ item: stop, km }) => ({ route, stop, km })))
+    .sort((a, b) => a.km - b.km)[0];
 
   return (
     <div className="relative overflow-hidden">
@@ -113,6 +120,20 @@ export default async function DestinationPage({
                 >
                   Read the full timeline
                 </Link>
+              </section>
+            ) : null}
+
+            {ride && ride.km <= WALKABLE_KM ? (
+              <section className="max-w-2xl border-t border-border pt-6">
+                <h2 className="font-display text-xl">Getting here</h2>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                  The {ride.route.name} jeepney stops at {ride.stop.name},{" "}
+                  <span className="font-mono text-foreground">{Math.round(ride.km * 1000)} m</span> away.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
+                  <Link href={`/map?route=${ride.route.code}`} className="text-primary underline-offset-4 hover:underline">Show the route on the map</Link>
+                  <Link href="/transit" className="text-primary underline-offset-4 hover:underline">All routes and fares</Link>
+                </div>
               </section>
             ) : null}
           </div>
@@ -168,12 +189,27 @@ export default async function DestinationPage({
               </p>
             </div>
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {nearby.map(({ venue }) => (
-                <VenueCard key={venue.slug} venue={venue} />
+              {nearby.map(({ item }) => (
+                <VenueCard key={item.slug} venue={item} />
               ))}
             </div>
           </section>
         )}
+
+        {/* Nearby places */}
+        <section className="mt-16">
+          <h2 className="font-display text-2xl">Nearby places</h2>
+          <ul className="mt-6 grid gap-px border border-border bg-border sm:grid-cols-3">
+            {nearbyPlaces.map(({ item, km }) => (
+              <li key={item.slug} className="bg-card">
+                <Link href={`/destinations/${item.slug}`} className="flex h-full items-baseline justify-between gap-4 p-5 hover:bg-secondary">
+                  <span className="font-medium">{item.name}</span>
+                  <span className="font-mono text-xs text-muted-foreground">{km.toFixed(1)} km</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </div>
   );
