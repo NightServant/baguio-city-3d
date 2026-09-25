@@ -7,6 +7,7 @@ import { cacheAside, cacheKey } from "@/lib/redis";
 import { rowToFeature } from "@/lib/geo/serialize";
 import { jsonWithCache, errorResponse } from "@/lib/http";
 import { CACHE_TTLS } from "@/lib/constants";
+import { isSlug } from "@/lib/validate";
 import type { DestinationFeature, MediaItem, LandmarkInfo } from "@/types/api";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  if (!slug) return errorResponse("missing slug", 400);
+  if (!slug || !isSlug(slug)) return errorResponse("destination not found", 404);
 
   const key = cacheKey("geo/destinations/detail", { slug });
 

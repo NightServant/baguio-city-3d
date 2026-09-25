@@ -14,13 +14,8 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useMapStore } from "@/stores/useMapStore";
+import { inServiceArea } from "@/lib/validate";
 import type { DestinationFeature, VenuesResponse } from "@/types/api";
-
-// Baguio bounding window — focus coords outside this are treated as invalid.
-const LNG_MIN = 120.4;
-const LNG_MAX = 120.8;
-const LAT_MIN = 16.2;
-const LAT_MAX = 16.6;
 
 // `essential: true` (used below so the deep-link camera move survives) tells
 // MapLibre to ignore prefers-reduced-motion, so we gate the duration ourselves:
@@ -92,14 +87,7 @@ export function DeepLink() {
       const [lngRaw, latRaw] = focus.split(",");
       const lng = Number(lngRaw);
       const lat = Number(latRaw);
-      if (
-        Number.isFinite(lng) &&
-        Number.isFinite(lat) &&
-        lng >= LNG_MIN &&
-        lng <= LNG_MAX &&
-        lat >= LAT_MIN &&
-        lat <= LAT_MAX
-      ) {
+      if (Number.isFinite(lng) && Number.isFinite(lat) && inServiceArea(lng, lat)) {
         map.flyTo({ center: [lng, lat], zoom: 16, duration: motionDuration(2000), essential: true });
       }
     }

@@ -59,6 +59,9 @@ export const CAMERA_PRESETS: Record<string, CameraView> = {
   },
 };
 
+/** Coordinates outside this window aren't Baguio: [minLng, minLat, maxLng, maxLat]. */
+export const SERVICE_AREA: [number, number, number, number] = [120.4, 16.2, 120.8, 16.6];
+
 /** Cache TTLs (seconds) keyed by resource family. */
 export const CACHE_TTLS = {
   terrain: 3600,

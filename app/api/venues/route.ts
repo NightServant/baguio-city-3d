@@ -10,6 +10,7 @@ import { prisma } from "@/lib/db";
 import { cacheAside, cacheKey } from "@/lib/redis";
 import { errorResponse, jsonWithCache } from "@/lib/http";
 import { CACHE_TTLS } from "@/lib/constants";
+import { MAX_QUERY_LENGTH, isId } from "@/lib/validate";
 import type { VenuesResponse, VenueListItem } from "@/types/api";
 import type { OpeningHours } from "@/types/geo";
 
@@ -80,7 +81,15 @@ export async function GET(request: NextRequest) {
   }
 
   const q = sp.get("q")?.trim() || null;
+  if (q && q.length > MAX_QUERY_LENGTH) {
+    return errorResponse(`q must be at most ${MAX_QUERY_LENGTH} characters`, 400);
+  }
+
   const cursor = sp.get("cursor") || null;
+  if (cursor && !isId(cursor)) {
+    return errorResponse("invalid cursor", 400);
+  }
+
   const openNow = sp.get("openNow") === "true";
 
   // Exact slug match — resolves a single venue (used by the map deep-links).

@@ -6,6 +6,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { haversineKm, jeepneyFare, modernJeepneyFare, taxiFare } from "@/lib/geo/fare";
 import { errorResponse } from "@/lib/http";
+import { inServiceArea, isRouteCode } from "@/lib/validate";
 import type { FareResponse } from "@/types/api";
 
 export const dynamic = "force-dynamic";
@@ -35,6 +36,10 @@ export async function GET(request: NextRequest) {
     return errorResponse("fromLng, fromLat, toLng, toLat are required numbers", 400);
   }
 
+  if (!inServiceArea(fromLng, fromLat) || !inServiceArea(toLng, toLat)) {
+    return errorResponse("points must be in Baguio", 400);
+  }
+
   const distanceKm = haversineKm([fromLng, fromLat], [toLng, toLat]);
 
   try {
@@ -53,6 +58,9 @@ export async function GET(request: NextRequest) {
     const routeCode = sp.get("routeCode");
     if (!routeCode) {
       return errorResponse("routeCode is required for jeepney mode", 400);
+    }
+    if (!isRouteCode(routeCode)) {
+      return errorResponse("unknown routeCode", 400);
     }
 
     const rows = await prisma.$queryRaw<Array<{ fareBase: number; farePerKm: number }>>(Prisma.sql`

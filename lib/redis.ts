@@ -69,10 +69,14 @@ export async function cacheAside<T>(
 
   const fresh = await fetcher();
 
-  try {
-    await redis.setex(key, ttlSeconds, JSON.stringify(fresh));
-  } catch {
-    // Best-effort write; ignore failures.
+  // A miss (null) isn't cached: otherwise every made-up slug or id would sit
+  // in Redis for the full TTL.
+  if (fresh !== null) {
+    try {
+      await redis.setex(key, ttlSeconds, JSON.stringify(fresh));
+    } catch {
+      // Best-effort write; ignore failures.
+    }
   }
 
   return fresh;

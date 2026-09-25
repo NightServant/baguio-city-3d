@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { cacheAside, cacheKey } from "@/lib/redis";
 import { errorResponse, jsonWithCache } from "@/lib/http";
 import { CACHE_TTLS } from "@/lib/constants";
+import { isId } from "@/lib/validate";
 import type { VenueDetail, MediaItem } from "@/types/api";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  if (!id) return errorResponse("missing id", 400);
+  if (!id || !isId(id)) return errorResponse("venue not found", 404);
 
   const key = cacheKey("venues/detail", { id });
 
