@@ -55,6 +55,14 @@ export const theme = createTheme({
     MuiButtonBase: {
       // No ripple: Material's touch feedback reads as a different product.
       defaultProps: { disableRipple: true },
+      styleOverrides: {
+        // ButtonBase sets outline: 0 and the ripple (removed above) was the
+        // only other focus indicator, so keyboard focus was invisible
+        // (WCAG 2.4.7) without this.
+        root: {
+          "&.Mui-focusVisible": { outline: `2px solid ${MADDER}`, outlineOffset: 2 },
+        },
+      },
     },
     MuiButton: {
       defaultProps: { disableElevation: true, variant: "contained" },

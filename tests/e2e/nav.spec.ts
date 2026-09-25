@@ -17,3 +17,15 @@ test("the header is solid, not frosted glass", async ({ page }) => {
   const blur = await page.locator("header").first().evaluate((el) => getComputedStyle(el).backdropFilter);
   expect(blur === "none" || blur === "").toBe(true);
 });
+
+test("the nav CTA shows a visible focus outline when tabbed to", async ({ page }) => {
+  await page.goto("/");
+  const cta = page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Open the 3D map" });
+  for (let i = 0; i < 20; i++) {
+    await page.keyboard.press("Tab");
+    if (await cta.evaluate((el) => el === document.activeElement)) break;
+  }
+  await expect(cta).toBeFocused();
+  const outlineStyle = await cta.evaluate((el) => getComputedStyle(el).outlineStyle);
+  expect(outlineStyle).not.toBe("none");
+});

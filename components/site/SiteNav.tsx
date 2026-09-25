@@ -51,7 +51,7 @@ export function SiteNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative px-3 py-2 text-sm font-medium transition-colors",
-                  "after:absolute after:inset-x-3 after:-bottom-[9px] after:h-0.5 after:bg-primary after:transition-transform",
+                  "after:absolute after:inset-x-3 after:-bottom-[9px] after:h-0.5 after:bg-primary after:transition-transform motion-reduce:after:transition-none",
                   active ? "text-foreground after:scale-x-100" : "text-muted-foreground after:scale-x-0 hover:text-foreground",
                 )}
               >
@@ -68,7 +68,7 @@ export function SiteNav() {
           <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open menu" className="flex size-10 items-center justify-center">
             <MenuGlyph />
           </button>
-          <Drawer anchor="right" open={menuOpen} onClose={() => setMenuOpen(false)} slotProps={{ paper: { sx: { width: 288 } } }}>
+          <Drawer anchor="right" open={menuOpen} onClose={() => setMenuOpen(false)} slotProps={{ paper: { "aria-label": "Menu", sx: { width: 288 } } }}>
             <div className="flex items-center justify-between px-4 py-3">
               <span className="flex items-center gap-2 font-display text-lg">
                 <PineMark className="size-4 text-primary" /> Baguio 3D
