@@ -8,6 +8,7 @@ import {
   CAMERA_PRESETS,
   CACHE_TTLS,
 } from "@/lib/constants";
+import { TERRAIN_EXAGGERATION } from "@/lib/map/sources";
 import type { TerrainConfig } from "@/types/api";
 
 export async function GET() {
@@ -22,7 +23,7 @@ export async function GET() {
       tileSize: 256,
       maxzoom: 15,
     },
-    exaggeration: 1.35,
+    exaggeration: TERRAIN_EXAGGERATION,
   };
   return jsonWithCache(body, CACHE_TTLS.terrain);
 }
