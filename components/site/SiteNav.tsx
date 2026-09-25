@@ -3,41 +3,44 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
 import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
 import { cn } from "@/lib/utils";
 import { PineMark } from "@/components/site/PineMark";
 
+// History left the nav (ruling R3): it's linked from the homepage, from every
+// destination with an era, and from the sitemap.
 const NAV_LINKS = [
-  { href: "/map", label: "Map" },
   { href: "/destinations", label: "Destinations" },
-  { href: "/history", label: "History" },
-  { href: "/transit", label: "Transit" },
-  { href: "/eat-stay", label: "Eat & Stay" },
+  { href: "/transit", label: "Jeepneys" },
+  { href: "/eat-stay", label: "Eat & stay" },
 ] as const;
+
+/** Three threads of unequal length: the weave's own menu glyph. */
+function MenuGlyph() {
+  return (
+    <svg viewBox="0 0 20 20" className="size-5" aria-hidden="true">
+      <path d="M3 5.5h14M3 10h14M3 14.5h9" stroke="currentColor" strokeWidth="1.75" />
+    </svg>
+  );
+}
 
 export function SiteNav() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-border bg-background">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2" aria-label="Baguio 3D home">
           <PineMark className="size-5 text-primary" />
           <span className="font-display text-lg font-semibold tracking-tight">
             Baguio<span className="text-primary"> 3D</span>
           </span>
-          <span className="readout mt-0.5 hidden text-muted-foreground lg:inline">
-            1,500 m
-          </span>
+          <span className="readout mt-0.5 hidden text-muted-foreground lg:inline">1,500 m</span>
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
           {NAV_LINKS.map((link) => {
             const active = isActive(link.href);
@@ -47,62 +50,48 @@ export function SiteNav() {
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  "relative px-3 py-2 text-sm font-medium transition-colors",
+                  "after:absolute after:inset-x-3 after:-bottom-[9px] after:h-0.5 after:bg-primary after:transition-transform",
+                  active ? "text-foreground after:scale-x-100" : "text-muted-foreground after:scale-x-0 hover:text-foreground",
                 )}
               >
                 {link.label}
               </Link>
             );
           })}
-          <Button component={Link} href="/map" size="small" className="ml-2">
-            Open the map
+          <Button component={Link} href="/map" size="small" className="ml-3">
+            Open the 3D map
           </Button>
         </nav>
 
-        {/* Mobile menu */}
         <div className="md:hidden">
-          <IconButton onClick={() => setMenuOpen(true)} aria-label="Open menu">
-            <Menu className="size-5" />
-          </IconButton>
-          <Drawer
-            anchor="right"
-            open={menuOpen}
-            onClose={() => setMenuOpen(false)}
-            slotProps={{ paper: { sx: { width: 288 } } }}
-          >
-            <div className="flex items-center gap-2 px-4 py-4 font-display text-lg">
-              <PineMark className="size-4 text-primary" />
-              Baguio 3D
+          <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open menu" className="flex size-10 items-center justify-center">
+            <MenuGlyph />
+          </button>
+          <Drawer anchor="right" open={menuOpen} onClose={() => setMenuOpen(false)} slotProps={{ paper: { sx: { width: 288 } } }}>
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="flex items-center gap-2 font-display text-lg">
+                <PineMark className="size-4 text-primary" /> Baguio 3D
+              </span>
+              <button type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu" className="flex size-10 items-center justify-center text-2xl leading-none">
+                ×
+              </button>
             </div>
             <div className="weave-band" aria-hidden="true" />
             <nav className="flex flex-col gap-1 p-4" aria-label="Mobile">
-              {NAV_LINKS.map((link) => {
-                const active = isActive(link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "px-3 py-2.5 text-base font-medium transition-colors hover:bg-muted",
-                      active ? "bg-muted text-foreground" : "text-foreground",
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-              <Button
-                component={Link}
-                href="/map"
-                onClick={() => setMenuOpen(false)}
-                className="mt-3"
-              >
-                Open the map
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  aria-current={isActive(link.href) ? "page" : undefined}
+                  className={cn("px-3 py-3 text-base font-medium hover:bg-muted", isActive(link.href) && "bg-muted")}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <Button component={Link} href="/map" onClick={() => setMenuOpen(false)} className="mt-4" size="large">
+                Open the 3D map
               </Button>
             </nav>
           </Drawer>
