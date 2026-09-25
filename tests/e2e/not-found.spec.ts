@@ -5,4 +5,7 @@ test("unknown pages return 404 with their own title and a way back", async ({ pa
   expect(res?.status()).toBe(404);
   await expect(page).toHaveTitle("Page not found | Baguio 3D");
   await expect(page.getByRole("link", { name: /^The 3D map/ })).toHaveAttribute("href", "/map");
+
+  await page.getByRole("link", { name: /^The 3D map/ }).click();
+  await expect(page).toHaveTitle("Interactive 3D map | Baguio 3D");
 });

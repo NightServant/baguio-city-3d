@@ -11,8 +11,19 @@ import { useEffect } from "react";
 // title whenever the layout's insertion changes it back.
 export function SetDocumentTitle({ title }: { title: string }) {
   useEffect(() => {
+    // document.title rewrites the first <title> in <head>, which is Next's
+    // own metadata element -- the same one client-side navigation later
+    // updates for the *next* page. The pathname guard stops the observer
+    // from writing our stale title back over that update once the visitor
+    // has navigated away (its own cleanup/disconnect() fires too late to
+    // beat the mutation that triggered it).
+    const path = location.pathname;
     document.title = title;
     const observer = new MutationObserver(() => {
+      if (location.pathname !== path) {
+        observer.disconnect();
+        return;
+      }
       if (document.title !== title) document.title = title;
     });
     observer.observe(document.head, { childList: true, subtree: true, characterData: true });
