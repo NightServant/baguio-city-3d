@@ -3,6 +3,7 @@ import { Archivo, Geist_Mono } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { theme } from "./theme";
 import "./globals.css";
 import { cn } from "@/lib/utils";
@@ -62,6 +63,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // InitColorSchemeScript sets data-theme before React hydrates.
+      suppressHydrationWarning
       className={cn(
         "h-full antialiased",
         archivo.variable,
@@ -70,6 +73,8 @@ export default function RootLayout({
       )}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        {/* Light or dark before first paint: the stored choice, else the system setting. */}
+        <InitColorSchemeScript attribute="[data-theme='%s']" defaultMode="system" />
         {/* AppRouterCacheProvider collects Emotion's CSS while Next streams
             chunks; without it MUI styles flash in after hydration. */}
         <AppRouterCacheProvider options={{ key: "mui" }}>

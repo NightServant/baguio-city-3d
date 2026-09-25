@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode: <html data-theme="dark">, set before first paint from the stored
+   choice or the system setting (InitColorSchemeScript in app/layout.tsx). */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme inline {
   --color-background: var(--background);
@@ -110,6 +112,58 @@
   --sidebar-accent-foreground: oklch(0.189 0.009 75.1);
   --sidebar-border: oklch(0.845 0.018 80.0);
   --sidebar-ring: oklch(0.426 0.142 30.0);
+  --primary-hover: #6e1b12;
+  color-scheme: light;
+}
+
+/*
+  Dark: the night cloth. Cordillera weavers dye with indigo as well as madder,
+  so the dark ground is indigo, not grey, and madder stays the one accent,
+  lifted to #FF6B5B, fully saturated so it reads as red against indigo, and clearing 4.5:1 on every dark surface
+  (6.4 on the ground, 5.8 on cards, 5.1 on secondary). Bone becomes the warp:
+  the structural thread flips from black to white.
+*/
+:root[data-theme="dark"] {
+  --background: #0f1726;
+  --foreground: #efe9de;
+  --card: #152036;
+  --card-foreground: #efe9de;
+  --popover: #152036;
+  --popover-foreground: #efe9de;
+  --primary: #ff6b5b;
+  --primary-foreground: #0f1726;
+  --primary-hover: #ff8575;
+  --secondary: #1d2a44;
+  --secondary-foreground: #efe9de;
+  --muted: #1d2a44;
+  --muted-foreground: #a6b0c3;
+  --accent: #efe9de;
+  --accent-foreground: #0f1726;
+  --destructive: #f0806a;
+  --border: #2c3b58;
+  --input: #2c3b58;
+  --ring: #ff6b5b;
+  --chart-1: #ff6b5b;
+  --chart-2: #efe9de;
+  --chart-3: #a6b0c3;
+  --chart-4: #b5432f;
+  --chart-5: #2c3b58;
+  --madder: #b5432f;
+  --madder-lt: #ff6b5b;
+  --warp: #efe9de;
+  --ecru: #1d2a44;
+  --amber: #ff6b5b;
+  --amber-foreground: #0f1726;
+  --contour: rgb(239 233 222 / 0.07);
+  --sidebar: #0f1726;
+  --sidebar-foreground: #efe9de;
+  --sidebar-primary: #ff6b5b;
+  --sidebar-primary-foreground: #0f1726;
+  --sidebar-accent: #1d2a44;
+  --sidebar-accent-foreground: #efe9de;
+  --sidebar-border: #2c3b58;
+  --sidebar-ring: #ff6b5b;
+  color-scheme: dark;
 }
 
 

@@ -99,10 +99,12 @@ export function TerrainCanvas({
       geo.computeVertexNormals();
 
       // Base weave: the full grid, quiet.
+      // Warp lines vanish on the indigo night ground, so they flip to bone.
+      const dark = document.documentElement.dataset.theme === "dark";
       const wire = new THREE.WireframeGeometry(geo);
       mesh = new THREE.LineSegments(
         wire,
-        new THREE.LineBasicMaterial({ color: 0x16130f, transparent: true, opacity: 0.16 }),
+        new THREE.LineBasicMaterial({ color: dark ? 0xefe9de : 0x16130f, transparent: true, opacity: dark ? 0.2 : 0.16 }),
       );
       mesh.rotation.x = -Math.PI / 2;
       group.add(mesh);
@@ -124,7 +126,7 @@ export function TerrainCanvas({
       ridgeGeo.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
       ridge = new THREE.LineSegments(
         ridgeGeo,
-        new THREE.LineBasicMaterial({ color: 0x8c2318, transparent: true, opacity: 0.85 }),
+        new THREE.LineBasicMaterial({ color: dark ? 0xff6b5b : 0x8c2318, transparent: true, opacity: 0.85 }),
       );
       ridge.rotation.x = -Math.PI / 2;
       group.add(ridge);

@@ -10,20 +10,30 @@ import { createTheme } from "@mui/material/styles";
  * woven. So the overrides below are not cosmetic: they switch those defaults
  * off at the theme level, once, so individual call sites don't have to.
  *
- * Colour values are the hex equivalents of the oklch tokens in globals.css.
- * Keep the two in step: Tailwind reads the CSS variables, MUI reads these.
+ * Palette values are the hex equivalents of the tokens in globals.css, light
+ * and dark. Keep the two in step: Tailwind reads the CSS variables, MUI reads
+ * these. Component overrides use the CSS variables directly, so they follow
+ * the visitor's colour scheme with no second set of values.
  */
 
 const WARP = "#16130F"; // warm near-black
 const BONE = "#F5F0E6"; // undyed cotton ground
-const ECRU = "#E8DFD0"; // woven mid
 const MADDER = "#8C2318"; // the single accent
 const MADDER_LT = "#B5432F";
 const MUTED = "#6B6156";
 const BORDER = "#D8CEBC";
 
+// Dark: indigo ground, bone warp, madder lifted to read on indigo.
+const INDIGO = "#0F1726";
+const INDIGO_CARD = "#152036";
+const BONE_DK = "#EFE9DE";
+const MADDER_DK = "#ff6b5b";
+const MUTED_DK = "#A6B0C3";
+const BORDER_DK = "#2C3B58";
+
 export const theme = createTheme({
-  cssVariables: true,
+  // Same switch as globals.css: data-theme on <html>, set by InitColorSchemeScript.
+  cssVariables: { colorSchemeSelector: "[data-theme='%s']" },
   shape: {
     // Square. The identity is woven, not rounded.
     borderRadius: 2,
@@ -32,14 +42,27 @@ export const theme = createTheme({
   shadows: Array(25).fill("none") as unknown as ReturnType<
     typeof createTheme
   >["shadows"],
-  palette: {
-    mode: "light",
-    primary: { main: MADDER, light: MADDER_LT, dark: "#6E1B12", contrastText: BONE },
-    secondary: { main: WARP, contrastText: BONE },
-    background: { default: BONE, paper: "#FDFBF6" },
-    text: { primary: WARP, secondary: MUTED },
-    divider: BORDER,
-    error: { main: "#A32A1E" },
+  colorSchemes: {
+    light: {
+      palette: {
+        primary: { main: MADDER, light: MADDER_LT, dark: "#6E1B12", contrastText: BONE },
+        secondary: { main: WARP, contrastText: BONE },
+        background: { default: BONE, paper: "#FDFBF6" },
+        text: { primary: WARP, secondary: MUTED },
+        divider: BORDER,
+        error: { main: "#A32A1E" },
+      },
+    },
+    dark: {
+      palette: {
+        primary: { main: MADDER_DK, light: "#ff8575", dark: MADDER_LT, contrastText: INDIGO },
+        secondary: { main: BONE_DK, contrastText: INDIGO },
+        background: { default: INDIGO, paper: INDIGO_CARD },
+        text: { primary: BONE_DK, secondary: MUTED_DK },
+        divider: BORDER_DK,
+        error: { main: "#F0806A" },
+      },
+    },
   },
   typography: {
     // One family, as in globals.css. The variable width axis does the work
@@ -60,7 +83,7 @@ export const theme = createTheme({
         // only other focus indicator, so keyboard focus was invisible
         // (WCAG 2.4.7) without this.
         root: {
-          "&.Mui-focusVisible": { outline: `2px solid ${MADDER}`, outlineOffset: 2 },
+          "&.Mui-focusVisible": { outline: "2px solid var(--ring)", outlineOffset: 2 },
         },
       },
     },
@@ -73,27 +96,27 @@ export const theme = createTheme({
           transition: "background-color 120ms ease, color 120ms ease",
         },
         outlined: {
-          borderColor: BORDER,
-          color: WARP,
-          "&:hover": { borderColor: WARP, backgroundColor: ECRU },
+          borderColor: "var(--border)",
+          color: "var(--foreground)",
+          "&:hover": { borderColor: "var(--foreground)", backgroundColor: "var(--secondary)" },
         },
         contained: {
-          "&:hover": { backgroundColor: "#6E1B12" },
+          "&:hover": { backgroundColor: "var(--primary-hover)" },
         },
       },
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: BONE,
+          backgroundColor: "var(--background)",
           backgroundImage: "none",
-          borderLeft: `1px solid ${BORDER}`,
+          borderLeft: "1px solid var(--border)",
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
-        root: { backgroundImage: "none", border: `1px solid ${BORDER}` },
+        root: { backgroundImage: "none", border: "1px solid var(--border)" },
       },
     },
     MuiDialog: {
@@ -101,14 +124,19 @@ export const theme = createTheme({
     },
     MuiTooltip: {
       styleOverrides: {
-        tooltip: { backgroundColor: WARP, color: BONE, borderRadius: 2, fontSize: "0.75rem" },
+        tooltip: {
+          backgroundColor: "var(--foreground)",
+          color: "var(--background)",
+          borderRadius: 2,
+          fontSize: "0.75rem",
+        },
       },
     },
     MuiCssBaseline: {
       styleOverrides: {
         // Tailwind owns layout and the weave utilities; MUI must not reset
         // the body colours out from under it.
-        body: { backgroundColor: BONE, color: WARP },
+        body: { backgroundColor: "var(--background)", color: "var(--foreground)" },
       },
     },
   },

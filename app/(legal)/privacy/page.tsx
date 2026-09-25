@@ -28,6 +28,10 @@ export default function PrivacyPage() {
           There are no accounts, no sign-in, no payments and no uploads, and the site never asks for your
           location.
         </p>
+        <p>
+          If you switch between light and dark, that choice is saved in your browser&apos;s local storage so
+          the site remembers it. It stays on your device.
+        </p>
 
         <h2>Services that see your IP address</h2>
         <p>

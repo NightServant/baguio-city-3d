@@ -314,7 +314,7 @@ export default async function Home() {
             size="large"
             endIcon={<ArrowRight className="size-4" />}
             sx={{ mt: 4, bgcolor: "background.default", color: "text.primary",
-                  "&:hover": { bgcolor: "#E8DFD0" } }}
+                  "&:hover": { bgcolor: "var(--secondary)" } }}
           >
             Open the 3D map
           </LinkButton>

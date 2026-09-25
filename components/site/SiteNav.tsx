@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import { cn } from "@/lib/utils";
 import { PineMark } from "@/components/site/PineMark";
+import { ThemeToggle } from "@/components/site/ThemeToggle";
 
 // History left the nav (ruling R3): it's linked from the homepage, from every
 // destination with an era, and from the sitemap.
@@ -41,7 +42,7 @@ export function SiteNav() {
           <span className="readout mt-0.5 hidden text-muted-foreground lg:inline">1,500 m</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+        <nav className="ml-auto hidden items-center gap-1 md:flex" aria-label="Primary">
           {NAV_LINKS.map((link) => {
             const active = isActive(link.href);
             return (
@@ -63,6 +64,10 @@ export function SiteNav() {
             Open the 3D map
           </Button>
         </nav>
+
+        <div className="ml-auto flex items-center md:ml-2">
+          <ThemeToggle />
+        </div>
 
         <div className="md:hidden">
           <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open menu" className="flex size-10 items-center justify-center">
