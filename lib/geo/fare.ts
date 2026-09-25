@@ -195,27 +195,45 @@ export const FARE_SOURCE = {
   taxi: { label: "LTFRB taxi fares", url: "https://ltfrb.gov.ph/fare-rates/", verified: false },
 } as const;
 
+/** The subset of FARE_SOURCE's shape that fareAccuracyNote reads. */
+interface FareVerificationSource {
+  modern: { verified: boolean; label: string; effective: string; validUntil: string };
+  traditional: { verified: boolean };
+  taxi: { verified: boolean };
+}
+
+/** "a" -> "a"; "a", "b" -> "a and b"; "a", "b", "c" -> "a, b and c". */
+function joinFareNames(names: string[]): string {
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
 /**
  * One or two plain-text sentences summarising which fare figures are backed
- * by a verified LTFRB issuance, built from `FARE_SOURCE.*.verified` rather
- * than hardcoded, so the legal and about pages can't drift out of sync with
- * the data the way a copy-pasted sentence did.
+ * by a verified LTFRB issuance, built from `source.*.verified` rather than
+ * hardcoded, so the legal and about pages can't drift out of sync with the
+ * data the way a copy-pasted sentence did (R-T16b). Takes `source` as a
+ * parameter (defaulting to `FARE_SOURCE`) so a test can pin behaviour for
+ * verification states other than today's without mutating the real
+ * constant. If `modern.verified` is ever false, modern jeepney fares are
+ * named among the unchecked ones instead of just disappearing (R-T16h).
  */
-export function fareAccuracyNote(): string {
+export function fareAccuracyNote(source: FareVerificationSource = FARE_SOURCE): string {
   const sentences: string[] = [];
-  if (FARE_SOURCE.modern.verified) {
+  if (source.modern.verified) {
     sentences.push(
-      `Modern jeepney fares follow the ${FARE_SOURCE.modern.label}, effective ` +
-        `${formatLongDate(FARE_SOURCE.modern.effective)}, which was issued as valid until ` +
-        `${formatLongDate(FARE_SOURCE.modern.validUntil)}.`,
+      `Modern jeepney fares follow the ${source.modern.label}, effective ` +
+        `${formatLongDate(source.modern.effective)}, which was issued as valid until ` +
+        `${formatLongDate(source.modern.validUntil)}.`,
     );
   }
   const unverified = [
-    !FARE_SOURCE.traditional.verified && "traditional jeepney",
-    !FARE_SOURCE.taxi.verified && "taxi",
+    !source.modern.verified && "modern jeepney",
+    !source.traditional.verified && "traditional jeepney",
+    !source.taxi.verified && "taxi",
   ].filter((name): name is string => Boolean(name));
   if (unverified.length > 0) {
-    const names = unverified.join(" and ");
+    const names = joinFareNames(unverified);
     sentences.push(
       `${names.charAt(0).toUpperCase()}${names.slice(1)} fares haven't been checked against a current LTFRB issuance.`,
     );

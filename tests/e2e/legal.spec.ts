@@ -14,3 +14,14 @@ test("terms and about pages exist and credit the map data", async ({ page }) => 
   await page.goto("/about");
   await expect(page.locator("#sources")).toBeVisible();
 });
+
+test("hostnames in the privacy policy render in the body font, not mono", async ({ page }) => {
+  await page.goto("/privacy");
+  const fontFamily = await page
+    .getByText("tiles.openfreemap.org")
+    .evaluate((el) => getComputedStyle(el).fontFamily);
+  const lower = fontFamily.toLowerCase();
+  expect(lower).not.toContain("geist mono");
+  expect(lower).not.toContain("geist-mono");
+  expect(lower).not.toContain("geist");
+});

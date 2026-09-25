@@ -351,4 +351,4 @@
 .legal-prose ul { margin-top: 1rem; padding-left: 1.25rem; list-style: square; }
 .legal-prose li + li { margin-top: 0.5rem; }
 .legal-prose a { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
-.legal-prose code { font-size: 0.9em; color: var(--foreground); }
+.legal-prose code { font-family: inherit; font-size: 0.9em; color: var(--foreground); }

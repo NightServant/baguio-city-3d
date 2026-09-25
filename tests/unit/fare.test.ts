@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  FARE_SOURCE,
+  fareAccuracyNote,
   formatLongDate,
   haversineKm,
   jeepneyFare,
@@ -7,6 +9,25 @@ import {
   taxiFare,
 } from "@/lib/geo/fare";
 import { moneyEntries } from "@/components/panels/RoutePlanner";
+
+describe("fareAccuracyNote", () => {
+  it("matches today's FARE_SOURCE: modern verified, traditional and taxi not", () => {
+    expect(fareAccuracyNote()).toBe(
+      "Modern jeepney fares follow the LTFRB Non-Aircon Modern and Electric PUJ General Fare " +
+        "Guide, effective 19 March 2026, which was issued as valid until 30 June 2026. " +
+        "Traditional jeepney and taxi fares haven't been checked against a current LTFRB " +
+        "issuance.",
+    );
+  });
+
+  it("names modern fares among the unchecked ones if modern.verified ever flips false, instead of dropping them silently (R-T16h)", () => {
+    const flipped = { ...FARE_SOURCE, modern: { ...FARE_SOURCE.modern, verified: false } };
+    expect(fareAccuracyNote(flipped)).toBe(
+      "Modern jeepney, traditional jeepney and taxi fares haven't been checked against a " +
+        "current LTFRB issuance.",
+    );
+  });
+});
 
 describe("jeepneyFare", () => {
   it("charges only the base fare inside the first 4 km", () => {
