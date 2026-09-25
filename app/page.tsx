@@ -15,6 +15,8 @@ import { ScrollReveal, ParallaxLayer } from "@/components/site/Motion";
 import { PineIcon, FogIcon, RouteIcon, ContourIcon } from "@/components/site/AnimatedIcons";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ERA_YEARS, VENUE_CATEGORY_LABELS } from "@/components/site/labels";
+import { JsonLd } from "@/components/site/JsonLd";
+import { websiteJsonLd } from "@/lib/jsonld";
 import type { VenueCategory } from "@/types/venue";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
@@ -68,6 +70,7 @@ export default async function Home() {
 
   return (
     <div>
+      <JsonLd data={websiteJsonLd()} />
       {/* ------------------------------------------------------------ Hero */}
       <section className="relative overflow-hidden border-b border-border">
         <div

@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { getDestinationBySlug, getDestinations, getHistory, getVenues } from "@/lib/content";
 import { haversineKm } from "@/lib/geo/fare";
 import { clip } from "@/lib/site";
+import { attractionJsonLd } from "@/lib/jsonld";
 import { CategoryBadge, EraBadge } from "@/components/site/badges";
 import { OpenNowBadge } from "@/components/site/OpenNowBadge";
 import { VenueCard } from "@/components/site/VenueCard";
+import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { JsonLd } from "@/components/site/JsonLd";
 import { Contours } from "@/components/site/atmosphere";
 import {
   ERA_YEARS,
@@ -66,13 +69,8 @@ export default async function DestinationPage({
       <Contours className="absolute -right-40 -top-24 hidden h-[420px] w-[560px] text-contour lg:block" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-        <Link
-          href="/destinations"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-3.5" aria-hidden="true" />
-          All destinations
-        </Link>
+        <Breadcrumbs trail={[{ name: "Destinations", path: "/destinations" }, { name: destination.name, path: `/destinations/${destination.slug}` }]} />
+        <JsonLd data={attractionJsonLd(destination)} />
 
         {/* Header */}
         <header className="mt-6 max-w-3xl">
