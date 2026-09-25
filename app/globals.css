@@ -343,3 +343,12 @@
 @media (prefers-reduced-motion: reduce) {
   .route-transition { transition: none !important; opacity: 1 !important; transform: none !important; }
 }
+
+/* Long-form legal and about pages. */
+.legal-prose h2 { font-variation-settings: "wdth" 125; font-size: 1.5rem; line-height: 1.2; margin-top: 2.75rem; color: var(--foreground); }
+.legal-prose p, .legal-prose li { max-width: 68ch; line-height: 1.75; color: var(--muted-foreground); }
+.legal-prose p { margin-top: 1rem; }
+.legal-prose ul { margin-top: 1rem; padding-left: 1.25rem; list-style: square; }
+.legal-prose li + li { margin-top: 0.5rem; }
+.legal-prose a { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
+.legal-prose code { font-family: var(--font-geist-mono); font-size: 0.9em; color: var(--foreground); }

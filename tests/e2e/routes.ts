@@ -8,4 +8,7 @@ export const PAGES: string[] = [
   "/history",
   "/transit",
   "/corrections",
+  "/privacy",
+  "/terms",
+  "/about",
 ];
