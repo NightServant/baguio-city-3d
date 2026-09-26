@@ -99,7 +99,7 @@ const NIGHT: Palette = {
   halo: "rgba(43,32,54,0.9)",
   shadow: "rgba(10,6,14,0.45)",
   highlight: "rgba(243,236,225,0.10)",
-  accent: "rgba(255,122,104,0.10)",
+  accent: "rgba(217,138,123,0.10)",
 };
 
 // Liberty's park and garden POIs draw a green tree sprite, and sprites can't be

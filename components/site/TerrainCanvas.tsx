@@ -149,7 +149,7 @@ export function TerrainCanvas({
       ridgeGeo.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
       ridge = new THREE.LineSegments(
         ridgeGeo,
-        new THREE.LineBasicMaterial({ color: dark ? 0xff7a68 : 0x8c2318, transparent: true, opacity: 0.85 }),
+        new THREE.LineBasicMaterial({ color: dark ? 0xd98a7b : 0x8c2318, transparent: true, opacity: 0.85 }),
       );
       ridge.rotation.x = -Math.PI / 2;
       group.add(ridge);
@@ -170,7 +170,7 @@ export function TerrainCanvas({
         m.color.setHex(d ? 0xf3ece1 : 0x16130f);
         m.opacity = d ? 0.2 : 0.16;
       }
-      if (ridge) (ridge.material as THREE.LineBasicMaterial).color.setHex(d ? 0xff7a68 : 0x8c2318);
+      if (ridge) (ridge.material as THREE.LineBasicMaterial).color.setHex(d ? 0xd98a7b : 0x8c2318);
     };
     const themeObserver = new MutationObserver(recolour);
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });

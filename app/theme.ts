@@ -27,7 +27,7 @@ const BORDER = "#D8CEBC";
 const UBE = "#261b30";
 const UBE_CARD = "#2f223c";
 const BONE_DK = "#f3ece1";
-const MADDER_DK = "#ff7a68";
+const MADDER_DK = "#a8402f"; // deep fill; text accents use --primary (#D98A7B)
 const MUTED_DK = "#c1b5d0";
 const BORDER_DK = "#54416a";
 
@@ -55,7 +55,7 @@ export const theme = createTheme({
     },
     dark: {
       palette: {
-        primary: { main: MADDER_DK, light: "#ff9483", dark: MADDER_LT, contrastText: UBE },
+        primary: { main: MADDER_DK, light: "#d98a7b", dark: "#8c3526", contrastText: BONE_DK },
         secondary: { main: BONE_DK, contrastText: UBE },
         background: { default: UBE, paper: UBE_CARD },
         text: { primary: BONE_DK, secondary: MUTED_DK },
