@@ -54,9 +54,9 @@ const DAY: Palette = {
   roadMajor: ["#EFE3CD", "#9C8969"],
   roadMid: ["#F2EADC", "#B7A78C"],
   roadMinor: ["#FBF7EF", "#C8BCA6"],
-  weld: "#CFD1B4", // weld dye, lightened
-  wood: "rgba(198,202,170,0.7)",
-  pitch: "#D9DCC2",
+  weld: "#DDD3AC", // weld dye, lightened: straw, not sage (owner: no green)
+  wood: "rgba(214,203,160,0.7)",
+  pitch: "#E3DABB",
   residential: "rgba(232,223,208,0.25)",
   school: "#E6E2CE",
   hospital: "#EDDDD8",
@@ -102,8 +102,13 @@ const NIGHT: Palette = {
   accent: "rgba(255,122,104,0.10)",
 };
 
+// Liberty's park and garden POIs draw a green tree sprite, and sprites can't be
+// re-dyed. The owner's rule is no green anywhere, so those icons are hidden
+// (their labels stay); every other POI icon keeps the half-strength fade.
+const HIDE_PARK_ICONS = ["match", ["get", "class"], ["park", "garden"], 0, 0.5];
+
 /** [layerId, paintProperty, value] — applied only if the layer exists. */
-type Paint = [string, string, string | number];
+type Paint = [string, string, unknown];
 
 const LINE = "line-color";
 const FILL = "fill-color";
@@ -168,9 +173,9 @@ function paints(p: Palette): Paint[] {
     // Liberty's POI markers are sprite images, so they can't be re-dyed — they
     // stay OSM blue and green. Dropped back far enough to read as reference
     // rather than compete with the madder destination pins, which are the point.
-    ["poi_r20", "icon-opacity", 0.5],
-    ["poi_r7", "icon-opacity", 0.5],
-    ["poi_r1", "icon-opacity", 0.5],
+    ["poi_r20", "icon-opacity", HIDE_PARK_ICONS],
+    ["poi_r7", "icon-opacity", HIDE_PARK_ICONS],
+    ["poi_r1", "icon-opacity", HIDE_PARK_ICONS],
     ["poi_transit", "icon-opacity", 0.6],
 
     ["boundary_3", LINE, p.boundary[0]],
