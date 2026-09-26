@@ -184,21 +184,20 @@ export default async function Home() {
       </section>
 
       {/* ----------------------------------------------------- Closing CTA */}
-      <section className="relative overflow-hidden bg-primary text-primary-foreground">
+      <section className="relative overflow-hidden border-t-2 border-primary bg-secondary text-foreground dark:bg-card">
         <FogBank className="opacity-40" />
         <div className="relative mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-20">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
             See the city the way the clouds do.
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-base leading-7 text-primary-foreground/80">
+          <p className="mx-auto mt-4 max-w-md text-base leading-7 text-muted-foreground">
             Terrain, landmarks and jeepney routes, all on one map.
           </p>
           <LinkButton
             href="/map"
             size="large"
             endIcon={<ArrowRight className="size-4" />}
-            sx={{ mt: 4, bgcolor: "background.default", color: "text.primary",
-                  "&:hover": { bgcolor: "var(--secondary)" } }}
+            sx={{ mt: 4 }}
           >
             Open the 3D map
           </LinkButton>
