@@ -9,11 +9,11 @@ import {
   getVenues,
 } from "@/lib/content";
 import { FogBank } from "@/components/site/atmosphere";
-import { TerrainCanvas } from "@/components/site/TerrainCanvas";
 import { DestinationCarousel } from "@/components/site/DestinationCarousel";
 import { ScrollReveal, ParallaxLayer } from "@/components/site/Motion";
-import { PineIcon, FogIcon, RouteIcon, ContourIcon } from "@/components/site/AnimatedIcons";
 import { SectionHeading } from "@/components/site/SectionHeading";
+import { Hero } from "@/components/home/Hero";
+import { Proof } from "@/components/home/Proof";
 import { ERA_YEARS, VENUE_CATEGORY_LABELS } from "@/components/site/labels";
 import { JsonLd } from "@/components/site/JsonLd";
 import { websiteJsonLd } from "@/lib/jsonld";
@@ -71,88 +71,8 @@ export default async function Home() {
   return (
     <div>
       <JsonLd data={websiteJsonLd()} />
-      {/* ------------------------------------------------------------ Hero */}
-      <section className="relative overflow-hidden border-b border-border">
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-secondary/80 via-background to-background"
-          aria-hidden="true"
-        />
-        {/* Real Baguio relief as a warp/weft grid, sitting in the lower-right
-            and masked so it dissolves toward the text rather than colliding
-            with it. z-0 keeps it under the content, which is z-10. */}
-        <TerrainCanvas
-          className="pointer-events-none absolute -right-[12%] -bottom-[14%] z-0 hidden h-[620px] w-[64%] lg:block"
-          style={{
-            maskImage:
-              "radial-gradient(120% 100% at 85% 75%, #000 35%, rgba(0,0,0,0.55) 60%, transparent 85%)",
-            WebkitMaskImage:
-              "radial-gradient(120% 100% at 85% 75%, #000 35%, rgba(0,0,0,0.55) 60%, transparent 85%)",
-          }}
-        />
-        <FogBank />
-
-        <div className="relative z-10 mx-auto grid max-w-6xl gap-x-10 px-4 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:grid-cols-[3px_1fr]">
-          {/* Warp edge: the weave as structure, running the height of the hero */}
-          <div className="weave-edge hidden lg:block" aria-hidden="true" />
-
-          <div>
-            {/* Scale from 36px: at 60px the longest word ("dimensions.")
-                exceeds a 375px viewport and gets clipped by overflow-hidden. */}
-            <h1 className="max-w-[16ch] font-display text-[2.25rem] leading-[0.95] sm:text-6xl sm:leading-[0.9] md:text-7xl lg:text-[5.5rem]">
-              The Summer Capital, in three dimensions.
-            </h1>
-
-            <p className="mt-8 max-w-[58ch] text-lg leading-8 text-muted-foreground text-pretty">
-              Baguio sits a mile up in the Cordilleras — pine forest, fog banks,
-              and a century of hill-station history. Fly the terrain, trace the
-              jeepney lines, and plan your trip ridge by ridge.
-            </p>
-
-            <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
-              {[
-                ["Latitude", "16.4023° N"],
-                ["Longitude", "120.5960° E"],
-                ["Elevation", "1,500 m"],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <dt className="text-xs text-muted-foreground">{label}</dt>
-                  <dd className="readout mt-1 text-foreground">{value}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              <LinkButton href="/map" size="large">
-                Open the 3D map
-              </LinkButton>
-              <LinkButton href="/destinations" size="large" variant="outlined">
-                Browse destinations
-              </LinkButton>
-            </div>
-
-            {/* Each figure gets the icon of the thing it counts, and each icon
-                animates what that thing does. */}
-            <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-px border border-border bg-border sm:grid-cols-4">
-              {[
-                { value: destinations.length, label: "Destinations", Icon: ContourIcon },
-                { value: routes.length, label: "Jeepney lines", Icon: RouteIcon },
-                { value: venues.length, label: "Places to eat & stay", Icon: PineIcon },
-                { value: history.eras.length, label: "Eras", Icon: FogIcon },
-              ].map(({ value, label, Icon }) => (
-                <div key={label} className="bg-background px-4 py-3">
-                  <Icon className="size-5 text-primary" />
-                  <dd className="mt-2 font-display text-2xl leading-none">{value}</dd>
-                  <dt className="mt-1.5 text-xs text-muted-foreground">{label}</dt>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
-
-        {/* The band draws itself across on entry rather than fading in. */}
-        <ScrollReveal variant="weave">
-          <div className="weave-band" aria-hidden="true" />
-        </ScrollReveal>
-      </section>
+      <Hero destinations={destinations.length} venues={venues.length} />
+      <Proof destinations={destinations.length} venues={venues.length} />
 
       {/* ------------------------------------------------------ Highlights */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
