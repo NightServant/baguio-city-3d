@@ -25,7 +25,7 @@ export default function TermsPage() {
         <p>
           {fareAccuracyNote()} Opening hours can go out of date. Heights come from a terrain
           model, and both heights and map positions can be off. Confirm fares with the driver and
-          hours with the place before you rely on them. We aren&apos;t responsible for decisions
+          hours with the place before you rely on them. We aren’t responsible for decisions
           made on this information.
         </p>
 

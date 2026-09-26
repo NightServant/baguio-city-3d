@@ -16,6 +16,16 @@ test("a repeated page parameter doesn't crash the page", async ({ page }) => {
   await expect(page.getByLabel("Which page?")).toHaveValue("");
 });
 
+test("the thanks page names the real response window", async ({ page }) => {
+  // Navigated to directly, not via a real report submission: that would
+  // write to the live Supabase project, which is off-limits for a test. The
+  // page itself reads no session or query state, so a direct GET is a cheap,
+  // DB-free way to check its rendered text (R-T23d: the same JSX-whitespace
+  // quirk as /terms was rendering "within 7days.").
+  await page.goto("/corrections/thanks");
+  await expect(page.getByText(/7 days\./)).toBeVisible();
+});
+
 test("a valid report lands on the thank-you page", async ({ page }) => {
   test.skip(!process.env.E2E_DB, "needs a reachable database: set E2E_DB=1");
   await page.goto("/corrections");

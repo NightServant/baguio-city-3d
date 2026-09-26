@@ -11,6 +11,9 @@ test("the privacy policy names every service that sees a visitor's IP", async ({
 test("terms and about pages exist and credit the map data", async ({ page }) => {
   await page.goto("/terms");
   await expect(page.getByText(/OpenStreetMap contributors/).first()).toBeVisible();
+  // R-T23d: a JSX-whitespace quirk in this repo's build was dropping the
+  // space right after the shared fare note, rendering "issuance.Opening".
+  await expect(page.getByText(/issuance\. Opening/)).toBeVisible();
   await page.goto("/about");
   await expect(page.locator("#sources")).toBeVisible();
 });

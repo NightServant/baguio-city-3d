@@ -12,7 +12,7 @@ export function Hero({ destinations, venues }: { destinations: number; venues: n
             Baguio City, mapped in 3D.
           </h1>
           <p className="mt-6 max-w-[46ch] text-lg leading-8 text-muted-foreground text-pretty">
-            Tilt the terrain to see how steep the walk really is. Find {destinations} places worth the climb,
+            Tilt the terrain to see how steep the walk is. Find {destinations} places worth the climb,
             the jeepney that gets you there, and {venues} places to eat and stay. Free, no account.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -29,7 +29,7 @@ export function Hero({ destinations, venues }: { destinations: number; venues: n
               alt=""
               width={1600}
               height={943}
-              priority
+              preload
               sizes="(min-width: 1024px) 58vw, 100vw"
               className="h-auto w-full"
             />
