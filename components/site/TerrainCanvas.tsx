@@ -64,6 +64,12 @@ export function TerrainCanvas({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // setSize(w, h, false) below only sets the drawing-buffer (w*DPR px); with
+    // no CSS size the canvas lays out at that buffer's raw pixel count, i.e.
+    // at DPR-times too large. Pin the CSS box to the host instead, so retina
+    // devices render crisp without inflating layout size.
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
     host.appendChild(renderer.domElement);
 
     const group = new THREE.Group();
@@ -175,11 +181,9 @@ export function TerrainCanvas({
     const themeObserver = new MutationObserver(recolour);
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
-    const start = performance.now();
     const tick = () => {
       raf = requestAnimationFrame(tick);
       if (!onScreen) return;
-      const t = (performance.now() - start) / 1000;
       const rise = riseNow();
       if (mesh && ridge) {
         // Heights live on the plane's local z (it's rotated flat), so scaling
@@ -190,7 +194,6 @@ export function TerrainCanvas({
         (ridge.material as THREE.LineBasicMaterial).opacity = 0.85 * rise * rise;
       }
       if (!reduced) {
-        group.rotation.z = Math.sin(t * 0.055) * 0.14;
         camera.position.x += (target.x * 1.5 - camera.position.x) * 0.035;
         camera.position.y += (7.6 - target.y * 0.9 - camera.position.y) * 0.035;
         camera.lookAt(0, -0.6, 0);

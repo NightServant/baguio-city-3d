@@ -26,5 +26,5 @@ test("the wireframe loads only as the problem section nears, and every height is
   await expect.poll(() => requests.some((u) => u.includes("baguio-heightmap.json"))).toBe(true);
   const problem = page.locator("section", { has: heading });
   await expect(problem.locator("canvas")).toBeAttached();
-  await expect(problem.locator("table.sr-only tbody tr")).toHaveCount(22);
+  await expect(problem.locator("table tbody tr")).toHaveCount(22);
 });

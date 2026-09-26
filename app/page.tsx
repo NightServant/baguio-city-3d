@@ -52,12 +52,17 @@ export default async function Home() {
       <JsonLd data={websiteJsonLd()} />
       <Hero destinations={destinations.length} venues={venues.length} />
       <Proof destinations={destinations.length} venues={venues.length} />
-      <Problem
-        relief={relief(origin, destinations)}
-        originName={origin.name}
-        withHours={withHours}
-        total={places.length}
-      />
+      {/* relief() throws on no-height input, and origin can be undefined on
+          an empty destinations table — guard both so bad data quietly skips
+          the section instead of 500ing the whole homepage. */}
+      {origin && destinations.some((d) => d.elevationM != null) && (
+        <Problem
+          relief={relief(origin, destinations)}
+          originName={origin.name}
+          withHours={withHours}
+          total={places.length}
+        />
+      )}
 
       {/* --------------------------------------------------------- History */}
       <section className="relative overflow-hidden border-y border-border bg-secondary/50">
