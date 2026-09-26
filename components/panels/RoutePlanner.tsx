@@ -92,6 +92,9 @@ export function RoutePlanner() {
         <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
           Routes
         </p>
+        <p className="text-xs text-muted-foreground">
+          Lines follow the roads between stops; the jeepney’s exact path can differ.
+        </p>
 
         {state.loading && (
           <div className="flex flex-col gap-1.5" aria-hidden>

@@ -8,7 +8,7 @@ test("the transit page shows both the traditional and modern jeepney fares", asy
   // stated validity window doesn't mean it's still in force.
   await expect(page.getByText(/not yet checked/)).toBeVisible();
   await expect(page.getByText(/valid until 30 June 2026/)).toBeVisible();
-  await expect(page.getByText(/Route lines are approximate/)).toBeVisible();
+  await expect(page.getByText(/Lines follow the roads between stops/)).toBeVisible();
 });
 
 for (const width of [360, 375, 414]) {

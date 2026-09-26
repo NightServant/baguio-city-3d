@@ -70,8 +70,7 @@ export default async function TransitPage() {
         </p>
       )}
       <p className="mt-2 text-sm text-muted-foreground">
-        Route lines are approximate: they join the stops in order and may not follow every street
-        the jeepney takes.
+        Lines follow the roads between stops; the jeepney’s exact path can differ.
       </p>
 
       {/* Route cards */}
