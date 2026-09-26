@@ -1,7 +1,7 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Map as MapLibreMap } from "maplibre-gl";
@@ -43,18 +43,25 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const themeObserverRef = useRef<MutationObserver | null>(null);
-  // Save-Data visitors start (and stay) on the static stage: the map never
-  // loads for them, so there's nothing to synchronize after mount.
-  const [stage, setStage] = useState<Stage>(() =>
-    typeof navigator !== "undefined" &&
-    (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
-      ? "static"
-      : "poster",
+  const [stage, setStage] = useState<Stage>("poster");
+  // Read Save-Data through useSyncExternalStore, not a useState initializer:
+  // the server always renders "poster" (getServerSnapshot below), so reading
+  // navigator.connection directly during the first client render would make
+  // that render disagree with the server's and React 19 would throw a
+  // hydration error. useSyncExternalStore's contract guarantees the first
+  // client render also returns the server snapshot; the real value (if
+  // different) lands in a later, post-hydration render.
+  const saveData = useSyncExternalStore(
+    () => () => {},
+    () => !!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData,
+    () => false,
   );
+  // What to actually show: forced to "static" for Save-Data visitors
+  // regardless of the (never-advancing) internal stage state.
+  const shown: Stage = saveData ? "static" : stage;
 
   useEffect(() => {
-    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    if (saveData) return; // already on the static stage from the initial state above
+    if (saveData) return; // Save-Data visitors stay on the static stage; nothing to load
     const frame = frameRef.current;
     if (!frame) return;
     let cancelled = false;
@@ -85,15 +92,21 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
           becameLive = true;
           if (!cancelled) setStage("live");
         });
-        // A style/tile error that fires before the map ever goes live means
+        // A style-level error that fires before the map ever goes live means
         // it never will on its own; fall back honestly instead of leaving
-        // "Loading the terrain…" up forever. Errors after going live (e.g. a
-        // dropped tile) are left alone, same as the full map page.
-        map.on("error", () => {
-          if (becameLive || cancelled) return;
+        // "Loading the terrain…" up forever. A single dropped tile is not a
+        // style failure — MapLibre fires "error" with a `tile` property for
+        // every non-404 tile failure, and one flaky tile on a phone
+        // connection shouldn't tear down a map that would otherwise have
+        // come up fine. Errors after going live (e.g. a dropped tile once
+        // live) are left alone too, same as the full map page.
+        map.on("error", (e) => {
+          if (becameLive || cancelled || "tile" in e) return;
           setStage("static");
           map.remove();
           if (mapRef.current === map) mapRef.current = null;
+          themeObserverRef.current?.disconnect();
+          themeObserverRef.current = null;
         });
 
         // Mirrors MapView's themeObserver: the header's theme toggle flips
@@ -129,21 +142,21 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [saveData]);
 
   // Fly to the picked place. Keyed on the slug (not target's object identity)
   // so an inline object literal from the parent doesn't re-fly the map on
   // every render.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || stage !== "live" || !target) return;
+    if (!map || shown !== "live" || !target) return;
     const to = { center: [target.lng, target.lat] as [number, number], zoom: 15.2, pitch: 62, bearing: -20 };
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) map.jumpTo(to);
     else map.flyTo({ ...to, duration: 2400 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target?.slug, stage]);
+  }, [target?.slug, shown]);
 
-  const kind = captionKind(stage, target);
+  const kind = captionKind(shown, target);
 
   return (
     <figure className="weave-edge border-y border-r border-border bg-card">
@@ -152,13 +165,13 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
         <Image
           src="/home/demo-map.jpg"
           alt={
-            stage === "live"
+            shown === "live"
               ? ""
               : "Still of the 3D map of Baguio, with the terrain shaded"
           }
           fill
           sizes="(min-width: 1024px) 56vw, 100vw"
-          className={cn("pointer-events-none object-cover transition-opacity duration-500 motion-reduce:transition-none", stage === "live" && "opacity-0")}
+          className={cn("pointer-events-none object-cover transition-opacity duration-500 motion-reduce:transition-none", shown === "live" && "opacity-0")}
         />
       </div>
       <figcaption className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-t border-border px-4 py-3">
