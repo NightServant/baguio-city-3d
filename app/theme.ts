@@ -23,13 +23,13 @@ const MADDER_LT = "#B5432F";
 const MUTED = "#6B6156";
 const BORDER = "#D8CEBC";
 
-// Dark: indigo ground, bone warp, madder lifted to read on indigo.
-const INDIGO = "#0F1726";
-const INDIGO_CARD = "#152036";
-const BONE_DK = "#EFE9DE";
-const MADDER_DK = "#ff6b5b";
-const MUTED_DK = "#A6B0C3";
-const BORDER_DK = "#2C3B58";
+// Dark: ube ground, bone warp, madder lifted to read on ube.
+const UBE = "#261b30";
+const UBE_CARD = "#2f223c";
+const BONE_DK = "#f3ece1";
+const MADDER_DK = "#ff7a68";
+const MUTED_DK = "#c1b5d0";
+const BORDER_DK = "#54416a";
 
 export const theme = createTheme({
   // Same switch as globals.css: data-theme on <html>, set by InitColorSchemeScript.
@@ -55,12 +55,12 @@ export const theme = createTheme({
     },
     dark: {
       palette: {
-        primary: { main: MADDER_DK, light: "#ff8575", dark: MADDER_LT, contrastText: INDIGO },
-        secondary: { main: BONE_DK, contrastText: INDIGO },
-        background: { default: INDIGO, paper: INDIGO_CARD },
+        primary: { main: MADDER_DK, light: "#ff9483", dark: MADDER_LT, contrastText: UBE },
+        secondary: { main: BONE_DK, contrastText: UBE },
+        background: { default: UBE, paper: UBE_CARD },
         text: { primary: BONE_DK, secondary: MUTED_DK },
         divider: BORDER_DK,
-        error: { main: "#F0806A" },
+        error: { main: "#ff8a78" },
       },
     },
   },

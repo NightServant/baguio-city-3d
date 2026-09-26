@@ -9,12 +9,12 @@ test("the theme toggle switches to dark, remembers it, and switches back", async
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
   const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(await bg()).toBe("rgb(15, 23, 38)");
+  expect(await bg()).toBe("rgb(38, 27, 48)");
 
   // Set before first paint on the next load, not after hydration.
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "dark");
-  expect(await bg()).toBe("rgb(15, 23, 38)");
+  expect(await bg()).toBe("rgb(38, 27, 48)");
 
   await page.getByRole("button", { name: "Switch to light theme" }).click();
   await expect(html).toHaveAttribute("data-theme", "light");

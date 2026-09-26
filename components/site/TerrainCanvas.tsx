@@ -99,12 +99,12 @@ export function TerrainCanvas({
       geo.computeVertexNormals();
 
       // Base weave: the full grid, quiet.
-      // Warp lines vanish on the indigo night ground, so they flip to bone.
+      // Warp lines vanish on the ube night ground, so they flip to bone.
       const dark = document.documentElement.dataset.theme === "dark";
       const wire = new THREE.WireframeGeometry(geo);
       mesh = new THREE.LineSegments(
         wire,
-        new THREE.LineBasicMaterial({ color: dark ? 0xefe9de : 0x16130f, transparent: true, opacity: dark ? 0.2 : 0.16 }),
+        new THREE.LineBasicMaterial({ color: dark ? 0xf3ece1 : 0x16130f, transparent: true, opacity: dark ? 0.2 : 0.16 }),
       );
       mesh.rotation.x = -Math.PI / 2;
       group.add(mesh);
@@ -126,7 +126,7 @@ export function TerrainCanvas({
       ridgeGeo.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
       ridge = new THREE.LineSegments(
         ridgeGeo,
-        new THREE.LineBasicMaterial({ color: dark ? 0xff6b5b : 0x8c2318, transparent: true, opacity: 0.85 }),
+        new THREE.LineBasicMaterial({ color: dark ? 0xff7a68 : 0x8c2318, transparent: true, opacity: 0.85 }),
       );
       ridge.rotation.x = -Math.PI / 2;
       group.add(ridge);
@@ -137,6 +137,20 @@ export function TerrainCanvas({
     const ro = new ResizeObserver(resize);
     ro.observe(host);
     if (!reduced) window.addEventListener("pointermove", onPointer, { passive: true });
+
+    // The theme toggle flips data-theme on <html> without a reload; recolour the
+    // lines in place so the wireframe never goes dark-on-dark.
+    const recolour = () => {
+      const d = document.documentElement.dataset.theme === "dark";
+      if (mesh) {
+        const m = mesh.material as THREE.LineBasicMaterial;
+        m.color.setHex(d ? 0xf3ece1 : 0x16130f);
+        m.opacity = d ? 0.2 : 0.16;
+      }
+      if (ridge) (ridge.material as THREE.LineBasicMaterial).color.setHex(d ? 0xff7a68 : 0x8c2318);
+    };
+    const themeObserver = new MutationObserver(recolour);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
     const start = performance.now();
     const tick = () => {
@@ -156,6 +170,7 @@ export function TerrainCanvas({
       disposed = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      themeObserver.disconnect();
       window.removeEventListener("pointermove", onPointer);
       mesh?.geometry.dispose();
       (mesh?.material as THREE.Material | undefined)?.dispose();

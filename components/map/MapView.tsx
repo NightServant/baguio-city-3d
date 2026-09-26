@@ -15,7 +15,7 @@ import { BAGUIO_BOUNDS, DEFAULT_CAMERA } from "@/lib/constants";
 import type { TerrainConfig } from "@/types/api";
 import { MapLayers } from "./MapLayers";
 import { applyWeaveBasemap } from "./basemapTheme";
-import { BASEMAP_STYLE, SATELLITE_STYLE, DEM_SOURCE, TERRAIN_EXAGGERATION, applyTerrain } from "@/lib/map/sources";
+import { BASEMAP_STYLE, SATELLITE_STYLE, DEM_SOURCE, TERRAIN_EXAGGERATION, applyTerrain, applySky } from "@/lib/map/sources";
 
 /** Expand [minLng,minLat,maxLng,maxLat] outward so panning has a little slack. */
 function expandBounds(
@@ -120,6 +120,16 @@ export function MapView() {
     };
     map.on("style.load", onStyleLoad);
 
+    // The theme toggle flips data-theme on <html> without a reload. Re-dye the
+    // basemap and sky in place; paint writes need no style swap. Mid-swap,
+    // onStyleLoad applies the current theme itself.
+    const themeObserver = new MutationObserver(() => {
+      if (styleInFlightRef.current || !map.isStyleLoaded()) return;
+      applySky(map);
+      if (pendingBasemapRef.current === "terrain") applyWeaveBasemap(map, DEM_SOURCE);
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
     // Debounced camera -> store sync.
     let debounce: ReturnType<typeof setTimeout> | null = null;
     const onMoveEnd = () => {
@@ -203,6 +213,7 @@ export function MapView() {
     return () => {
       if (debounce) clearTimeout(debounce);
       map.off("style.load", onStyleLoad);
+      themeObserver.disconnect();
       map.off("moveend", onMoveEnd);
       map.off("load", onLoad);
       map.off("click", onMapClick);

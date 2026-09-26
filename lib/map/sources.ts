@@ -56,14 +56,21 @@ export function applyTerrain(m: MapLibreMap, exaggeration = TERRAIN_EXAGGERATION
     });
   }
   m.setTerrain({ source: DEM_SOURCE, exaggeration });
-  // Cheap atmospheric sky/fog for the 3D horizon (MapLibre 5+ supports setSky).
+  applySky(m);
+}
+
+/**
+ * Cheap atmospheric sky/fog for the 3D horizon (MapLibre 5+ supports setSky),
+ * in the chrome's light: bone sky and ecru horizon by day, ube by night.
+ * Reads data-theme on <html>, so MapView calls it again when the theme toggles.
+ */
+export function applySky(m: MapLibreMap) {
+  const night = typeof document !== "undefined" && document.documentElement.dataset.theme === "dark";
   try {
-    // Atmosphere in the weave palette: bone sky, ecru horizon, so the
-    // terrain sits in the same light as the chrome around it.
     m.setSky({
-      "sky-color": "#DCD3C4",
-      "horizon-color": "#F5F0E6",
-      "fog-color": "#E8DFD0",
+      "sky-color": night ? "#1E1628" : "#DCD3C4",
+      "horizon-color": night ? "#3A2B4A" : "#F5F0E6",
+      "fog-color": night ? "#2F223C" : "#E8DFD0",
       "sky-horizon-blend": 0.6,
       "horizon-fog-blend": 0.5,
       "fog-ground-blend": 0.4,
