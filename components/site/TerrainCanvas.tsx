@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 /**
- * The hero's 3D element: Baguio's ACTUAL topography.
+ * Baguio's actual topography as a wireframe (homepage Problem section).
  *
  * public/baguio-heightmap.json is a 96x96 grid sampled from the same AWS
  * Terrarium DEM the map renders (153–2230 m across the app's bounds), so this
@@ -20,9 +20,12 @@ type HeightMap = { w: number; h: number; min: number; max: number; data: number[
 export function TerrainCanvas({
   className,
   style,
+  riseOnScroll = false,
 }: {
   className?: string;
   style?: React.CSSProperties;
+  /** Start as a flat grid and rise to full relief as the element scrolls into view. */
+  riseOnScroll?: boolean;
 }) {
   const hostRef = useRef<HTMLDivElement | null>(null);
 
@@ -33,6 +36,26 @@ export function TerrainCanvas({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0;
     let disposed = false;
+
+    // Mid-page WebGL shouldn't spend frames nobody can see.
+    let onScreen = true;
+    const visibility = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+      },
+      { rootMargin: "100px" },
+    );
+    visibility.observe(host);
+
+    // Flat as the element enters the viewport, full relief once its top has
+    // travelled 80% of the viewport height. The flat grid is the flat map; the
+    // rise is the ground it hides.
+    const riseNow = () => {
+      if (!riseOnScroll || reduced) return 1;
+      const top = host.getBoundingClientRect().top;
+      const vh = window.innerHeight;
+      return Math.min(1, Math.max(0.02, (vh - top) / (vh * 0.8)));
+    };
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
@@ -154,7 +177,18 @@ export function TerrainCanvas({
 
     const start = performance.now();
     const tick = () => {
+      raf = requestAnimationFrame(tick);
+      if (!onScreen) return;
       const t = (performance.now() - start) / 1000;
+      const rise = riseNow();
+      if (mesh && ridge) {
+        // Heights live on the plane's local z (it's rotated flat), so scaling
+        // z lifts the relief without moving the grid.
+        mesh.scale.z = rise;
+        ridge.scale.z = rise;
+        // The madder ridges surface last, arriving with the relief.
+        (ridge.material as THREE.LineBasicMaterial).opacity = 0.85 * rise * rise;
+      }
       if (!reduced) {
         group.rotation.z = Math.sin(t * 0.055) * 0.14;
         camera.position.x += (target.x * 1.5 - camera.position.x) * 0.035;
@@ -162,7 +196,6 @@ export function TerrainCanvas({
         camera.lookAt(0, -0.6, 0);
       }
       renderer.render(scene, camera);
-      raf = requestAnimationFrame(tick);
     };
     tick();
 
@@ -170,6 +203,7 @@ export function TerrainCanvas({
       disposed = true;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      visibility.disconnect();
       themeObserver.disconnect();
       window.removeEventListener("pointermove", onPointer);
       mesh?.geometry.dispose();
@@ -179,7 +213,7 @@ export function TerrainCanvas({
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [riseOnScroll]);
 
   return <div ref={hostRef} className={className} style={style} aria-hidden="true" />;
 }

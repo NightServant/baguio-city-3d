@@ -8,28 +8,19 @@ import {
   getTransitRoutes,
   getVenues,
 } from "@/lib/content";
+import { relief } from "@/lib/relief";
 import { FogBank } from "@/components/site/atmosphere";
-import { DestinationCarousel } from "@/components/site/DestinationCarousel";
 import { ScrollReveal, ParallaxLayer } from "@/components/site/Motion";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Hero } from "@/components/home/Hero";
 import { Proof } from "@/components/home/Proof";
+import { Problem } from "@/components/home/Problem";
 import { ERA_YEARS, VENUE_CATEGORY_LABELS } from "@/components/site/labels";
 import { JsonLd } from "@/components/site/JsonLd";
 import { websiteJsonLd } from "@/lib/jsonld";
 import type { VenueCategory } from "@/types/venue";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
-
-// Curated landing highlights — the places first-time visitors ask about.
-const FEATURED_SLUGS = [
-  "burnham-park",
-  "mines-view-park",
-  "camp-john-hay",
-  "session-road",
-  "bencab-museum",
-  "tam-awan-village",
-];
 
 const VENUE_CATEGORY_ORDER: VenueCategory[] = [
   "RESTAURANT",
@@ -47,21 +38,9 @@ export default async function Home() {
     getTransitRoutes(),
   ]);
 
-  const featured = FEATURED_SLUGS.map((slug) =>
-    destinations.find((d) => d.slug === slug),
-  ).filter((d) => d != null);
-
-  if (
-    process.env.NODE_ENV !== "production" &&
-    featured.length !== FEATURED_SLUGS.length
-  ) {
-    const missing = FEATURED_SLUGS.filter(
-      (slug) => !destinations.some((d) => d.slug === slug),
-    );
-    console.warn(
-      `[home] FEATURED_SLUGS references unknown destination slug(s): ${missing.join(", ")}`,
-    );
-  }
+  const origin = destinations.find((d) => d.slug === "burnham-park") ?? destinations[0];
+  const places = [...destinations, ...venues];
+  const withHours = places.filter((p) => p.hours != null).length;
 
   const venueCounts = VENUE_CATEGORY_ORDER.map((cat) => ({
     cat,
@@ -73,27 +52,12 @@ export default async function Home() {
       <JsonLd data={websiteJsonLd()} />
       <Hero destinations={destinations.length} venues={venues.length} />
       <Proof destinations={destinations.length} venues={venues.length} />
-
-      {/* ------------------------------------------------------ Highlights */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <SectionHeading
-            eyebrow="Field guide"
-            title="Start with the essentials"
-            lede="Six places that explain the city — Burnham's park, the ridge-top viewpoints, and the pine estates the Americans left behind."
-          />
-          <Link
-            href="/destinations"
-            className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-          >
-            All {destinations.length} destinations
-          </Link>
-        </div>
-        {/* Coverflow: slides rake back like ridgelines receding into haze. */}
-        <ScrollReveal className="mt-10" delay={1}>
-          <DestinationCarousel destinations={featured} />
-        </ScrollReveal>
-      </section>
+      <Problem
+        relief={relief(origin, destinations)}
+        originName={origin.name}
+        withHours={withHours}
+        total={places.length}
+      />
 
       {/* --------------------------------------------------------- History */}
       <section className="relative overflow-hidden border-y border-border bg-secondary/50">
