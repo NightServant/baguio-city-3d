@@ -9,12 +9,21 @@ const TEST_ENV = {
 };
 
 const external = process.env.E2E_BASE_URL;
+const baseURL = external ?? "http://localhost:3100";
+
+// Every spec starts as a returning visitor who already answered the analytics
+// banner ("No thanks"), so it never covers the page or changes behaviour in
+// unrelated tests. analytics.spec.ts overrides this with an empty state.
+const CONSENT_DECIDED = {
+  cookies: [],
+  origins: [{ origin: new URL(baseURL).origin, localStorage: [{ name: "b3d-analytics-consent", value: "denied" }] }],
+};
 
 export default defineConfig({
   testDir: "tests/e2e",
   timeout: 60_000,
   fullyParallel: true,
-  use: { baseURL: external ?? "http://localhost:3100" },
+  use: { baseURL, storageState: CONSENT_DECIDED },
   webServer: external
     ? undefined
     : {

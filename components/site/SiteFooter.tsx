@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Treeline } from "@/components/site/atmosphere";
 import { PineMark } from "@/components/site/PineMark";
 import { CONTACT_EMAIL } from "@/lib/site";
+import { CookieSettingsLink } from "@/components/site/Analytics";
 
 // Page links live in the nav, the homepage and the sitemap (ruling R2).
 const LEGAL = [
@@ -56,7 +57,10 @@ export function SiteFooter() {
         </div>
         <div className="border-t border-border/60">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-xs text-muted-foreground sm:px-6">
-            <p>© {new Date().getFullYear()} Baguio 3D</p>
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span>© {new Date().getFullYear()} Baguio 3D</span>
+              <CookieSettingsLink className="underline underline-offset-4 hover:text-foreground" />
+            </p>
             <p>
               Map data ©{" "}
               <a href="https://www.openstreetmap.org/copyright" className="underline underline-offset-4 hover:text-foreground">

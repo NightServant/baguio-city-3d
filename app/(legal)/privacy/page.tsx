@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 const UPDATED = "25 September 2026";
 const HOST = "Vercel"; // Phase 0, D7
+const analytics = Boolean(process.env.NEXT_PUBLIC_GA_ID);
 
 export default function PrivacyPage() {
   return (
@@ -49,8 +50,25 @@ export default function PrivacyPage() {
         <p>{HOST} hosts this site and keeps standard request logs.</p>
         <p>Fonts are served from this site, so your browser doesn&apos;t contact Google Fonts.</p>
 
-        <h2>Analytics</h2>
-        <p>This site doesn&apos;t use analytics or advertising cookies.</p>
+        <h2 id="analytics">Analytics</h2>
+        {analytics ? (
+          <>
+            <p>
+              Analytics is off until you turn it on. Only if you choose &ldquo;Allow analytics&rdquo; does
+              this site load Google Analytics 4, which sets cookies and records the pages you view, how you
+              arrived, your device and browser, and your approximate location from your IP address. That
+              data goes to Google.
+            </p>
+            <p>
+              If you choose &ldquo;No thanks&rdquo;, or don’t choose, the analytics code never loads. Your
+              choice is saved in your browser’s local storage. To withdraw, use &ldquo;Cookie
+              settings&rdquo; at the bottom of every page: it clears the analytics cookies and reloads the
+              page without the analytics code.
+            </p>
+          </>
+        ) : (
+          <p>This site doesn&apos;t use analytics or advertising cookies.</p>
+        )}
 
         <h2>Correction reports</h2>
         <p>

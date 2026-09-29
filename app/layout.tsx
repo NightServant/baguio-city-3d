@@ -13,6 +13,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { ElevationRail } from "@/components/site/ElevationRail";
 import { RouteTransition } from "@/components/site/RouteTransition";
 import { StickyCta } from "@/components/site/StickyCta";
+import { Analytics } from "@/components/site/Analytics";
 
 // One family, worked at two extremes. Archivo is variable on BOTH weight and
 // width, so the width axis becomes an active design element: display type is
@@ -93,6 +94,7 @@ export default function RootLayout({
             </main>
             <SiteFooter />
             <StickyCta />
+            <Analytics />
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>
