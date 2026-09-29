@@ -58,7 +58,9 @@ export function PanelChrome() {
         className={cn(
           "absolute z-panel flex gap-1.5",
           "max-sm:inset-x-3 max-sm:bottom-3 max-sm:justify-center",
-          "sm:left-3 sm:top-3 sm:flex-col",
+          // A row, not a column: the panel opens at top-16, so a stacked dock
+          // left its lower buttons under the open panel.
+          "sm:left-3 sm:top-3",
         )}
       >
         {MODES.map(({ key, label, icon: Icon }) => {
