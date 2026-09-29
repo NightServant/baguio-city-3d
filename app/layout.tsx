@@ -89,12 +89,13 @@ export default function RootLayout({
             </a>
             <SiteNav />
             <ElevationRail />
+            {/* Before <main> so keyboard users reach the choice early; it is fixed to the bottom of the screen. */}
+            <Analytics />
             <main id="main-content" className="flex-1">
               <RouteTransition>{children}</RouteTransition>
             </main>
             <SiteFooter />
             <StickyCta />
-            <Analytics />
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const UPDATED = "25 September 2026";
+const UPDATED = "29 September 2026";
 const HOST = "Vercel"; // Phase 0, D7
 const analytics = Boolean(process.env.NEXT_PUBLIC_GA_ID);
 
@@ -46,6 +46,12 @@ export default function PrivacyPage() {
             Esri, only when you switch to satellite imagery or open a link that starts on it (
             <code>server.arcgisonline.com</code>)
           </li>
+          {analytics ? (
+            <li>
+              Google, only if you allow analytics, for Google Analytics (<code>www.googletagmanager.com</code>
+              and <code>google-analytics.com</code>)
+            </li>
+          ) : null}
         </ul>
         <p>{HOST} hosts this site and keeps standard request logs.</p>
         <p>Fonts are served from this site, so your browser doesn&apos;t contact Google Fonts.</p>
