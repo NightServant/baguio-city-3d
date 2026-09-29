@@ -352,7 +352,7 @@
 .parallax-layer { transform: translate3d(0, calc(var(--p, 0) * 1px), 0); will-change: transform; }
 
 /* --- Swiper, themed to the weave ----------------------------------------- */
-.baguio-swiper .swiper { padding-block: 0.5rem 2.5rem; }
+.baguio-swiper .swiper { padding-block: 0.5rem 4rem; }
 .baguio-swiper .swiper-slide { height: auto; transition: opacity 400ms ease; }
 .baguio-swiper .swiper-slide-shadow-left,
 .baguio-swiper .swiper-slide-shadow-right { background: none; }
@@ -372,6 +372,15 @@
 .baguio-swiper .swiper-button-prev:hover { background: var(--ecru); border-color: var(--warp); }
 .baguio-swiper .swiper-button-next::after,
 .baguio-swiper .swiper-button-prev::after { font-size: 1rem; font-weight: 700; }
+/* Arrows sit under the slides, left-aligned, so they never cover text (they
+   used to overlay the middle of the cards). The extra `.swiper` in the
+   selector outweighs Swiper's own `.swiper-horizontal .swiper-button-*`
+   rule at equal specificity (2 classes each) — without it, source order
+   in the bundled CSS lets Swiper's rule win and the arrows stay centered. */
+.baguio-swiper .swiper .swiper-button-prev,
+.baguio-swiper .swiper .swiper-button-next { top: auto; bottom: 0; margin-top: 0; }
+.baguio-swiper .swiper .swiper-button-prev { left: 0; right: auto; }
+.baguio-swiper .swiper .swiper-button-next { left: 3.25rem; right: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .icon-sway, .icon-drift, .icon-route, .icon-ring { animation: none !important; }

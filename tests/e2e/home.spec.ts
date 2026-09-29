@@ -28,3 +28,24 @@ test("the wireframe loads only as the problem section nears, and every height is
   await expect(problem.locator("canvas")).toBeAttached();
   await expect(problem.locator("table tbody tr")).toHaveCount(22);
 });
+
+test("the carousel steers the live map", async ({ page }) => {
+  await page.goto("/");
+  const how = page.locator("#how-it-works");
+  await how.scrollIntoViewIfNeeded();
+  await expect(how.locator("canvas.maplibregl-canvas")).toBeAttached({ timeout: 20_000 });
+  await how.getByRole("button", { name: "Next destination" }).click();
+  await expect(how.locator("figure").getByRole("status")).toHaveText(/^Showing .+ on the map$/);
+  for (const href of ["/map", "/transit", "/eat-stay", "/history"]) {
+    await expect(how.locator(`a[href="${href}"]`).first()).toBeVisible();
+  }
+});
+
+test("carousel arrows sit below the slides, never over their text", async ({ page }) => {
+  await page.goto("/");
+  const how = page.locator("#how-it-works");
+  await how.scrollIntoViewIfNeeded();
+  const next = await how.getByRole("button", { name: "Next destination" }).boundingBox();
+  const slide = await how.locator(".swiper-slide-active article").boundingBox();
+  expect(next!.y).toBeGreaterThanOrEqual(slide!.y + slide!.height);
+});
