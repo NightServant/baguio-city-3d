@@ -1,7 +1,7 @@
 // Snaps data/geojson/jeepney-routes.sketch.geojson to the road network,
 // writing data/geojson/jeepney-routes.geojson.
 //
-// Task 24b (owner bug), fix round 3 (R-24b5: moveStopsToTrunk, below). The six routes are hand-drawn sketches
+// Task 24b (owner bug), fix round 4 (R-24b5: moveStopsToTrunk, below). The six routes are hand-drawn sketches
 // of 15-17 vertices, straight between them, so they cut across blocks (and
 // Burnham Park). Each route's stops are snapped first via OSRM `nearest` and
 // become MANDATORY waypoints — they are never dropped, so the drawn line
@@ -78,12 +78,14 @@ const STOP_RESNAP_MAX_FROM_RAW_M = 60;
 
 // R-24b5 (owner ruling "move stops onto the main road"): a stop that STILL
 // U-turns at STOP_UTURN_MIN_M or more after the drop/re-snap rounds sits on a
-// side road off the trunk. Route that stretch with the stop non-mandatory to
-// get the trunk, project the stop's RAW sketch coordinate onto the nearest
-// point of that trunk (perpendicular projection onto segments), and re-route
+// side road off the trunk. Route with the stop non-mandatory to get the trunk,
+// project the stop's RAW sketch coordinate onto the nearest point of the
+// trunk stretch between the stop's neighbouring stops (perpendicular
+// projection onto segments), and re-route
 // with the moved stop mandatory. A move longer than this is NOT applied — the
 // stop keeps its current behaviour and is reported for the owner to decide.
-const STOP_TRUNK_MAX_MOVE_M = 150;
+const STOP_TRUNK_MAX_MOVE_M = 400;
+const STOP_ON_LINE_MAX_M = 30;
 
 // Secondary "disproportionate detour" signal (excessCandidates): brief's
 // "out-and-back spur longer than about 150 m", applied to how much more an
@@ -656,10 +658,17 @@ async function snapRoute(code, planIn) {
 /**
  * R-24b5: for each stop still U-turning at STOP_UTURN_MIN_M+ (in the route as
  * currently routed), move it onto the trunk — see STOP_TRUNK_MAX_MOVE_M.
- * Mutates the shared stop objects and `active` for stops it moves; returns
- * the final route plus a log of moved and refused stops. One pass over the
- * initially flagged stops (never loops); main() reports anything that still
- * U-turns afterwards.
+ * The trunk is the route with that stop removed; the raw coordinate is
+ * projected onto only the stretch of the trunk between the flagged stop's
+ * neighbouring mandatory waypoints (found with waypointGeomIndices), not the
+ * whole route. After each move the route is re-routed and the move is
+ * verified: the stop's U-turn is gone (< STOP_UTURN_MIN_M), the stop is within
+ * STOP_ON_LINE_MAX_M of the line, and every stop is still met in order along
+ * the line. A move failing any check is undone and the stop is put in
+ * `refused` with the reason. Mutates the shared stop objects and `active` for
+ * stops it moves; returns the final route plus logs of moved and refused
+ * stops. One pass over the initially flagged stops (never loops); main()
+ * reports anything that still U-turns afterwards.
  */
 async function moveStopsToTrunk(code, activeIn, routeIn) {
   const active = activeIn;
@@ -667,43 +676,97 @@ async function moveStopsToTrunk(code, activeIn, routeIn) {
   const moved = [];
   const refused = [];
 
-  const flaggedStops = () => {
-    const geomIdx = waypointGeomIndices(route.geometry.coordinates, active.map((w) => w.coord));
-    const uturns = detectStopUturns(route.geometry.coordinates, stopOnlyGeomIndices(active, geomIdx));
+  const distinctStops = () => {
     const distinct = [];
     for (const w of active) if (w.mandatory && !distinct.includes(w.stop)) distinct.push(w.stop);
+    return distinct;
+  };
+  const flaggedStops = (r) => {
+    const geomIdx = waypointGeomIndices(r.geometry.coordinates, active.map((w) => w.coord));
+    const uturns = detectStopUturns(r.geometry.coordinates, stopOnlyGeomIndices(active, geomIdx));
+    const distinct = distinctStops();
     return uturns.map((u) => ({ stop: distinct[u.stopIdx], spurM: u.spurM }));
   };
 
-  const targets = flaggedStops();
+  const targets = flaggedStops(route);
   for (const { stop, spurM } of targets) {
     const wi = active.findIndex((w) => w.mandatory && w.stop === stop);
+    const refuse = (reason, extra = {}) =>
+      refused.push({ code, stopName: stop.name, rawCoord: stop.rawCoord, spurM, reason, ...extra });
+
     // Trunk: the same route with this stop not mandatory (removed).
     const trunkPlan = active.filter((_, i) => i !== wi);
     const trunk = await osrmRoute(trunkPlan.map((w) => w.coord));
-    const proj = projectOntoPolyline(stop.rawCoord, trunk.geometry.coordinates);
+    const tc = trunk.geometry.coordinates;
+    // The stretch: trunk geometry between the mandatory waypoints on either
+    // side of the removed stop.
+    let prevWi = wi - 1;
+    while (prevWi >= 0 && !active[prevWi].mandatory) prevWi--;
+    let nextWi = wi + 1;
+    while (nextWi < active.length && !active[nextWi].mandatory) nextWi++;
+    if (prevWi < 0 || nextWi >= active.length) {
+      refuse("stop has no mandatory neighbour on both sides");
+      continue;
+    }
+    const tIdx = waypointGeomIndices(tc, trunkPlan.map((w) => w.coord));
+    const stretch = tc.slice(tIdx[prevWi], tIdx[nextWi - 1] + 1);  // trunkPlan lacks active[wi]: later indices shift by one
+    if (stretch.length < 2) {
+      refuse("trunk stretch between the neighbouring stops is empty");
+      continue;
+    }
+    const proj = projectOntoPolyline(stop.rawCoord, stretch);
     const newCoord = [round5(proj.coord[0]), round5(proj.coord[1])];
     const metres = haversineM(stop.rawCoord, newCoord);
     if (metres > STOP_TRUNK_MAX_MOVE_M) {
-      refused.push({ code, stopName: stop.name, rawCoord: stop.rawCoord, wouldBeCoord: newCoord, metres, spurM });
+      refuse(`move of ${metres.toFixed(1)} m exceeds the ${STOP_TRUNK_MAX_MOVE_M} m cap`, {
+        wouldBeCoord: newCoord,
+        metres,
+      });
       continue;
     }
     const near = await osrmNearest(newCoord);
-    const fromCoord = stop.coord;
+    const before = { coord: stop.coord, moveM: stop.moveM, roadName: stop.roadName, entry: active[wi], route };
     stop.coord = newCoord;
     stop.moveM = metres;
     stop.roadName = near.name || null;
     active[wi] = { ...active[wi], coord: newCoord };
     route = await osrmRoute(active.map((w) => w.coord));
+
+    // Verify the move on the re-routed line.
+    const rc = route.geometry.coordinates;
+    const geomIdx = waypointGeomIndices(rc, active.map((w) => w.coord));
+    const stopGeomIdx = stopOnlyGeomIndices(active, geomIdx);
+    const distinct = distinctStops();
+    const k = distinct.indexOf(stop);
+    const uAfter = detectStopUturns(rc, stopGeomIdx).find((u) => u.stopIdx === k);
+    const spurAfterM = uAfter ? uAfter.spurM : 0;
+    let distToLine = Infinity;
+    for (const c of rc) distToLine = Math.min(distToLine, haversineM(c, newCoord));
+    const stopIdxOnLine = waypointGeomIndices(rc, distinct.map((d) => d.coord));
+    const orderOk = stopIdxOnLine.every((g, i) => i === 0 || g > stopIdxOnLine[i - 1]);
+    let failure = null;
+    if (spurAfterM >= STOP_UTURN_MIN_M) failure = `U-turn still ${Math.round(spurAfterM)} m after the move`;
+    else if (distToLine > STOP_ON_LINE_MAX_M) failure = `stop ${distToLine.toFixed(1)} m from the line (max ${STOP_ON_LINE_MAX_M} m)`;
+    else if (!orderOk) failure = "stops no longer met in seq order along the line";
+    if (failure) {
+      stop.coord = before.coord;
+      stop.moveM = before.moveM;
+      stop.roadName = before.roadName;
+      active[wi] = before.entry;
+      route = before.route;
+      refuse(`move undone: ${failure}`, { wouldBeCoord: newCoord, metres });
+      continue;
+    }
     moved.push({
       code,
       stopName: stop.name,
       rawCoord: stop.rawCoord,
-      fromCoord,
+      fromCoord: before.coord,
       newCoord,
       metres,
       roadName: near.name || null,
       spurBeforeM: spurM,
+      spurAfterM,
     });
   }
   return { route, moved, refused };
@@ -814,16 +877,19 @@ async function main() {
     for (const m of r.trunkMoved) {
       console.log(
         `    MOVED ONTO TRUNK ${m.stopName}: raw [${m.rawCoord}] -> [${m.newCoord}] ` +
-          `${m.metres.toFixed(1)} m, road: ${m.roadName ?? "(unnamed)"} (was ${Math.round(m.spurBeforeM)} m U-turn)`,
+          `${m.metres.toFixed(1)} m, road: ${m.roadName ?? "(unnamed)"} (U-turn ${Math.round(m.spurBeforeM)} m -> ${Math.round(m.spurAfterM)} m)`,
       );
     }
     for (const m of r.trunkRefused) {
       console.log(
-        `    NOT MOVED (over ${STOP_TRUNK_MAX_MOVE_M} m) ${m.stopName}: raw [${m.rawCoord}] -> would be [${m.wouldBeCoord}] ` +
-          `${m.metres.toFixed(1)} m; keeps its ${Math.round(m.spurM)} m U-turn`,
+        `    NOT MOVED ${m.stopName}: raw [${m.rawCoord}]` +
+          (m.wouldBeCoord ? ` -> would be [${m.wouldBeCoord}] ${m.metres.toFixed(1)} m` : "") +
+          `; ${m.reason}; keeps its ${Math.round(m.spurM)} m U-turn`,
       );
     }
-    for (const f of r.stopUturnFindings) {
+    // (findings from before the trunk step are stale for stops it then moved)
+    const movedNames = new Set(r.trunkMoved.map((m) => m.stopName));
+    for (const f of r.stopUturnFindings.filter((x) => !movedNames.has(x.stopName))) {
       console.log(
         `    FINDING: stop-tip U-turn at ${f.stopName} (${f.spurM} m) survives — no optional point or re-snap removed it`,
       );

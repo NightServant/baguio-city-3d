@@ -64,27 +64,22 @@ const LOOP_ROUTES = new Set(["PLZ-SES"]);
 // PACDAL_MAX_PATH_GAP_M.
 const PACDAL_ROUTE = "PLZ-MVP";
 const PACDAL_STOP_NAME = "Pacdal Rotunda";
-const PACDAL_MAX_START_DIST_M = 30;
-const PACDAL_MAX_PATH_GAP_M = 500;
+const PACDAL_MAX_START_DIST_M = 20; // observed 14.6 m
+const PACDAL_MAX_PATH_GAP_M = 460; // observed 459.6 m
 
 // Stop-tip U-turn pins: [route code, stop name, max spur length in metres].
 // A route/stop pair not listed here must have zero stop-tip U-turns of 50 m or
-// more (detectStopUturns' own flag threshold).
+// more (detectStopUturns' own flag threshold), and every pin below must match
+// a U-turn that is really detected (a pin cannot outlive its U-turn).
 //
 // R-24b5 ("move stops onto the main road"): scripts/snap-routes.mjs
 // (moveStopsToTrunk) routes each still-flagged stop's stretch without the
-// stop to get the trunk, projects the stop's raw sketch coordinate onto it,
-// and re-routes. Aurora Hill Proper moved (116 m) and is no longer pinned.
-// The stops below would have had to move more than 150 m (the ruling's cap),
-// so they were NOT moved and keep their current behaviour and pin, awaiting
-// the owner's decision.
+// stop, projects the stop's raw sketch coordinate onto that trunk stretch, and
+// re-routes, verifying the result. Moves are capped at 400 m; six stops moved
+// and are no longer pinned. Km 4 would have had to move 690.5 m, so it was NOT
+// moved and keeps its current behaviour and pin, awaiting the owner.
 const PINNED_STOP_UTURNS: { code: string; stopName: string; maxM: number }[] = [
-  { code: "PLZ-MVP", stopName: "Leonard Wood Road", maxM: 84 }, // would move 246 m
-  { code: "PLZ-LTR", stopName: "Km 4", maxM: 2133 }, // would move 691 m
-  { code: "PLZ-LTR", stopName: "Km 5 Pico", maxM: 882 }, // would move 372 m
-  { code: "PLZ-LTR", stopName: "La Trinidad Trading Post", maxM: 516 }, // would move 195 m
-  { code: "PLZ-AUR", stopName: "Otek Street", maxM: 369 }, // would move 268 m
-  { code: "PLZ-AUR", stopName: "Bonifacio Street", maxM: 408 }, // would move 243 m
+  { code: "PLZ-LTR", stopName: "Km 4", maxM: 2133 }, // would move 690.5 m
 ];
 
 describe("jeepney routes follow the roads", () => {
@@ -172,6 +167,13 @@ describe("jeepney routes follow the roads", () => {
           `${f.properties.code} ${stopName}: unpinned stop-tip U-turn of ${Math.round(u.spurM)} m`,
         ).toBeTruthy();
         expect(u.spurM).toBeLessThanOrEqual(pin!.maxM);
+      }
+      // No stale pins: every pin for this route matches a detected U-turn.
+      for (const pin of PINNED_STOP_UTURNS.filter((x) => x.code === f.properties.code)) {
+        expect(
+          stopUturns.some((u) => stops[u.stopIdx].name === pin.stopName),
+          `${pin.code} ${pin.stopName}: pinned but no longer U-turns; remove the pin`,
+        ).toBe(true);
       }
 
       // Every stop has a name and a finite coordinate inside the service area.
