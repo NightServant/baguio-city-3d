@@ -84,7 +84,9 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
         mapRef.current = map;
 
         let becameLive = false;
+        let styleReady = false;
         map.on("style.load", () => {
+          styleReady = true;
           applyTerrain(map);
           applyWeaveBasemap(map, DEM_SOURCE);
         });
@@ -111,8 +113,11 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
 
         // Mirrors MapView's themeObserver: the header's theme toggle flips
         // data-theme on <html> without a reload, so re-dye in place.
+        // Gate on the style itself, not isStyleLoaded(): that also waits on
+        // tiles, so a toggle mid-fly was dropped and the map kept the old
+        // palette. A toggle before style.load is picked up by that handler.
         const themeObserver = new MutationObserver(() => {
-          if (!map.isStyleLoaded()) return;
+          if (!styleReady) return;
           applySky(map);
           applyWeaveBasemap(map, DEM_SOURCE);
         });

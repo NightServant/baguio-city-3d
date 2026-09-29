@@ -111,3 +111,43 @@ test("the ridgelines hold still for reduced motion", async ({ page }) => {
   const transforms = await cta.locator(".parallax-layer").evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
   expect(transforms.every((t) => t === "none")).toBe(true);
 });
+
+/** Mean luminance (0-255) of an element's pixels, decoded in the page. */
+async function luminance(page: import("@playwright/test").Page, shot: Buffer) {
+  return page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+    const c = document.createElement("canvas");
+    c.width = img.width;
+    c.height = img.height;
+    const ctx = c.getContext("2d")!;
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    let sum = 0;
+    for (let i = 0; i < d.length; i += 4) sum += 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
+    return sum / (d.length / 4);
+  }, shot.toString("base64"));
+}
+
+test("the live map follows a theme toggle made mid-flight", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("/");
+  const how = page.locator("#how-it-works");
+  const figure = how.locator("figure");
+  await figure.scrollIntoViewIfNeeded();
+  await expect(figure.getByRole("status")).toHaveText("Pick a place below and the map flies there", { timeout: 20_000 });
+  const map = figure.locator(".maplibregl-map");
+
+  // Toggle while the map is flying and loading tiles: the recolour used to be
+  // skipped then, leaving a night map on a light page (and vice versa).
+  await how.getByRole("button", { name: "Next destination" }).click();
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await page.waitForTimeout(4000);
+  expect(await luminance(page, await map.screenshot())).toBeLessThan(110);
+
+  await how.getByRole("button", { name: "Next destination" }).click();
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await page.waitForTimeout(4000);
+  expect(await luminance(page, await map.screenshot())).toBeGreaterThan(150);
+});

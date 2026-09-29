@@ -124,7 +124,9 @@ export function MapView() {
     // basemap and sky in place; paint writes need no style swap. Mid-swap,
     // onStyleLoad applies the current theme itself.
     const themeObserver = new MutationObserver(() => {
-      if (styleInFlightRef.current || !map.isStyleLoaded()) return;
+      // Not isStyleLoaded(): that also waits on tiles, so a toggle during a
+      // fly or a tile load was dropped and the map kept the old palette.
+      if (styleInFlightRef.current) return;
       applySky(map);
       if (pendingBasemapRef.current === "terrain") applyWeaveBasemap(map, DEM_SOURCE);
     });
