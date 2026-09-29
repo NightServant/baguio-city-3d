@@ -60,3 +60,43 @@ test("carousel arrows sit below the slides, never over their text", async ({ pag
   const slide = await how.locator(".swiper-slide-active article").boundingBox();
   expect(next!.y).toBeGreaterThanOrEqual(slide!.y + slide!.height);
 });
+
+test("the homepage runs hero, proof, problem, solution, FAQ, CTA in that order", async ({ page }) => {
+  await page.goto("/");
+  const headings = await page.locator("main h1, main h2").allTextContents();
+  expect(headings).toEqual([
+    "Baguio City, mapped in 3D.",
+    "What the map is made of",
+    "A flat map hides the hills.",
+    "One map for the climb, the ride and the table.",
+    "Questions",
+    "See the hills before you climb them.",
+  ]);
+});
+
+test("FAQ answers open natively", async ({ page }) => {
+  await page.goto("/");
+  await page.getByText("How accurate are the jeepney fares?").click();
+  await expect(page.getByText(/confirm with the driver/i).first()).toBeVisible();
+});
+
+test("the ridgelines behind the closing CTA drift with scroll", async ({ page }) => {
+  await page.goto("/");
+  const cta = page.locator("section", { has: page.getByRole("heading", { name: "See the hills before you climb them." }) });
+  await cta.scrollIntoViewIfNeeded();
+  const layer = cta.locator(".parallax-layer").last();
+  const before = await layer.evaluate((el) => getComputedStyle(el).transform);
+  await page.mouse.wheel(0, 250);
+  await page.waitForTimeout(250);
+  const after = await layer.evaluate((el) => getComputedStyle(el).transform);
+  expect(after).not.toBe(before);
+});
+
+test("the ridgelines hold still for reduced motion", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const cta = page.locator("section", { has: page.getByRole("heading", { name: "See the hills before you climb them." }) });
+  await cta.scrollIntoViewIfNeeded();
+  const transforms = await cta.locator(".parallax-layer").evaluateAll((els) => els.map((el) => getComputedStyle(el).transform));
+  expect(transforms.every((t) => t === "none")).toBe(true);
+});

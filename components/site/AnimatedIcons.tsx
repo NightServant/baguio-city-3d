@@ -13,29 +13,6 @@
 
 type IconProps = { className?: string };
 
-export function PineIcon({ className }: IconProps) {
-  return (
-    <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">
-      <g className="icon-sway origin-bottom">
-        <path d="M16 4 L21 13 H18.5 L23 21 H9 L13.5 13 H11 Z" fill="currentColor" />
-      </g>
-      <path d="M16 21 V28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-export function FogIcon({ className }: IconProps) {
-  return (
-    <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path className="icon-drift" style={{ animationDelay: "0s" }} d="M5 12h14" />
-        <path className="icon-drift" style={{ animationDelay: "-1.1s" }} d="M8 17h16" />
-        <path className="icon-drift" style={{ animationDelay: "-2.2s" }} d="M4 22h13" />
-      </g>
-    </svg>
-  );
-}
-
 export function RouteIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">

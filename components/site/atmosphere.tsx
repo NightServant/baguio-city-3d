@@ -91,19 +91,3 @@ export function Treeline({ className }: { className?: string }) {
     </svg>
   );
 }
-
-/**
- * Soft drifting fog bands layered over hero/section backgrounds.
- * Uses the theme background color so it works in light and dark.
- */
-export function FogBank({ className }: { className?: string }) {
-  return (
-    <div className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)} aria-hidden="true">
-      <div className="animate-fog absolute top-1/4 -left-[10%] h-40 w-[120%] rounded-full bg-background/50 blur-3xl" />
-      <div
-        className="animate-fog absolute top-1/2 -left-[10%] h-48 w-[120%] rounded-full bg-background/40 blur-3xl"
-        style={{ animationDelay: "-13s", animationDuration: "34s" }}
-      />
-    </div>
-  );
-}

@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
-import { LinkButton } from "@/components/ui/LinkButton";
 import {
   getDestinations,
   getHistory,
@@ -8,11 +6,12 @@ import {
   getVenues,
 } from "@/lib/content";
 import { relief } from "@/lib/relief";
-import { FogBank } from "@/components/site/atmosphere";
 import { Hero } from "@/components/home/Hero";
 import { Proof } from "@/components/home/Proof";
 import { Problem } from "@/components/home/Problem";
 import { Solution } from "@/components/home/Solution";
+import { Faq } from "@/components/home/Faq";
+import { ClosingCta } from "@/components/home/ClosingCta";
 import { JsonLd } from "@/components/site/JsonLd";
 import { websiteJsonLd } from "@/lib/jsonld";
 
@@ -62,26 +61,8 @@ export default async function Home() {
 
       <Solution featured={featured} routes={routes} venues={venues} eras={history.eras.length} />
 
-      {/* ----------------------------------------------------- Closing CTA */}
-      <section className="relative overflow-hidden border-t-2 border-primary bg-secondary text-foreground dark:bg-card">
-        <FogBank className="opacity-40" />
-        <div className="relative mx-auto max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-20">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            See the city the way the clouds do.
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-base leading-7 text-muted-foreground">
-            Terrain, landmarks and jeepney routes, all on one map.
-          </p>
-          <LinkButton
-            href="/map"
-            size="large"
-            endIcon={<ArrowRight className="size-4" />}
-            sx={{ mt: 4 }}
-          >
-            Open the 3D map
-          </LinkButton>
-        </div>
-      </section>
+      <Faq />
+      <ClosingCta />
     </div>
   );
 }
