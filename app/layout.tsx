@@ -11,7 +11,6 @@ import { SITE_URL } from "@/lib/site";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { RouteTransition } from "@/components/site/RouteTransition";
-import { StickyCta } from "@/components/site/StickyCta";
 import { Analytics } from "@/components/site/Analytics";
 
 // One family, worked at two extremes. Archivo is variable on BOTH weight and
@@ -93,7 +92,6 @@ export default function RootLayout({
               <RouteTransition>{children}</RouteTransition>
             </main>
             <SiteFooter />
-            <StickyCta />
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

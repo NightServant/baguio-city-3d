@@ -6,10 +6,10 @@ test("the logo goes home", async ({ page }) => {
   await expect(page).toHaveURL("/");
 });
 
-test("the desktop nav has three page links and one call to action", async ({ page }) => {
+test("the desktop nav lists the sections only; the map's one way in is in the page", async ({ page }) => {
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "Primary" });
-  await expect(nav.getByRole("link")).toHaveText(["Destinations", "Jeepneys", "Eat & stay", "Open the 3D map"]);
+  await expect(nav.getByRole("link")).toHaveText(["Destinations", "Jeepneys", "Eat & stay"]);
 });
 
 test("the header is solid, not frosted glass", async ({ page }) => {
@@ -18,9 +18,9 @@ test("the header is solid, not frosted glass", async ({ page }) => {
   expect(blur === "none" || blur === "").toBe(true);
 });
 
-test("the nav CTA shows a visible focus outline when tabbed to", async ({ page }) => {
+test("nav links show a visible focus outline when tabbed to", async ({ page }) => {
   await page.goto("/");
-  const cta = page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Open the 3D map" });
+  const cta = page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Destinations" });
   for (let i = 0; i < 20; i++) {
     await page.keyboard.press("Tab");
     if (await cta.evaluate((el) => el === document.activeElement)) break;

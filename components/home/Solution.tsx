@@ -35,7 +35,6 @@ export function Solution({
               Every landmark sits on real ground heights. Pick a place and the map flies you over the ridges to it,
               before you walk it.
             </p>
-            <Link href="/map" className={`mt-4 inline-block ${more}`}>Open the full map</Link>
           </div>
           {featured.length > 0 ? <TerrainTour destinations={featured} /> : null}
         </div>

@@ -178,13 +178,6 @@
   html {
     @apply font-sans;
   }
-  /* The sticky mobile CTA is 3rem tall plus a gutter; keep anchored content
-     clear of it. */
-  @media (max-width: 47.99rem) {
-    html {
-      scroll-padding-bottom: 5rem;
-    }
-  }
   /* Display is the SAME family as body, pushed to the far end of Archivo's
      width axis. The stretch is the point: type under tension, like warp. */
   .font-display {

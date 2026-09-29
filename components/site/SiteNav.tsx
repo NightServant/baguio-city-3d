@@ -3,14 +3,16 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Button from "@mui/material/Button";
 import Drawer from "@mui/material/Drawer";
 import { cn } from "@/lib/utils";
 import { PineMark } from "@/components/site/PineMark";
 import { ThemeToggle } from "@/components/site/ThemeToggle";
 
 // History left the nav (ruling R3): it's linked from the homepage, from every
-// destination with an era, and from the sitemap.
+// destination with an era, and from the sitemap. The map isn't in the nav
+// either. Owner rule (2026-09-29): each action gets one way in on a page, and
+// the map's is in the page itself (the homepage hero, "Fly there on the map",
+// "Estimate a real trip on the map"), never repeated in the chrome.
 const NAV_LINKS = [
   { href: "/destinations", label: "Destinations" },
   { href: "/transit", label: "Jeepneys" },
@@ -60,9 +62,6 @@ export function SiteNav() {
               </Link>
             );
           })}
-          <Button component={Link} href="/map" size="small" className="ml-3">
-            Open the 3D map
-          </Button>
         </nav>
 
         <div className="ml-auto flex items-center md:ml-2">
@@ -95,9 +94,6 @@ export function SiteNav() {
                   {link.label}
                 </Link>
               ))}
-              <Button component={Link} href="/map" onClick={() => setMenuOpen(false)} className="mt-4" size="large">
-                Open the 3D map
-              </Button>
             </nav>
           </Drawer>
         </div>

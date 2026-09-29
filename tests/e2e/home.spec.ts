@@ -47,7 +47,7 @@ test("the carousel steers the live map", async ({ page }) => {
   await how.getByRole("button", { name: "Next destination" }).click();
   const picked = await how.locator(".swiper-slide-active h4").innerText();
   await expect(status).toHaveText(`Showing ${picked} on the map`);
-  for (const href of ["/map", "/transit", "/eat-stay", "/history"]) {
+  for (const href of ["/transit", "/eat-stay", "/history"]) {
     await expect(how.locator(`a[href="${href}"]`).first()).toBeVisible();
   }
 });
@@ -59,6 +59,17 @@ test("carousel arrows sit below the slides, never over their text", async ({ pag
   const next = await how.getByRole("button", { name: "Next destination" }).boundingBox();
   const slide = await how.locator(".swiper-slide-active article").boundingBox();
   expect(next!.y).toBeGreaterThanOrEqual(slide!.y + slide!.height);
+});
+
+test("the homepage's buttons live once, in the closing section", async ({ page }) => {
+  await page.goto("/");
+  // Owner rule: one button per action. The map and sources buttons sit in the
+  // closing section; no nav link, sticky bar, hero button or poster link repeats them.
+  const cta = page.locator("section", { has: page.getByRole("heading", { name: "See the hills before you climb them." }) });
+  await expect(page.getByRole("link", { name: "Open the 3D map" })).toHaveCount(1);
+  await expect(cta.getByRole("link", { name: "Open the 3D map" })).toHaveAttribute("href", "/map");
+  await expect(cta.getByRole("link", { name: "Read the sources" })).toHaveAttribute("href", "/about#sources");
+  await expect(page.locator('header a[href="/map"], main > section:first-child a[href="/map"]')).toHaveCount(0);
 });
 
 test("the homepage runs hero, proof, problem, solution, FAQ, CTA in that order", async ({ page }) => {

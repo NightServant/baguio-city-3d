@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-test("the main CTA is above the fold on a phone", async ({ page }) => {
+// The map button moved to the closing section (owner, 2026-09-29); the hero's
+// one action, "See how it works", must still be reachable without scrolling.
+test("the hero's action is above the fold on a phone", async ({ page }) => {
   await page.goto("/");
-  const cta = page.locator("main").getByRole("link", { name: "Open the 3D map" }).first();
+  const cta = page.locator("main").getByRole("link", { name: "See how it works" });
   const box = await cta.boundingBox();
   expect(box && box.y + box.height).toBeLessThanOrEqual(page.viewportSize()!.height);
 });

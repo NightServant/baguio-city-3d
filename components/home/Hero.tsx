@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LinkButton } from "@/components/ui/LinkButton";
 import { ScrollReveal } from "@/components/site/Motion";
 
 export function Hero({ destinations, venues }: { destinations: number; venues: number }) {
@@ -16,14 +15,13 @@ export function Hero({ destinations, venues }: { destinations: number; venues: n
             the jeepney that gets you there, and {venues} places to eat and stay. Free, no account.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
-            <LinkButton href="/map" size="large">Open the 3D map</LinkButton>
             <Link href="#how-it-works" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
               See how it works
             </Link>
           </div>
         </div>
         <div className="min-w-0">
-          <Link href="/map" className="weave-edge block border-y border-r border-border" tabIndex={-1} aria-hidden="true">
+          <div className="weave-edge border-y border-r border-border">
             <Image
               src="/home/hero-map.jpg"
               alt=""
@@ -33,7 +31,7 @@ export function Hero({ destinations, venues }: { destinations: number; venues: n
               sizes="(min-width: 1024px) 58vw, 100vw"
               className="h-auto w-full"
             />
-          </Link>
+          </div>
           {/* R-T23b: the poster is a still of OSM/OpenFreeMap/terrain data, so it
               carries the same credit MapDemo's caption uses. */}
           <p className="mt-2 text-xs text-muted-foreground">

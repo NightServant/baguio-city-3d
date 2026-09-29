@@ -12,9 +12,15 @@ export function ClosingCta() {
           </h2>
           <p className="mt-4 text-muted-foreground">Free, no account, and it works on your phone.</p>
         </div>
-        <LinkButton href="/map" size="large">
-          Open the 3D map
-        </LinkButton>
+        {/* The homepage's only buttons (owner, 2026-09-29): one per action, here at the close. */}
+        <div className="flex flex-wrap gap-3">
+          <LinkButton href="/map" size="large">
+            Open the 3D map
+          </LinkButton>
+          <LinkButton href="/about#sources" size="large" variant="outlined">
+            Read the sources
+          </LinkButton>
+        </div>
       </div>
     </section>
   );
