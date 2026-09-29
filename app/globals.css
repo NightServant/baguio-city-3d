@@ -370,8 +370,9 @@
 }
 .baguio-swiper .swiper-button-next:hover,
 .baguio-swiper .swiper-button-prev:hover { background: var(--ecru); border-color: var(--warp); }
-.baguio-swiper .swiper-button-next::after,
-.baguio-swiper .swiper-button-prev::after { font-size: 1rem; font-weight: 700; }
+/* Swiper 14 draws an SVG chevron sized 100% of the button; keep it small. */
+.baguio-swiper .swiper-button-next svg,
+.baguio-swiper .swiper-button-prev svg { width: 1rem; height: 1rem; }
 /* Arrows sit under the slides, left-aligned, so they never cover text (they
    used to overlay the middle of the cards). The extra `.swiper` in the
    selector outweighs Swiper's own `.swiper-horizontal .swiper-button-*`

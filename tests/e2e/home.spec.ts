@@ -40,8 +40,13 @@ test("the carousel steers the live map", async ({ page }) => {
   const mapBox = await how.locator(".maplibregl-map").boundingBox();
   expect(mapBox!.height).toBeGreaterThan(0);
   expect(mapBox!.height).toBeCloseTo(frameBox!.height, 0);
+  // Nothing steers the map until the visitor does (Swiper's loop init and
+  // resizes used to fire a slide change on their own).
+  const status = how.locator("figure").getByRole("status");
+  await expect(status).toHaveText("Pick a place below and the map flies there", { timeout: 20_000 });
   await how.getByRole("button", { name: "Next destination" }).click();
-  await expect(how.locator("figure").getByRole("status")).toHaveText(/^Showing .+ on the map$/);
+  const picked = await how.locator(".swiper-slide-active h4").innerText();
+  await expect(status).toHaveText(`Showing ${picked} on the map`);
   for (const href of ["/map", "/transit", "/eat-stay", "/history"]) {
     await expect(how.locator(`a[href="${href}"]`).first()).toBeVisible();
   }

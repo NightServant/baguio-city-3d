@@ -37,7 +37,7 @@ export function Solution({
             </p>
             <Link href="/map" className={`mt-4 inline-block ${more}`}>Open the full map</Link>
           </div>
-          <TerrainTour destinations={featured} />
+          {featured.length > 0 ? <TerrainTour destinations={featured} /> : null}
         </div>
 
         {/* Jeepneys */}

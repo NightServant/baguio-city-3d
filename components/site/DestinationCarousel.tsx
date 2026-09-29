@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { A11y, EffectCoverflow, Keyboard, Mousewheel, Navigation, Parallax } from "swiper/modules";
+import { A11y, EffectCoverflow, Mousewheel, Navigation, Parallax } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/navigation";
@@ -28,17 +28,19 @@ export function DestinationCarousel({
   return (
     <div className="baguio-swiper relative">
       <Swiper
-        modules={[A11y, EffectCoverflow, Navigation, Keyboard, Mousewheel, Parallax]}
+        modules={[A11y, EffectCoverflow, Navigation, Mousewheel, Parallax]}
         effect="coverflow"
         grabCursor
         centeredSlides
         parallax
         loop
         autoHeight
-        keyboard={{ enabled: true }}
         mousewheel={{ forceToAxis: true }}
         navigation
-        onSlideChange={(swiper) => onActiveChange?.(destinations[swiper.realIndex])}
+        // realIndexChange, not slideChange: with `loop`, Swiper fires slideChange
+        // at init and on every resize, which would steer the map on its own.
+        // realIndexChange fires only when the visitor lands on a different place.
+        onRealIndexChange={(swiper) => onActiveChange?.(destinations[swiper.realIndex])}
         slidesPerView={1.3}
         spaceBetween={16}
         coverflowEffect={{ rotate: 0, stretch: 0, depth: 130, modifier: 1, slideShadows: false }}
@@ -51,11 +53,11 @@ export function DestinationCarousel({
         {destinations.map((d) => (
           <SwiperSlide key={d.slug}>
             <article className="weave-edge h-full border-y border-r border-border bg-card px-5 py-5">
-              <h3 className="font-display text-xl leading-tight" data-swiper-parallax="-40">
+              <h4 className="font-display text-xl leading-tight" data-swiper-parallax="-40">
                 <Link href={`/destinations/${d.slug}`} className="hover:text-primary">
                   {d.name}
                 </Link>
-              </h3>
+              </h4>
               {d.elevationM != null ? (
                 <p className="readout mt-2 text-muted-foreground" data-swiper-parallax="-20">
                   {formatElevation(d.elevationM)}
