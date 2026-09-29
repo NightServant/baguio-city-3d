@@ -6,6 +6,7 @@ const TEST_ENV = {
   NEXT_PUBLIC_GA_ID: "G-TEST000000",
   NEXT_PUBLIC_CONTACT_EMAIL: "hello@example.test",
   NEXT_PUBLIC_SITE_URL: "http://localhost:3100",
+  NEXT_DIST_DIR: ".next-e2e",
 };
 
 const external = process.env.E2E_BASE_URL;
