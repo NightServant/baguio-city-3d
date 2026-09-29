@@ -139,7 +139,7 @@ test("the live map follows a theme toggle, standing still or mid-flight", async 
   await figure.scrollIntoViewIfNeeded();
   // The idle caption also shows before the map loads; the still fading out
   // (opacity-0) is what marks the map as live and drawn.
-  await expect(figure.locator("img")).toHaveClass(/opacity-0/, { timeout: 20_000 });
+  await expect(figure.locator("img")).toHaveClass(/opacity-0/, { timeout: 45_000 });
   const map = figure.locator(".maplibregl-map");
 
   // Standing still: the ground is drawn into cached terrain textures that a

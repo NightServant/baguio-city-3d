@@ -259,22 +259,20 @@ export function applyWeaveBasemap(map: MapLibreMap, demSource: string) {
 
   for (const [id, prop, value] of [...hillshade, ...paints(p), ...roadPaints(p)]) {
     if (!map.getLayer(id)) continue;
+    // No fade. With 3D terrain on, MapLibre draws fills, lines and the
+    // hillshade into cached terrain textures; a 300 ms colour fade got
+    // captured part-way and never redrawn, so after a theme toggle the ground
+    // kept the old palette under new labels (seen on a real GPU).
+    try {
+      map.setPaintProperty(id, `${prop}-transition`, { duration: 0, delay: 0 });
+    } catch {
+      // Not transitionable; nothing to switch off.
+    }
     try {
       map.setPaintProperty(id, prop, value);
     } catch {
       // A Liberty update renamed or retyped this layer. Skip it — a basemap
       // that is partly the wrong colour beats a map that throws on load.
     }
-  }
-
-  // With 3D terrain on, MapLibre draws fills, lines and the hillshade into
-  // cached terrain textures, and a paint change doesn't invalidate them: after
-  // a theme toggle only the labels (drawn on top) changed, leaving a night
-  // ground under day labels until the tiles reloaded. Re-setting the terrain
-  // rebuilds those textures.
-  const terrain = map.getTerrain();
-  if (terrain) {
-    map.setTerrain(null);
-    map.setTerrain(terrain);
   }
 }
