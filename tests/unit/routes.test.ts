@@ -76,11 +76,9 @@ const PACDAL_MAX_PATH_GAP_M = 460; // observed 459.6 m
 // (moveStopsToTrunk) routes each still-flagged stop's stretch without the
 // stop, projects the stop's raw sketch coordinate onto that trunk stretch, and
 // re-routes, verifying the result. Moves are capped at 400 m; six stops moved
-// and are no longer pinned. Km 4 would have had to move 690.5 m, so it was NOT
-// moved and keeps its current behaviour and pin, awaiting the owner.
-const PINNED_STOP_UTURNS: { code: string; stopName: string; maxM: number }[] = [
-  { code: "PLZ-LTR", stopName: "Km 4", maxM: 2133 }, // would move 690.5 m
-];
+// and are no longer pinned. Km 4 (PLZ-LTR) would have had to move 690.5 m; the
+// owner had it removed instead (2026-09-29), so no exceptions remain.
+const PINNED_STOP_UTURNS: { code: string; stopName: string; maxM: number }[] = [];
 
 describe("jeepney routes follow the roads", () => {
   it("has six routes to check", () => {
