@@ -13,7 +13,7 @@ import {
 } from "@/stores/useMapStore";
 import type { FareResponse, TransitRouteFeature, TransitRoutesResponse } from "@/types/api";
 import { cn } from "@/lib/utils";
-import { FARE_SOURCE, JEEPNEY_BASE_KM, formatLongDate } from "@/lib/geo/fare";
+import { FARE_SOURCE, JEEPNEY_BASE_KM, formatLongDate, modernGuideLapsed } from "@/lib/geo/fare";
 import { focusRing } from "./controlStyles";
 
 interface RoutesState {
@@ -89,9 +89,7 @@ export function RoutePlanner() {
   return (
     <div className="flex flex-col gap-5">
       <section className="flex flex-col gap-2">
-        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-          Routes
-        </p>
+        <h3 className="text-xs font-medium text-foreground">Routes</h3>
         <p className="text-xs text-muted-foreground">
           Lines follow the roads between stops; the jeepney’s exact path can differ.
         </p>
@@ -234,9 +232,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
 
   return (
     <section className="flex flex-col gap-3">
-      <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-        Fare estimate
-      </p>
+      <h3 className="text-xs font-medium text-foreground">Fare estimate</h3>
 
       {/* Mode toggle */}
       <div className="grid grid-cols-2 gap-1.5">
@@ -386,6 +382,11 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
                 Not yet checked against a current LTFRB issuance.
               </p>
             )}
+            {result.mode === "taxi" && !FARE_SOURCE.taxi.verified && (
+              <p className="mt-2.5 border-t border-border pt-2.5 text-[11px] text-muted-foreground">
+                Taxi rates haven’t been checked against a current LTFRB issuance.
+              </p>
+            )}
           </div>
 
           {result.mode === "jeepney" && result.modern && (
@@ -409,7 +410,8 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
               {FARE_SOURCE.modern.verified && (
                 <p className="mt-2.5 border-t border-border pt-2.5 text-[11px] text-muted-foreground">
                   Per the {FARE_SOURCE.modern.label}, issued as valid until{" "}
-                  {formatLongDate(FARE_SOURCE.modern.validUntil)}. Confirm the fare with the
+                  {formatLongDate(FARE_SOURCE.modern.validUntil)}
+                  {modernGuideLapsed() ? ", a date that has passed" : ""}. Confirm the fare with the
                   driver.
                 </p>
               )}

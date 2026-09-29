@@ -13,8 +13,7 @@ import {
   TAXI_PER_UNIT_PHP,
   TAXI_PER_MINUTE_WAIT_PHP,
   formatLongDate,
-  taxiFare,
-} from "@/lib/geo/fare";
+  taxiFare, modernGuideLapsed } from "@/lib/geo/fare";
 import { SectionHeading } from "@/components/site/SectionHeading";
 
 export const metadata: Metadata = {
@@ -63,8 +62,8 @@ export default async function TransitPage() {
       </p>
       {FARE_SOURCE.modern.verified && (
         <p className="mt-2 text-sm text-muted-foreground">
-          That guide was issued as valid until {formatLongDate(FARE_SOURCE.modern.validUntil)}, so
-          confirm the fare with the driver.
+          That guide was issued as valid until {formatLongDate(FARE_SOURCE.modern.validUntil)}
+          {modernGuideLapsed() ? ", a date that has passed," : ","} so confirm the fare with the driver.
         </p>
       )}
       <p className="mt-2 text-sm text-muted-foreground">
@@ -123,15 +122,14 @@ export default async function TransitPage() {
       <section className="mt-16 overflow-hidden border border-border bg-secondary/60">
         <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-2">
           <div>
-            <p className="readout text-primary">Taxi estimate</p>
-            <h2 className="mt-3 font-display text-2xl sm:text-3xl">
+            <h2 className="font-display text-2xl sm:text-3xl">
               Flagdown {peso(TAXI_FLAGDOWN_PHP)}, then the meter climbs with the road
             </h2>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
-              Baguio taxis are metered and famously honest. The estimate here
-              mirrors the LTFRB-style structure the map&apos;s fare tool uses:
-              flagdown plus a distance charge every {TAXI_PER_METER_UNIT_M} m,
-              plus waiting time in traffic.
+              The estimate mirrors the LTFRB-style structure the map’s fare tool uses:
+              flagdown plus a distance charge every {TAXI_PER_METER_UNIT_M} m, plus
+              waiting time in traffic.
+              {!FARE_SOURCE.taxi.verified && " Taxi rates haven’t been checked against a current LTFRB issuance."}
             </p>
             <LinkButton href="/map" className="mt-6">
               Estimate a real trip on the map

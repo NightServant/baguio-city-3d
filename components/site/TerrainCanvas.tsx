@@ -2,6 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { WEAVE } from "@/lib/palette";
+
+// Base lines in warp (bone at night); the ridge pass in madder (lifted at night).
+const lineColour = (dark: boolean) => (dark ? WEAVE.dark.warp : WEAVE.light.warp);
+const ridgeColour = (dark: boolean) => (dark ? WEAVE.dark.madderLight : WEAVE.light.madder);
 
 /**
  * Baguio's actual topography as a wireframe (homepage Problem section).
@@ -133,7 +138,7 @@ export function TerrainCanvas({
       const wire = new THREE.WireframeGeometry(geo);
       mesh = new THREE.LineSegments(
         wire,
-        new THREE.LineBasicMaterial({ color: dark ? 0xf3ece1 : 0x16130f, transparent: true, opacity: dark ? 0.2 : 0.16 }),
+        new THREE.LineBasicMaterial({ color: lineColour(dark), transparent: true, opacity: dark ? 0.2 : 0.16 }),
       );
       mesh.rotation.x = -Math.PI / 2;
       group.add(mesh);
@@ -155,7 +160,7 @@ export function TerrainCanvas({
       ridgeGeo.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
       ridge = new THREE.LineSegments(
         ridgeGeo,
-        new THREE.LineBasicMaterial({ color: dark ? 0xd98a7b : 0x8c2318, transparent: true, opacity: 0.85 }),
+        new THREE.LineBasicMaterial({ color: ridgeColour(dark), transparent: true, opacity: 0.85 }),
       );
       ridge.rotation.x = -Math.PI / 2;
       group.add(ridge);
@@ -173,10 +178,10 @@ export function TerrainCanvas({
       const d = document.documentElement.dataset.theme === "dark";
       if (mesh) {
         const m = mesh.material as THREE.LineBasicMaterial;
-        m.color.setHex(d ? 0xf3ece1 : 0x16130f);
+        m.color.set(lineColour(d));
         m.opacity = d ? 0.2 : 0.16;
       }
-      if (ridge) (ridge.material as THREE.LineBasicMaterial).color.setHex(d ? 0xd98a7b : 0x8c2318);
+      if (ridge) (ridge.material as THREE.LineBasicMaterial).color.set(ridgeColour(d));
     };
     const themeObserver = new MutationObserver(recolour);
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });

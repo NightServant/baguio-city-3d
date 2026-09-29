@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { fareAccuracyNote } from "@/lib/geo/fare";
+import { fareAccuracyNote, formatLongDate } from "@/lib/geo/fare";
+import { TERRAIN_EXAGGERATION } from "@/lib/map/sources";
 import { DATA_SOURCES, OSM_BUILDINGS } from "@/lib/sources";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function AboutPage() {
           and places to eat and stay with their opening hours.
         </p>
 
-        <h2 id="sources">What it&apos;s made of</h2>
+        <h2 id="sources">What it’s made of</h2>
         <ul>
           {DATA_SOURCES.map((s) => (
             <li key={s.name}>
@@ -32,20 +33,26 @@ export default function AboutPage() {
         </ul>
         <p>
           OpenStreetMap has {OSM_BUILDINGS.count.toLocaleString("en-PH")} building footprints inside the map
-          area, counted on {OSM_BUILDINGS.countedOn}.
+          area, counted on {formatLongDate(OSM_BUILDINGS.countedOn)}.
         </p>
 
         <h2>How it was checked</h2>
         <p>
-          Every destination&apos;s height was re-sampled from the same terrain model the map draws, after the
+          Every destination’s height was re-sampled from the same terrain model the map draws, after the
           original figures turned out to be off by up to 441 m. {fareAccuracyNote()} The terrain is drawn
-          1.35 times taller than life so slopes read on a phone screen.
+          {TERRAIN_EXAGGERATION} times taller than life so slopes read on a phone screen. Some place
+          descriptions were drafted with AI assistance and edited by hand.
         </p>
 
         <h2>Found a mistake?</h2>
         <p>
           <Link href="/corrections">Suggest a correction</Link>. Hours and fares change, and reports from
           visitors are how the guide stays right.
+        </p>
+
+        <h2>Source code</h2>
+        <p>
+          The code is public on <a href="https://github.com/NightServant/baguio-city-3d">GitHub</a>.
         </p>
       </article>
     </div>

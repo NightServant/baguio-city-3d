@@ -1,6 +1,7 @@
 "use client";
 
 import { createTheme } from "@mui/material/styles";
+import { WEAVE } from "@/lib/palette";
 
 /**
  * Material UI, retuned to the "Cordillera Weave" identity.
@@ -16,18 +17,18 @@ import { createTheme } from "@mui/material/styles";
  * the visitor's colour scheme with no second set of values.
  */
 
-const WARP = "#16130F"; // warm near-black
-const BONE = "#F5F0E6"; // undyed cotton ground
-const MADDER = "#8C2318"; // the single accent
+const WARP = WEAVE.light.warp; // warm near-black
+const BONE = WEAVE.light.ground; // undyed cotton ground
+const MADDER = WEAVE.light.madder; // the single accent
 const MADDER_LT = "#B5432F";
 const MUTED = "#6B6156";
 const BORDER = "#D8CEBC";
 
 // Dark: ube ground, bone warp, madder lifted to read on ube.
-const UBE = "#261b30";
+const UBE = WEAVE.dark.ground;
 const UBE_CARD = "#2f223c";
-const BONE_DK = "#f3ece1";
-const MADDER_DK = "#a8402f"; // deep fill; text accents use --primary (#D98A7B)
+const BONE_DK = WEAVE.dark.warp;
+const MADDER_DK = WEAVE.dark.madder; // deep fill; text accents use --primary (madderLight)
 const MUTED_DK = "#c1b5d0";
 const BORDER_DK = "#54416a";
 

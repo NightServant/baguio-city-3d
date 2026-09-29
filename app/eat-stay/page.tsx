@@ -7,7 +7,7 @@ import { VENUE_CATEGORY_LABELS } from "@/components/site/labels";
 import type { VenueCategory } from "@/types/venue";
 
 export const metadata: Metadata = {
-  title: "Eat & Stay",
+  title: "Eat & stay",
   description:
     "Where to eat, snack, shop and sleep in Baguio: restaurants, ube-jam counters, pine-side hotels and budget transient houses, with hours and price ranges.",
   alternates: { canonical: "/eat-stay" },

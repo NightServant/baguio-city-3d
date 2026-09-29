@@ -104,7 +104,7 @@ export function DestinationSheet() {
           )}
           {state.error && (
             <h2 className="font-heading text-base font-medium text-foreground">
-              Couldn&apos;t load this place
+              Couldn’t load this place
             </h2>
           )}
         </div>
@@ -125,7 +125,7 @@ export function DestinationSheet() {
 
         {state.error && (
           <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
-            The details service isn&apos;t answering. Close this card and tap the pin again in a
+            The details service isn’t answering. Close this card and tap the pin again in a
             moment.
           </p>
         )}

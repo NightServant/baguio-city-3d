@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { SITE_URL } from "@/lib/site";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
-import { ElevationRail } from "@/components/site/ElevationRail";
 import { RouteTransition } from "@/components/site/RouteTransition";
 import { StickyCta } from "@/components/site/StickyCta";
 import { Analytics } from "@/components/site/Analytics";
@@ -88,7 +87,6 @@ export default function RootLayout({
               Skip to content
             </a>
             <SiteNav />
-            <ElevationRail />
             {/* Before <main> so keyboard users reach the choice early; it is fixed to the bottom of the screen. */}
             <Analytics />
             <main id="main-content" className="flex-1">

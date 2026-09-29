@@ -80,13 +80,13 @@ export default async function DestinationPage({
 
         {/* Header */}
         <header className="mt-6 max-w-3xl">
-          <div className="flex flex-wrap items-center gap-2">
+          <h1 className="font-display text-4xl text-balance sm:text-5xl">
+            {destination.name}
+          </h1>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
             <CategoryBadge category={destination.category} />
             {destination.era ? <EraBadge era={destination.era} /> : null}
           </div>
-          <h1 className="mt-4 font-display text-4xl text-balance sm:text-5xl">
-            {destination.name}
-          </h1>
           <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
             {destination.elevationM != null ? (
               <div><dt className="text-xs text-muted-foreground">Elevation</dt><dd className="readout">{formatElevation(destination.elevationM)}</dd></div>

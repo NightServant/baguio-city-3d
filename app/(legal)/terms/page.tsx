@@ -40,7 +40,7 @@ export default function TermsPage() {
 
         <h2>Correction reports</h2>
         <p>
-          Don&apos;t include other people&apos;s personal information in a report. By sending one, you let us
+          Don’t include other people’s personal information in a report. By sending one, you let us
           use it to update the guide. We may edit or decline any report.
         </p>
 

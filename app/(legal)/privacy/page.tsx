@@ -30,14 +30,14 @@ export default function PrivacyPage() {
           location.
         </p>
         <p>
-          If you switch between light and dark, that choice is saved in your browser&apos;s local storage so
+          If you switch between light and dark, that choice is saved in your browser’s local storage so
           the site remembers it. It stays on your device.
         </p>
 
         <h2>Services that see your IP address</h2>
         <p>
           Map tiles load straight from your browser to the companies that serve them, so each one receives
-          your IP address and the part of the map you&apos;re looking at:
+          your IP address and the part of the map you’re looking at:
         </p>
         <ul>
           <li>OpenFreeMap, for the street map and labels (<code>tiles.openfreemap.org</code>)</li>
@@ -54,40 +54,42 @@ export default function PrivacyPage() {
           ) : null}
         </ul>
         <p>{HOST} hosts this site and keeps standard request logs.</p>
-        <p>Fonts are served from this site, so your browser doesn&apos;t contact Google Fonts.</p>
+        <p>Fonts are served from this site, so your browser doesn’t contact Google Fonts.</p>
 
         <h2 id="analytics">Analytics</h2>
         {analytics ? (
           <>
             <p>
-              Analytics is off until you turn it on. Only if you choose &ldquo;Allow analytics&rdquo; does
+              Analytics is off until you turn it on. Only if you choose “Allow analytics” does
               this site load Google Analytics 4, which sets cookies and records the pages you view, how you
               arrived, your device and browser, and your approximate location from your IP address. That
               data goes to Google.
             </p>
             <p>
-              If you choose &ldquo;No thanks&rdquo;, or don’t choose, the analytics code never loads. Your
-              choice is saved in your browser’s local storage. To withdraw, use &ldquo;Cookie
-              settings&rdquo; at the bottom of every page: it clears the analytics cookies and reloads the
+              If you choose “No thanks”, or don’t choose, the analytics code never loads. Your
+              choice is saved in your browser’s local storage. To withdraw, use “Cookie
+              settings” at the bottom of every page: it clears the analytics cookies and reloads the
               page without the analytics code.
             </p>
           </>
         ) : (
-          <p>This site doesn&apos;t use analytics or advertising cookies.</p>
+          <p>This site doesn’t use analytics or advertising cookies.</p>
         )}
 
         <h2>Correction reports</h2>
         <p>
-          If you send a correction, we store what you wrote and the page it&apos;s about, plus your email
-          only if you give one. We use the email only to reply about that report; it&apos;s cleared by a
-          daily job once the report is resolved, or once it&apos;s 90 days old. The report stays without the
-          email, as a record of what changed. We don&apos;t store your IP address with it. Reports are
+          If you send a correction, we store what you wrote and the page it’s about, plus your email
+          only if you give one. We use the email only to reply about that report; it’s cleared by a
+          daily job once the report is resolved, or once it’s 90 days old. The report stays without the
+          email, as a record of what changed. We don’t store your IP address with it. Reports are
           stored in a database hosted by Supabase.
         </p>
 
         <h2>AI</h2>
-        <p>The site doesn&apos;t use AI to process anything you send or do.</p>
-        {/* Phase 0, D6: if the owner confirms, add: "Some place descriptions were drafted with AI assistance and edited by hand." */}
+        <p>
+          The site doesn’t use AI to process anything you send or do. Some place descriptions were drafted
+          with AI assistance and edited by hand.
+        </p>
 
         <h2>Your rights</h2>
         <p>
@@ -98,12 +100,12 @@ export default function PrivacyPage() {
           ) : (
             <> Use the <a href="/corrections">correction form</a> and leave an email so we can reply.</>
           )}{" "}
-          If you&apos;re not satisfied with our answer, you can complain to the{" "}
+          If you’re not satisfied with our answer, you can complain to the{" "}
           <a href="https://privacy.gov.ph">National Privacy Commission</a>.
         </p>
 
         <h2>Children</h2>
-        <p>The site isn&apos;t aimed at children and we don&apos;t knowingly collect their information.</p>
+        <p>The site isn’t aimed at children and we don’t knowingly collect their information.</p>
 
         <h2>Changes</h2>
         <p>When this policy changes, the date at the top changes with it.</p>

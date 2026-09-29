@@ -166,7 +166,7 @@ export function formatLongDate(iso: string): string {
  * returned Cloudflare's "Performing security verification" 403 to automated
  * access on every attempt, so this figure could not be confirmed on an
  * official page. Kept as-is rather than adopting unverified numbers from
- * news coverage of a reported March 2026 fare order. See task-5-report.md
+ * news coverage of a reported March 2026 fare order. See the ledger's fare research (docs/superpowers/plans/2026-09-24-ledger.md)
  * for the full research ledger.
  *
  * `modern`: verified 2026-09-24 against the LTFRB Non-Aircon Modern and
@@ -174,7 +174,7 @@ export function formatLongDate(iso: string): string {
  * states it is valid until 2026-06-30 and advises operators to secure an
  * individual fare matrix — so this is a time-boxed interim rate, not a
  * standing one. It has no `url`: the guessed ltfrb.gov.ph link 403'd during
- * research (see task-5-report.md) and isn't actually where this came from —
+ * research (see the ledger's fare research (docs/superpowers/plans/2026-09-24-ledger.md)) and isn't actually where this came from —
  * `source` records the real provenance instead of a page nobody fetched it
  * from.
  */
@@ -202,6 +202,19 @@ interface FareVerificationSource {
   taxi: { verified: boolean };
 }
 
+/**
+ * True once the cited modern-fare guide's "valid until" date is behind us.
+ * The owner ruled (2026-09-29) that the fares stay up, flagged as lapsed,
+ * until a current issuance is supplied. Pages are static, so this is read at
+ * build time; each deploy refreshes it.
+ */
+export function modernGuideLapsed(
+  source: Pick<FareVerificationSource, "modern"> = FARE_SOURCE,
+  today: Date = new Date(),
+): boolean {
+  return today.toISOString().slice(0, 10) > source.modern.validUntil;
+}
+
 /** "a" -> "a"; "a", "b" -> "a and b"; "a", "b", "c" -> "a, b and c". */
 function joinFareNames(names: string[]): string {
   if (names.length <= 1) return names.join("");
@@ -218,7 +231,10 @@ function joinFareNames(names: string[]): string {
  * constant. If `modern.verified` is ever false, modern jeepney fares are
  * named among the unchecked ones instead of just disappearing (R-T16h).
  */
-export function fareAccuracyNote(source: FareVerificationSource = FARE_SOURCE): string {
+export function fareAccuracyNote(
+  source: FareVerificationSource = FARE_SOURCE,
+  today: Date = new Date(),
+): string {
   const sentences: string[] = [];
   if (source.modern.verified) {
     sentences.push(
@@ -226,6 +242,9 @@ export function fareAccuracyNote(source: FareVerificationSource = FARE_SOURCE): 
         `${formatLongDate(source.modern.effective)}, which was issued as valid until ` +
         `${formatLongDate(source.modern.validUntil)}.`,
     );
+    if (modernGuideLapsed(source, today)) {
+      sentences.push("That date has passed, and no newer issuance has been checked yet.");
+    }
   }
   const unverified = [
     !source.modern.verified && "modern jeepney",

@@ -24,9 +24,7 @@ const VENUE_CATEGORIES = Object.keys(VENUE_CATEGORY_LABELS) as VenueCategory[];
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-      {children}
-    </p>
+    <h3 className="text-xs font-medium text-foreground">{children}</h3>
   );
 }
 

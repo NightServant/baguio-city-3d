@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   FARE_SOURCE,
   fareAccuracyNote,
+  modernGuideLapsed,
   formatLongDate,
   haversineKm,
   jeepneyFare,
@@ -11,13 +12,20 @@ import {
 import { moneyEntries } from "@/components/panels/RoutePlanner";
 
 describe("fareAccuracyNote", () => {
-  it("matches today's FARE_SOURCE: modern verified, traditional and taxi not", () => {
-    expect(fareAccuracyNote()).toBe(
+  it("matches FARE_SOURCE while the guide is in date: modern verified, traditional and taxi not", () => {
+    expect(fareAccuracyNote(FARE_SOURCE, new Date("2026-06-30T12:00:00Z"))).toBe(
       "Modern jeepney fares follow the LTFRB Non-Aircon Modern and Electric PUJ General Fare " +
         "Guide, effective 19 March 2026, which was issued as valid until 30 June 2026. " +
         "Traditional jeepney and taxi fares haven't been checked against a current LTFRB " +
         "issuance.",
     );
+  });
+
+  it("says so once the guide's validity has lapsed", () => {
+    const note = fareAccuracyNote(FARE_SOURCE, new Date("2026-07-01T00:00:00Z"));
+    expect(note).toContain("valid until 30 June 2026. That date has passed, and no newer issuance has been checked yet.");
+    expect(modernGuideLapsed(FARE_SOURCE, new Date("2026-07-01T00:00:00Z"))).toBe(true);
+    expect(modernGuideLapsed(FARE_SOURCE, new Date("2026-06-30T23:00:00Z"))).toBe(false);
   });
 
   it("names modern fares among the unchecked ones if modern.verified ever flips false, instead of dropping them silently (R-T16h)", () => {

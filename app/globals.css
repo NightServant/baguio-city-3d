@@ -301,8 +301,6 @@
   50%      { transform: scale(1.06); opacity: 1; }
 }
 
-.icon-route { animation: icon-route 1.4s linear infinite; }
-.icon-ring  { animation: icon-ring 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 
 /* --- Scroll reveal -------------------------------------------------------
    Sections weave in: the warp edge draws down, then content settles. Driven
