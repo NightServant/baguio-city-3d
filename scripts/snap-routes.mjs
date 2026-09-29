@@ -1,18 +1,24 @@
 // Snaps data/geojson/jeepney-routes.sketch.geojson to the road network,
 // writing data/geojson/jeepney-routes.geojson.
 //
-// Task 24b (owner bug), fix round 1. The six routes are hand-drawn sketches
+// Task 24b (owner bug), fix round 2. The six routes are hand-drawn sketches
 // of 15-17 vertices, straight between them, so they cut across blocks (and
 // Burnham Park). Each route's stops are snapped first via OSRM `nearest` and
 // become MANDATORY waypoints — they are never dropped, so the drawn line
 // always passes through every stop in order. The sketch's other vertices are
 // OPTIONAL shape points, passed through to OSRM's `route` as ordering hints;
-// at most one is dropped per round, and only when the route's own returned
-// geometry shows it causes a real out-and-back (the path comes back close to
-// somewhere it already was, well after leaving it — see detectBacktracks).
+// at most one change is made per round, and only when the route's own
+// returned geometry shows it's needed: either
+//   - a real out-and-back mid-route (the path comes back close to somewhere
+//     it already was, well after leaving it — see detectBacktracks), or
+//   - a stop-tip U-turn, where the line runs up to a mandatory stop and
+//     straight back the way it came rather than continuing to a different
+//     street (see detectStopUturns) — resolved by dropping the shape points
+//     nearest that stop first, then, if none are left, by re-snapping the
+//     stop itself to a different nearby road (see tryResnapStop).
 // If a detour turns out to be bounded only by mandatory stops (no optional
-// point to blame), it is left alone and reported as a finding, not routed
-// around silently.
+// point to blame, and no re-snap removes it), it is left alone and reported
+// as a finding, not routed around or hidden.
 //
 // The sketch is a separate, untouched source file: this script never writes
 // to it, so it's always safe to re-run from scratch.
@@ -48,6 +54,27 @@ const MAX_SKETCH_VERTICES = 50;
 const BACKTRACK_STRAIGHT_M = 10;
 const BACKTRACK_PATH_GAP_M = 150;
 const BACKTRACK_MAX_FRACTION_OF_ROUTE = 0.9;
+
+// Stop-tip U-turn detection (R-24b4): a mid-route stop where the line runs
+// up to it and straight back the way it came, rather than continuing on to
+// a different street. detectBacktracks deliberately ignores this shape (its
+// reachesNewStop guard treats "reaching a mandatory stop" as progress, not a
+// wasted side trip) — this is the separate, narrower check for exactly that
+// case. The spur length is how far outward (in metres of path, both
+// directions at once) the before/after points stay within
+// STOP_UTURN_STRAIGHT_M of each other; STOP_UTURN_MIN_M is the flag
+// threshold (a short turnaround right at the stop isn't a defect).
+const STOP_UTURN_STRAIGHT_M = 15;
+const STOP_UTURN_MIN_M = 50;
+const STOP_UTURN_STEP_M = 3;
+
+// R-24b4 step 2b: when a stop-tip U-turn has no optional shape point left
+// to blame (its immediate neighbours in the waypoint list are other
+// mandatory stops), try re-snapping the stop itself to one of OSRM's next
+// few nearest road candidates instead — but only within this far of the
+// stop's original hand-drawn (raw) coordinate, so a re-snap can't wander
+// the stop somewhere unrecognizable just to satisfy the shape check.
+const STOP_RESNAP_MAX_FROM_RAW_M = 60;
 
 // Secondary "disproportionate detour" signal (excessCandidates): brief's
 // "out-and-back spur longer than about 150 m", applied to how much more an
@@ -150,6 +177,13 @@ async function osrmNearest([lng, lat]) {
   return body.waypoints[0];
 }
 
+/** Up to `count` nearest-road candidates for a raw coordinate, nearest first. */
+async function osrmNearestCandidates([lng, lat], count) {
+  const url = `${OSRM}/nearest/v1/driving/${lng},${lat}?number=${count}`;
+  const body = await throttledFetchJson(url);
+  return body.waypoints;
+}
+
 // ---------------------------------------------------------------------------
 // Backtrack detection on the route's own returned geometry
 // ---------------------------------------------------------------------------
@@ -210,6 +244,46 @@ export function detectBacktracks(geometry, mandatoryGeomIndices) {
   return episodes;
 }
 
+/** Index of the geometry vertex whose cumulative arc position is closest to `target`. */
+function indexAtArc(arc, target) {
+  if (target <= arc[0]) return 0;
+  if (target >= arc[arc.length - 1]) return arc.length - 1;
+  for (let i = 1; i < arc.length; i++) {
+    if (arc[i] >= target) return target - arc[i - 1] <= arc[i] - target ? i - 1 : i;
+  }
+  return arc.length - 1;
+}
+
+/**
+ * Finds stop-tip out-and-back spurs: for every mandatory stop that isn't the
+ * route's first or last, walks outward from its geometry index along the
+ * arc in both directions at once. The spur length is the largest distance d
+ * (metres) for which the point d before the stop and the point d after it
+ * are still within STOP_UTURN_STRAIGHT_M of each other — i.e. how far the
+ * approach and departure legs run right on top of each other before finally
+ * diverging onto different streets. A stop is flagged when that spur length
+ * reaches STOP_UTURN_MIN_M. `stopGeomIdx` is each stop's geometry index, in
+ * seq order (see waypointGeomIndices).
+ */
+export function detectStopUturns(geometry, stopGeomIdx) {
+  const arc = cumulativeArc(geometry);
+  const total = arc[arc.length - 1];
+  const found = [];
+
+  for (let k = 1; k < stopGeomIdx.length - 1; k++) {
+    const centerArc = arc[stopGeomIdx[k]];
+    let spurM = 0;
+    for (let d = STOP_UTURN_STEP_M; centerArc - d >= 0 && centerArc + d <= total; d += STOP_UTURN_STEP_M) {
+      const before = geometry[indexAtArc(arc, centerArc - d)];
+      const after = geometry[indexAtArc(arc, centerArc + d)];
+      if (haversineM(before, after) > STOP_UTURN_STRAIGHT_M) break;
+      spurM = d;
+    }
+    if (spurM >= STOP_UTURN_MIN_M) found.push({ stopIdx: k, geomIdx: stopGeomIdx[k], spurM });
+  }
+  return found;
+}
+
 /**
  * Maps each waypoint to the index of its closest point on the route's
  * geometry, searching forward only (waypoints occur in order along it).
@@ -266,6 +340,18 @@ async function buildWaypointPlan(feature) {
     return stop ? { coord: stop.coord, mandatory: true, stop } : { coord: raw, mandatory: false };
   });
 
+  // R-24b4 step 4: a stop that never matched a sketch vertex would silently
+  // fall out of the plan (never mandatory, so it could be dropped like any
+  // other shape point) — fail loudly instead of letting a future edit to
+  // the sketch or the stop list drop a stop unnoticed.
+  for (const s of snappedStops) {
+    if (!plan.some((entry) => entry.stop === s)) {
+      throw new Error(
+        `${p.code}: stop "${s.name}" (seq ${s.seq}) has no matching vertex in the sketch coordinates`,
+      );
+    }
+  }
+
   return { plan, snappedStops };
 }
 
@@ -309,11 +395,95 @@ async function excessCandidates(active, legs) {
   return out;
 }
 
+/**
+ * One geometry index per DISTINCT stop, in seq order, using each stop's
+ * first occurrence in `active`. PLZ-SES ("Cathedral Loop") closes back at
+ * its own terminal, so that terminal's coordinate matches two entries in
+ * `active` (the route's start AND its physical end) — both mandatory, both
+ * pointing at the same shared stop object. Counting that stop twice would
+ * make Harrison Road (the loop's actual last NAMED stop) look like a
+ * mid-route stop to detectStopUturns, and flag its ordinary deadhead return
+ * to the terminal as a defect. This matches how the committed GeoJSON's own
+ * `stops` list (and the test that reads it) sees stops — each one once —
+ * so the script's own R-24b4 signal checks exactly what the test checks.
+ */
+function stopOnlyGeomIndices(active, geomIdx) {
+  const seen = new Set();
+  const out = [];
+  for (let wi = 0; wi < active.length; wi++) {
+    if (!active[wi].mandatory || seen.has(active[wi].stop)) continue;
+    seen.add(active[wi].stop);
+    out.push(geomIdx[wi]);
+  }
+  return out;
+}
+
+// How many OSRM `nearest` candidates to consider when re-snapping a stop
+// (R-24b4 step 2b).
+const STOP_RESNAP_CANDIDATE_COUNT = 5;
+
+/**
+ * R-24b4 step 2b: a stop-tip U-turn survives with no optional waypoint
+ * nearby to blame — try moving the stop itself to a different nearby road.
+ * Asks OSRM `nearest` for up to STOP_RESNAP_CANDIDATE_COUNT candidates near
+ * the stop's original (raw, hand-drawn) coordinate, and accepts the first
+ * one within STOP_RESNAP_MAX_FROM_RAW_M of that raw coordinate whose
+ * resulting route no longer shows a U-turn at this stop's position. Mutates
+ * the shared stop object in place (coord/moveM/roadName) so the change
+ * reaches every place that reads it (the plan, the printed stop-move
+ * report, the final GeoJSON), and returns a log entry — or null if none of
+ * the candidates fix it.
+ */
+async function tryResnapStop(active, stopWi) {
+  const w = active[stopWi];
+  const stop = w.stop;
+  // Dedup'd stop index (see stopOnlyGeomIndices) — this stop's own position
+  // among DISTINCT stops, not a raw count of mandatory waypoints (which
+  // would double-count a loop's terminal).
+  const seenBefore = new Set();
+  for (let wi = 0; wi < stopWi; wi++) if (active[wi].mandatory) seenBefore.add(active[wi].stop);
+  const stopIndex = seenBefore.size;
+  const candidates = await osrmNearestCandidates(stop.rawCoord, STOP_RESNAP_CANDIDATE_COUNT);
+
+  for (const wp of candidates) {
+    if (wp.distance > STOP_RESNAP_MAX_FROM_RAW_M) continue;
+    const candidateCoord = [round5(wp.location[0]), round5(wp.location[1])];
+    if (coordsEqual(candidateCoord, stop.coord)) continue;
+
+    const trial = active.slice();
+    trial[stopWi] = { ...w, coord: candidateCoord };
+    const trialRoute = await osrmRoute(trial.map((x) => x.coord));
+    const trialGeomIdx = waypointGeomIndices(trialRoute.geometry.coordinates, trial.map((x) => x.coord));
+    const trialUturns = detectStopUturns(trialRoute.geometry.coordinates, stopOnlyGeomIndices(trial, trialGeomIdx));
+    const stillBad = trialUturns.some((u) => u.stopIdx === stopIndex);
+    if (stillBad) continue;
+
+    const fromCoord = stop.coord;
+    stop.coord = candidateCoord;
+    stop.moveM = wp.distance;
+    stop.roadName = wp.name || null;
+    active[stopWi].coord = candidateCoord;
+    return {
+      stopName: stop.name,
+      fromCoord,
+      toCoord: candidateCoord,
+      moveFromRawM: Math.round(wp.distance * 10) / 10,
+      roadName: wp.name || null,
+    };
+  }
+  return null;
+}
+
 async function snapRoute(code, planIn) {
   let active = planIn.slice();
   const droppedOptional = [];
   const mandatoryDetourFindings = [];
-  const maxRounds = active.filter((w) => !w.mandatory).length + 1;
+  const stopUturnFindings = [];
+  const stopResnaps = [];
+  // Bounded loosely: each round makes at most one change (drop an optional
+  // waypoint, or re-snap one stop), so this can never exceed the number of
+  // waypoints there are to act on, plus slack for the mixed drop/resnap case.
+  const maxRounds = active.length + 5;
 
   for (let round = 0; round < maxRounds; round++) {
     const route = await osrmRoute(active.map((w) => w.coord));
@@ -321,10 +491,11 @@ async function snapRoute(code, planIn) {
     const mandatoryGeomIdx = geomIdx.filter((_, wi) => active[wi].mandatory);
 
     const backtracks = detectBacktracks(route.geometry.coordinates, mandatoryGeomIdx);
+    const stopUturns = detectStopUturns(route.geometry.coordinates, stopOnlyGeomIndices(active, geomIdx));
 
     // Signal 1: waypoints implicated in a detected backtrack episode.
     let worst = null; // { wi, score, why }
-    const unresolved = [];
+    const unresolvedBacktracks = [];
     for (const bt of backtracks) {
       // Bounding waypoints: last waypoint at/before bt.i, first waypoint at/after bt.j.
       let loW = 0;
@@ -337,7 +508,7 @@ async function snapRoute(code, planIn) {
         if (active[wi] && !active[wi].mandatory) candidates.push(wi);
       }
       if (candidates.length === 0) {
-        unresolved.push(bt);
+        unresolvedBacktracks.push(bt);
         continue;
       }
       for (const wi of candidates) {
@@ -367,30 +538,82 @@ async function snapRoute(code, planIn) {
       }
     }
 
-    if (!worst) {
-      for (const bt of unresolved) {
-        mandatoryDetourFindings.push({
-          code,
-          pathGapM: Math.round(bt.pathGapM),
-          nearCoord: route.geometry.coordinates[bt.i],
-        });
+    // Signal 3 (R-24b4): stop-tip U-turns — the line runs up to a stop and
+    // straight back the way it came. Not a backtrack episode by signal 1's
+    // rule (reaching the stop counts as progress there), so it's detected
+    // separately. Resolved the same way as the others: the optional shape
+    // points immediately on either side of the stop (its neighbours in the
+    // waypoint list, before any of them get dropped) are drop candidates,
+    // worst detour first. A stop with no optional neighbour left on either
+    // side has nothing here to drop — it falls through to the re-snap
+    // fallback below instead.
+    const unresolvedStopUturns = [];
+    for (const su of stopUturns) {
+      const stopWi = active.findIndex((w, wi) => w.mandatory && geomIdx[wi] === su.geomIdx);
+      if (stopWi === -1) continue;
+      const neighborWis = [];
+      for (let wi = stopWi - 1; wi >= 0 && !active[wi].mandatory; wi--) neighborWis.push(wi);
+      for (let wi = stopWi + 1; wi < active.length && !active[wi].mandatory; wi++) neighborWis.push(wi);
+      if (neighborWis.length === 0) {
+        unresolvedStopUturns.push({ su, stopWi });
+        continue;
       }
-      return { route, active, droppedOptional, mandatoryDetourFindings };
+      for (const wi of neighborWis) {
+        const score = detourScore(active, route.legs, wi);
+        if (!worst || score > worst.score) {
+          worst = {
+            wi,
+            score,
+            why: `stop-tip U-turn: the line reaches this stop and doubles back the way it came (spur ${Math.round(su.spurM)} m)`,
+          };
+        }
+      }
     }
 
-    droppedOptional.push({
-      code,
-      coord: active[worst.wi].coord,
-      excessM: Math.round(worst.score),
-      reason: `${worst.why} (detour cost +${Math.round(worst.score)} m > ${SPUR_THRESHOLD_M} m threshold)`,
-    });
-    active.splice(worst.wi, 1);
+    if (worst) {
+      droppedOptional.push({
+        code,
+        coord: active[worst.wi].coord,
+        excessM: Math.round(worst.score),
+        reason: `${worst.why} (detour cost +${Math.round(worst.score)} m > ${SPUR_THRESHOLD_M} m threshold)`,
+      });
+      active.splice(worst.wi, 1);
+      continue;
+    }
+
+    // No optional waypoint anywhere left to drop. Try the R-24b4 step 2b
+    // fallback for any stop-tip U-turn that has none: re-snap the stop
+    // itself. Worst (longest) spur first; only one resolved change per
+    // round, same as a drop.
+    unresolvedStopUturns.sort((a, b) => b.su.spurM - a.su.spurM);
+    let resnapped = null;
+    for (const { stopWi } of unresolvedStopUturns) {
+      resnapped = await tryResnapStop(active, stopWi);
+      if (resnapped) {
+        stopResnaps.push({ code, ...resnapped });
+        break;
+      }
+    }
+    if (resnapped) continue;
+
+    // Nothing left to try for anything still unresolved: report, don't hide.
+    for (const bt of unresolvedBacktracks) {
+      mandatoryDetourFindings.push({
+        code,
+        pathGapM: Math.round(bt.pathGapM),
+        nearCoord: route.geometry.coordinates[bt.i],
+      });
+    }
+    for (const { su, stopWi } of unresolvedStopUturns) {
+      stopUturnFindings.push({ code, stopName: active[stopWi].stop.name, spurM: Math.round(su.spurM) });
+    }
+    return { route, active, droppedOptional, mandatoryDetourFindings, stopUturnFindings, stopResnaps };
   }
 
-  // Exhausted rounds (shouldn't happen: each round removes one optional
-  // waypoint) — return whatever the last request produced.
+  // Exhausted rounds (shouldn't happen: each round makes exactly one
+  // change) — return whatever the last request produced.
   const route = await osrmRoute(active.map((w) => w.coord));
-  return { route, active, droppedOptional, mandatoryDetourFindings };
+  return { route, active, droppedOptional, mandatoryDetourFindings, stopUturnFindings, stopResnaps };
 }
 
 // ---------------------------------------------------------------------------
@@ -413,7 +636,8 @@ async function main() {
     const straightBeforeM = pathLengthM(sketchCoords);
 
     const { plan, snappedStops } = await buildWaypointPlan(f);
-    const { route, active, droppedOptional, mandatoryDetourFindings } = await snapRoute(p.code, plan);
+    const { route, active, droppedOptional, mandatoryDetourFindings, stopUturnFindings, stopResnaps } =
+      await snapRoute(p.code, plan);
 
     const snappedCoords = route.geometry.coordinates.map(([lng, lat]) => [round5(lng), round5(lat)]);
     f.geometry.coordinates = snappedCoords;
@@ -429,12 +653,26 @@ async function main() {
       if (best > maxStopToLineM) maxStopToLineM = best;
     }
 
+    // detectStopUturns needs each stop's own geometry index (not the
+    // optional shape points), same as the script used while resolving.
+    const finalStopGeomIdx = waypointGeomIndices(
+      snappedCoords,
+      snappedStops.map((s) => s.coord),
+    );
+    const stopUturns = detectStopUturns(snappedCoords, finalStopGeomIdx).map((u) => ({
+      stopName: snappedStops[u.stopIdx].name,
+      spurM: Math.round(u.spurM),
+    }));
+
     report.push({
       code: p.code,
       waypointCountBefore: sketchCoords.length,
       waypointCountAfter: active.length,
       droppedOptional,
       mandatoryDetourFindings,
+      stopUturnFindings,
+      stopResnaps,
+      stopUturns,
       snappedVertexCount: snappedCoords.length,
       lengthBeforeKm: straightBeforeM / 1000,
       lengthAfterKm: route.distance / 1000,
@@ -469,6 +707,18 @@ async function main() {
         `    FINDING: a mandatory stop forces a detour near [${m.nearCoord}] (path-gap ${m.pathGapM} m) — left as-is, not routed around`,
       );
     }
+    for (const rs of r.stopResnaps) {
+      console.log(
+        `    re-snapped ${rs.stopName}: [${rs.fromCoord}] -> [${rs.toCoord}] (${rs.moveFromRawM} m from raw` +
+          (rs.roadName ? `, ${rs.roadName}` : "") +
+          `) to remove its stop-tip U-turn`,
+      );
+    }
+    for (const f of r.stopUturnFindings) {
+      console.log(
+        `    FINDING: stop-tip U-turn at ${f.stopName} (${f.spurM} m) survives — no optional point or re-snap removed it`,
+      );
+    }
     console.log(`  snapped vertex count: ${r.snappedVertexCount}`);
     console.log(
       `  length: ${r.lengthBeforeKm.toFixed(2)} km straight -> ${r.lengthAfterKm.toFixed(2)} km road`,
@@ -485,6 +735,11 @@ async function main() {
           (sm.moveM > 60 ? "  <-- over 60 m" : ""),
       );
     }
+    console.log(
+      r.stopUturns.length
+        ? `  stop-tip U-turns remaining: ${r.stopUturns.map((u) => `${u.stopName} (${u.spurM} m)`).join(", ")}`
+        : `  stop-tip U-turns remaining: none`,
+    );
   }
 }
 
