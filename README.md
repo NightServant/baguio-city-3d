@@ -1,141 +1,130 @@
 <p align="center">
-  <img src="app/icon.svg" alt="Baguio 3D pine mark — a white pine tree on a pine-green rounded square" width="72" height="72"/>
+  <img src="app/icon.svg" alt="Baguio 3D mark: a bone pine tree on a madder square" width="72" height="72"/>
 </p>
 
 <h1 align="center">Baguio 3D</h1>
 
-<p align="center"><em>The Summer Capital, in three dimensions.</em></p>
+<p align="center"><em>Baguio City, mapped in 3D.</em></p>
 
-An interactive 3D map and field guide to Baguio City — the Summer Capital of the Philippines. Fly over pine-forest terrain rendered from real elevation data, trace jeepney routes from the City Plaza terminal, walk four eras of hill-station history on a timeline, and browse where to eat and stay, all pinned to one 3D map.
+An interactive 3D map and field guide to Baguio City, the Summer Capital of the Philippines. Fly over the city's real terrain, board the right jeepney, check what's open, and read the city's past, all on one map.
 
 ## Overview
 
-Baguio sits a mile up in the Cordilleras, and flat maps don't do it justice. This project renders the city's actual terrain in the browser (MapLibre GL over AWS Terrarium elevation tiles), then layers the city's story on top: 22 destinations with elevations and coordinates, 6 jeepney lines with a fare calculator, a four-era history timeline from Ibaloi Kafagway to today's Creative City, and 30 restaurants, cafés, and lodges with hours and price ranges.
+Baguio sits about 1,500 m up in the Cordillera, and a flat map hides the hills. This site renders the real terrain in the browser (MapLibre GL over AWS Terrarium elevation tiles) and layers the city on top:
 
-Geospatial data lives in PostgreSQL/PostGIS and is served through Next.js route handlers with Redis caching; the content pages are statically rendered from curated GeoJSON. No map API keys or paid accounts are required — tiles come from OpenFreeMap and terrain from the AWS Open Data Terrarium set.
+- 22 destinations with DEM-checked elevations
+- 6 jeepney routes that follow the roads, with their stops and a fare estimate
+- 30 places to eat and stay, with hours where they're posted
+- a four-era history timeline with 17 events pinned to the map
+
+Geodata lives in PostgreSQL + PostGIS (hosted on Supabase) and is served through Next.js route handlers with Redis caching. Content pages are statically rendered. No map API keys are needed: the basemap comes from OpenFreeMap and the terrain from AWS Open Data.
 
 ## Features
 
-- **3D terrain map** — real elevation, tilt and rotation controls, camera presets for Burnham Park, Session Road, Mines View, Camp John Hay, and Kennon Road, plus a satellite imagery toggle
-- **Destinations layer** — viewport-driven markers with clustering, category and era filters, and a detail sheet with elevation readouts and deep links (`/map?dest=...`)
-- **Jeepney transit** — 6 routes with stops drawn on the map, route highlighting, and a fare calculator using the ₱13 first-4-km flag-down rules (taxi estimates included)
-- **History timeline** — four eras (Ibaloi pasture → American hill station → wartime → Creative City) with a scrubber that flies the camera to each event's location
-- **Eat & stay directory** — carinderias to heritage hotels, with open-now badges, price-range glyphs, amenities, and map pins
-- **Field-notes design system** — Fraunces display type, Geist Mono "survey readout" labels, an oklch pine-and-fog palette, and custom contour/treeline/fog atmosphere art
-- **Finished-state UX** — skeleton loaders that mirror layout, composed empty and error states, keyboard navigation with visible focus rings, Escape-to-close panels, reduced-motion-aware camera and animations, skip-to-content link
-- **Shareable** — branded Open Graph card, SVG favicon and apple icon generated from the pine mark
+- **Homepage.** A hero with a live-map still, a proof strip of what the map is made of, and a three.js wireframe of the terrain. A carousel steers a live 3D map to each place. It ends with a native `<details>` FAQ and a closing call to action over parallax ridgelines.
+- **3D map (`/map`).** Real elevation with 1.35× exaggeration, tilt and rotation, camera presets and a satellite toggle. The OpenFreeMap basemap is re-dyed into the site's palette, with hillshade relief. Destination markers, route highlighting and deep links (`/map?dest=…`, `/map?route=…`) are included.
+- **Jeepneys (`/transit`).** Six routes from the City Plaza. The lines were snapped to real roads with OSRM from a hand sketch (`scripts/snap-routes.mjs`). Stops the sketch put off the road were moved onto it, and tests guard that no line doubles back. One exception remains: the Km 4 stop on the La Trinidad line awaits a local check. Each fare shows where it came from:
+  - The modern PUJ fare follows the LTFRB guide effective 2026-03-19.
+  - Traditional and taxi fares are marked "not yet checked".
+  - Distance is straight-line.
+- **Eat and stay, destinations, history.** Open-now badges in Baguio time, price glyphs, a scrubbable history timeline that flies the camera to each event, and per-destination pages with "Getting here" links.
+- **Corrections (`/corrections`).** Visitors report wrong data through a form stored in Supabase. The optional reply email is cleared by a daily `pg_cron` job once the report is resolved, or after 90 days.
+- **Light and dark.** The dark theme is ube, not black. The toggle recolours the whole site live: chrome, basemap, sky and wireframe. The choice follows the system until changed.
+- **Privacy.** Google Analytics 4 loads only after an explicit consent choice, which can be changed at any time. The privacy and terms pages (`/privacy`, `/terms`) and `/about` list every data source.
+- **SEO and sharing.** Canonical URLs, a sitemap and robots.txt, JSON-LD structured data, and generated Open Graph and apple icons.
+- **Accessibility.** Visible focus rings, a skip link, labelled carousel controls, reduced-motion paths for every animation and camera move, and no layout overflow at 360 px.
 
 ## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Framework | [Next.js 16](https://nextjs.org) (App Router) · React 19 · TypeScript 5 |
-| Map engine | [MapLibre GL JS 5](https://maplibre.org) · [OpenFreeMap](https://openfreemap.org) vector tiles · AWS Terrarium terrain DEM |
-| Styling | Tailwind CSS v4 · shadcn/ui on Base UI · tw-animate-css |
-| Database | PostgreSQL + [PostGIS](https://postgis.net) — local via Docker (16/3.4) or hosted on [Supabase](https://supabase.com) (17/3.3) · Prisma 7 (`@prisma/adapter-pg`, raw SQL for spatial queries) |
+| Framework | [Next.js 16](https://nextjs.org) (App Router), React 19, TypeScript 5 |
+| Map | [MapLibre GL JS 5](https://maplibre.org), [OpenFreeMap](https://openfreemap.org) vector tiles, AWS Terrarium terrain |
+| 3D | three.js (homepage terrain wireframe) |
+| UI | Tailwind CSS 4, MUI 9 (themed flat and square), Swiper, lucide-react |
+| Database | PostgreSQL + [PostGIS](https://postgis.net) on [Supabase](https://supabase.com), or local via Docker; Prisma 7 with raw SQL for spatial queries |
 | Cache | Redis 7 via ioredis |
-| Geospatial | Turf.js · curated GeoJSON in `data/geojson` |
-| State | zustand |
-| Fonts | Fraunces · Inter · Geist Mono (via `next/font`) |
+| Geospatial | Turf.js, curated GeoJSON in `data/geojson` |
+| Analytics | GA4 via `@next/third-parties`, consent-gated |
+| Tests | Vitest (unit), Playwright (desktop + Pixel 7) |
+| Hosting | Vercel |
 
-## Brand
+## Design: Cordillera Weave
 
-The identity reads like field notes from a hill station: Fraunces for display headlines, Inter for body text, and Geist Mono for the uppercase "survey readout" voice used on coordinates, elevations, fares, and years.
+The identity borrows from Cordillera backstrap weaving: an undyed bone ground, warp-thread text, and madder red as the only accent. There is no green anywhere, parks included. Surfaces are flat, corners are square (0.125 rem), and woven edges replace shadows. One type family, Archivo, uses its width axis to do the work of a display face. Geist Mono is used only for numeric readouts such as elevations.
 
-### Color palette
+![Cordillera Weave palette, light and dark](docs/brand-palette.svg)
 
-![Baguio 3D field palette — pine, ink, fog white, fog gray, mist, amber, night pine, moonlit pine](docs/brand-palette.svg)
-
-Pine green carries the brand; fog-tinted cool neutrals ground it; a single amber is the sparing accent. All colors are defined as oklch tokens in [`app/globals.css`](app/globals.css) — components consume semantic tokens (`primary`, `secondary`, `accent`, …), so the theme can be retuned in one place.
-
-| Token | Role | OKLCH | Hex |
-|---|---|---|---|
-| Pine | `--primary` (light) | `oklch(0.40 0.068 160)` | `#21533b` |
-| Ink | `--foreground` | `oklch(0.24 0.021 158)` | `#17221b` |
-| Fog white | `--background` | `oklch(0.98 0.008 152)` | `#f5faf6` |
-| Fog gray | `--secondary` | `oklch(0.945 0.014 155)` | `#e6f0e9` |
-| Mist | `--muted-foreground` | `oklch(0.50 0.021 155)` | `#5a675e` |
-| Amber | `--amber` accent | `oklch(0.70 0.14 66)` | `#d88a2c` |
-| Night pine | `--background` (dark) | `oklch(0.19 0.018 160)` | `#0d1611` |
-| Moonlit pine | `--primary` (dark) | `oklch(0.70 0.10 152)` | `#6db07f` |
-
-### Brand icon
-
-The pine mark is the single logo element, drawn once in [`components/site/PineMark.tsx`](components/site/PineMark.tsx) and reused everywhere it appears:
-
-- [`app/icon.svg`](app/icon.svg) — favicon: the mark in fog white on a pine rounded square
-- [`app/apple-icon.tsx`](app/apple-icon.tsx) — 180×180 home-screen icon, generated at build time
-- [`app/opengraph-image.tsx`](app/opengraph-image.tsx) — 1200×630 share card: the mark in amber over night pine with contour-line texture
+Tokens live in [`app/globals.css`](app/globals.css), with the dark theme under `[data-theme="dark"]`. MUI reads the same values from [`app/theme.ts`](app/theme.ts), and [`components/map/basemapTheme.ts`](components/map/basemapTheme.ts) holds the map's day and night palettes. Copy rules: sentence case; no em dashes, no " · " separators, no arrows in link text.
 
 ## Local setup
 
-**Prerequisites:** Node.js 20+, Docker Desktop (for PostGIS and Redis), npm.
+**Prerequisites:** Node.js 20+, npm, and Docker Desktop (only for the local database option).
 
 ```bash
-# 1. Clone and install
-git clone https://github.com/<your-username>/baguio-city-3d.git
+git clone https://github.com/NightServant/baguio-city-3d.git
 cd baguio-city-3d
-npm install
+npm install              # run again after pulling changes to package.json
+cp .env.example .env     # defaults match docker-compose.yml
 
-# 2. Environment — defaults match docker-compose.yml, no API keys needed
-cp .env.example .env
-
-# 3. Start PostGIS + Redis
-docker compose up -d
-
-# 4. Create the schema and seed destinations, routes, venues, and history
+docker compose up -d     # PostGIS + Redis
 npx prisma migrate dev
 npx prisma db seed
 
-# 5. Run the dev server
-npm run dev
+npm run dev              # http://localhost:3000, map at /map
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — the 3D map lives at [/map](http://localhost:3000/map).
+The content pages render without the database. The map's data layers (`/api/geo/*`, `/api/venues`) need it, so if markers or routes don't load, check `docker compose ps` first.
 
-> **Note:** the content pages render without the database, but the map's data layers (`/api/geo/*`, `/api/venues`) return 500s if Docker isn't running. If markers or routes fail to load, check `docker compose ps` first.
+### Environment
 
-### Using Supabase instead of local Postgres
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` / `DIRECT_URL` | Pooled runtime and direct migration connections (see `.env.example`) |
+| `REDIS_URL` | Cache; the app degrades gracefully if it's unreachable |
+| `NEXT_PUBLIC_SITE_URL` | Canonical origin; on Vercel, leave unset to use the production URL |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | Shown in the footer and privacy policy; hidden while unset |
+| `NEXT_PUBLIC_GA_ID` | GA4 measurement ID; analytics stays off while unset |
 
-The schema is also deployed to a hosted Supabase project (PostGIS 3.3 on Postgres 17), managed with the Supabase CLI. Migrations live in [`supabase/migrations`](supabase/migrations) and mirror the Prisma migration exactly.
+### Supabase
+
+The hosted project runs Postgres 17 with PostGIS 3.3. Migrations live in [`supabase/migrations`](supabase/migrations).
 
 ```bash
-# 1. Authenticate and link the CLI to the project
 supabase login
 supabase link --project-ref tnqeqtcjtridhjbcdlbe
-
-# 2. Apply schema + seed data. Both authenticate with the CLI access token —
-#    no database password needed.
-supabase db push --include-seed
-
-# 3. Create the app's read-only login role (writes supabase/roles.sql, gitignored)
-supabase db push --include-roles
-
-# 4. Point the app at Supabase — see .env.example for the URL shapes.
-#    DATABASE_URL = pooled (6543) for runtime; DIRECT_URL = direct (5432) for
-#    migrations.
+supabase db push --include-seed    # schema + data
+supabase db push --include-roles   # app login role (writes supabase/roles.sql)
 ```
 
-The app connects as `baguio_app`, a least-privilege role with `SELECT` and a read policy per table — not as `postgres`. The role and its password are created by `supabase/roles.sql`, which is gitignored because it contains a secret; regenerate it rather than sharing it. Using a non-owner role means RLS genuinely applies to the app, which is why the read policies in the third migration exist.
+- **Least privilege.** The app connects as `baguio_app`, with read grants and RLS read policies per table and insert access to `corrections`. It never connects as `postgres`. `supabase/roles.sql` holds that role's password, so it is gitignored; regenerate it rather than sharing it.
+- **No Data API.** RLS is on for every table, the PostgREST roles are revoked, and the project's Data API is off.
+- **Seed file.** `supabase/seed.sql` is generated from `data/geojson` by `npm run seed:supabase:generate`. Don't edit it by hand.
+- **Data fixes.** Corrections to existing data ship as migrations, for example corrected elevations, road-snapped routes and Burnham's 1905 plan date. After one changes route geometry, flush the Redis `geo/transit/routes*` keys.
+- **PostGIS lives in `public`,** so the same SQL runs on Supabase and on local Docker. Supabase's linter flags `extension_in_public` for this. The objects it flags are owned by `supabase_admin` and expose only EPSG reference data.
+- **Redis is separate.** It isn't part of Supabase; use the docker-compose service or any managed Redis.
 
-`supabase/seed.sql` is generated from `data/geojson` by `npm run seed:supabase:generate` — regenerate it rather than editing it by hand. It exists alongside `prisma/seed.ts` because the two need different credentials: the Prisma seeder requires `DATABASE_URL` (the database password), while the CLI seeder needs only the access token. If you do have `DATABASE_URL` set, `npx prisma migrate resolve --applied 20260711000000_init && npx prisma db seed` is equivalent.
-
-`supabase db push` applies any new local migration to the hosted project; `supabase migration new <name>` starts one.
-
-Two things worth knowing about this setup:
-
-- **PostGIS is installed in `public`**, not Supabase's `extensions` schema, so the unqualified `geometry(...)` columns and `ST_*` calls behave identically on Supabase and on local Docker. The trade-off is that Supabase's database linter reports `extension_in_public`, plus findings on PostGIS's own `spatial_ref_sys` table and `st_estimatedextent` function. Those objects are owned by `supabase_admin` and cannot be revoked by the project's `postgres` role. They expose only public EPSG reference data, not application data.
-- **Row Level Security is enabled on all nine app tables with no policies.** The app reaches Postgres directly through Prisma, which bypasses RLS, so this costs nothing at runtime while closing the auto-generated PostgREST API — verified: the `anon` role reads zero rows from tables that `postgres` reads normally.
-- **Redis is not part of Supabase.** Keep the `redis` service from docker-compose, or point `REDIS_URL` at any managed Redis.
-
-### Useful commands
+### Commands
 
 ```bash
-npm run build      # production build
-npm run lint       # eslint
-npx prisma studio  # inspect the database
+npm run build       # production build
+npm run lint        # eslint
+npm test            # Vitest unit tests
+npm run test:e2e    # Playwright: builds and serves on port 3100
+npx prisma studio   # inspect the database
 ```
+
+### Data scripts
+
+- `scripts/snap-routes.mjs` snaps `data/geojson/jeepney-routes.sketch.geojson` to the road network with the public OSRM demo, at most 1 request per second. It writes `jeepney-routes.geojson` and logs every stop it moves.
+- `scripts/generate-supabase-seed.mjs` regenerates `supabase/seed.sql` from the GeoJSON, with deterministic UUID v5 ids.
+- `scripts/capture-map-posters.mjs` captures the homepage map stills.
+- `scripts/baguio-dem-probe.py` and `scripts/fix-elevations.py` sample the Terrarium DEM. They produced the corrected destination elevations.
 
 ## Data notes
 
-Destination, route, venue, and history content is curated for this project from public sources; fares reflect the LTFRB flag-down rates at the time of writing. Terrain © Mapzen/Tilezen via AWS Open Data; basemap © OpenMapTiles/OpenStreetMap contributors.
+Content is curated from public sources, and every one is listed on `/about`. Fares state their source and date; unverified fares say so. Jeepney lines follow the roads between stops, but the jeepney's exact path can differ. Terrain: Mapzen / Tilezen via AWS Open Data. Basemap: OpenFreeMap, © OpenStreetMap contributors.
+
+## Roadmap
+
+A Blender-authored 3D model of Baguio is planned. It covers photoreal landmark meshes rendered through a MapLibre custom layer, georeferenced on the live terrain; see [`docs/baguio-3d-model-plan.md`](docs/baguio-3d-model-plan.md).
