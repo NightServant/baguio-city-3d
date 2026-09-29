@@ -41,19 +41,14 @@ export function SiteFooter() {
               ))}
             </ul>
           </nav>
-          <div className="space-y-3">
-            <h2 className="text-sm font-medium">Contact</h2>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/corrections" className={link}>Suggest a correction</Link>
-              </li>
-              {CONTACT_EMAIL ? (
-                <li>
-                  <a href={`mailto:${CONTACT_EMAIL}`} className={link}>{CONTACT_EMAIL}</a>
-                </li>
-              ) : null}
-            </ul>
-          </div>
+          {/* "Suggest a correction" left the footer: its one button is in the
+              homepage's closing section (owner, 2026-09-29). */}
+          {CONTACT_EMAIL ? (
+            <div className="space-y-3">
+              <h2 className="text-sm font-medium">Contact</h2>
+              <a href={`mailto:${CONTACT_EMAIL}`} className={link}>{CONTACT_EMAIL}</a>
+            </div>
+          ) : null}
         </div>
         <div className="border-t border-border/60">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 text-xs text-muted-foreground sm:px-6">
