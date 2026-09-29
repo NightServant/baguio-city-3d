@@ -67,26 +67,24 @@ const PACDAL_STOP_NAME = "Pacdal Rotunda";
 const PACDAL_MAX_START_DIST_M = 30;
 const PACDAL_MAX_PATH_GAP_M = 500;
 
-// Stop-tip U-turn pins (R-24b4 step 3): [route code, stop name, max spur
-// length in metres]. A route/stop pair not listed here must have zero
-// stop-tip U-turns of 50 m or more (detectStopUturns' own flag threshold).
-// scripts/snap-routes.mjs' resolution loop (drop the nearest optional shape
-// points, then re-snap the stop to another nearby road within 60 m of its
-// raw coordinate) could not remove these seven — every one of them is a
-// stop whose nearest road is genuinely a dead-end/side road relative to the
-// trunk that connects its neighbouring stops, not a shape-point artifact
-// (see task-24b-report.md, "Fix round 2"). The three PLZ-LTR and three
-// PLZ-AUR entries are each 150+ m and escalated per R-24b4 step 7 — the
-// controller decides with the owner whether the stop or the trunk road is
-// wrong; PLZ-MVP's Leonard Wood Road is 84 m, under the escalation bar.
+// Stop-tip U-turn pins: [route code, stop name, max spur length in metres].
+// A route/stop pair not listed here must have zero stop-tip U-turns of 50 m or
+// more (detectStopUturns' own flag threshold).
+//
+// R-24b5 ("move stops onto the main road"): scripts/snap-routes.mjs
+// (moveStopsToTrunk) routes each still-flagged stop's stretch without the
+// stop to get the trunk, projects the stop's raw sketch coordinate onto it,
+// and re-routes. Aurora Hill Proper moved (116 m) and is no longer pinned.
+// The stops below would have had to move more than 150 m (the ruling's cap),
+// so they were NOT moved and keep their current behaviour and pin, awaiting
+// the owner's decision.
 const PINNED_STOP_UTURNS: { code: string; stopName: string; maxM: number }[] = [
-  { code: "PLZ-MVP", stopName: "Leonard Wood Road", maxM: 84 },
-  { code: "PLZ-LTR", stopName: "Km 4", maxM: 2133 },
-  { code: "PLZ-LTR", stopName: "Km 5 Pico", maxM: 882 },
-  { code: "PLZ-LTR", stopName: "La Trinidad Trading Post", maxM: 516 },
-  { code: "PLZ-AUR", stopName: "Otek Street", maxM: 369 },
-  { code: "PLZ-AUR", stopName: "Bonifacio Street", maxM: 408 },
-  { code: "PLZ-AUR", stopName: "Aurora Hill Proper", maxM: 174 },
+  { code: "PLZ-MVP", stopName: "Leonard Wood Road", maxM: 84 }, // would move 246 m
+  { code: "PLZ-LTR", stopName: "Km 4", maxM: 2133 }, // would move 691 m
+  { code: "PLZ-LTR", stopName: "Km 5 Pico", maxM: 882 }, // would move 372 m
+  { code: "PLZ-LTR", stopName: "La Trinidad Trading Post", maxM: 516 }, // would move 195 m
+  { code: "PLZ-AUR", stopName: "Otek Street", maxM: 369 }, // would move 268 m
+  { code: "PLZ-AUR", stopName: "Bonifacio Street", maxM: 408 }, // would move 243 m
 ];
 
 describe("jeepney routes follow the roads", () => {
