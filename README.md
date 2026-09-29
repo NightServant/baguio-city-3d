@@ -29,7 +29,7 @@ Geodata lives in PostgreSQL + PostGIS (hosted on Supabase) and is served through
   - Distance is straight-line.
 - **Eat and stay, destinations, history.** Open-now badges in Baguio time, price glyphs, a scrubbable history timeline that flies the camera to each event, and per-destination pages with "Getting here" links.
 - **Corrections (`/corrections`).** Visitors report wrong data through a form stored in Supabase. The optional reply email is cleared by a daily `pg_cron` job once the report is resolved, or after 90 days.
-- **Light and dark.** The dark theme is ube, not black. The toggle recolours the whole site live: chrome, basemap, sky and wireframe. The choice follows the system until changed.
+- **Light and dark.** The dark theme is walnut brown, the weave's natural brown dye, not black, navy or purple. The toggle recolours the whole site live: chrome, basemap, sky and wireframe. The choice follows the system until changed.
 - **Privacy.** Google Analytics 4 loads only after an explicit consent choice, which can be changed at any time. The privacy and terms pages (`/privacy`, `/terms`) and `/about` list every data source.
 - **SEO and sharing.** Canonical URLs, a sitemap and robots.txt, JSON-LD structured data, and generated Open Graph and apple icons.
 - **Accessibility.** Visible focus rings, a skip link, labelled carousel controls, reduced-motion paths for every animation and camera move, and no layout overflow at 360 px.

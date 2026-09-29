@@ -14,18 +14,18 @@
     <rect x="696" y="48" width="152" height="72" fill="#6B6156"/>
     <text x="696" y="138" fill="#16130F" font-weight="600">Thread</text><text x="696" y="154" fill="#6B6156">#6B6156 secondary text</text>
   </g>
-  <rect y="172" width="880" height="128" fill="#261B30"/>
+  <rect y="172" width="880" height="128" fill="#2B221C"/>
   <text x="24" y="200" font-size="15" font-weight="700" fill="#F3ECE1">Dark</text>
   <g font-size="12">
-    <rect x="96" y="184" width="120" height="48" fill="#261B30" stroke="#54416A"/>
-    <text x="96" y="250" fill="#F3ECE1" font-weight="600">Ube</text><text x="96" y="266" fill="#C1B5D0">#261B30 background</text>
-    <rect x="252" y="184" width="120" height="48" fill="#2F223C" stroke="#54416A"/>
-    <text x="252" y="250" fill="#F3ECE1" font-weight="600">Ube card</text><text x="252" y="266" fill="#C1B5D0">#2F223C surfaces</text>
+    <rect x="96" y="184" width="120" height="48" fill="#2B221C" stroke="#5E4D41"/>
+    <text x="96" y="250" fill="#F3ECE1" font-weight="600">Walnut</text><text x="96" y="266" fill="#C9B8A5">#2B221C background</text>
+    <rect x="252" y="184" width="120" height="48" fill="#352A23" stroke="#5E4D41"/>
+    <text x="252" y="250" fill="#F3ECE1" font-weight="600">Walnut card</text><text x="252" y="266" fill="#C9B8A5">#352A23 surfaces</text>
     <rect x="408" y="184" width="120" height="48" fill="#F3ECE1"/>
-    <text x="408" y="250" fill="#F3ECE1" font-weight="600">Bone</text><text x="408" y="266" fill="#C1B5D0">#F3ECE1 text</text>
+    <text x="408" y="250" fill="#F3ECE1" font-weight="600">Bone</text><text x="408" y="266" fill="#C9B8A5">#F3ECE1 text</text>
     <rect x="564" y="184" width="120" height="48" fill="#A8402F"/>
-    <text x="564" y="250" fill="#F3ECE1" font-weight="600">Madder fill</text><text x="564" y="266" fill="#C1B5D0">#A8402F buttons</text>
+    <text x="564" y="250" fill="#F3ECE1" font-weight="600">Madder fill</text><text x="564" y="266" fill="#C9B8A5">#A8402F buttons</text>
     <rect x="720" y="184" width="120" height="48" fill="#D98A7B"/>
-    <text x="720" y="250" fill="#F3ECE1" font-weight="600">Madder light</text><text x="720" y="266" fill="#C1B5D0">#D98A7B links, focus</text>
+    <text x="720" y="250" fill="#F3ECE1" font-weight="600">Madder light</text><text x="720" y="266" fill="#C9B8A5">#D98A7B links, focus</text>
   </g>
 </svg>

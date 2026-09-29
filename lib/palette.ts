@@ -5,5 +5,5 @@
  */
 export const WEAVE = {
   light: { ground: "#F5F0E6", warp: "#16130F", madder: "#8C2318" },
-  dark: { ground: "#261b30", warp: "#f3ece1", madder: "#a8402f", madderLight: "#d98a7b" },
+  dark: { ground: "#2b221c", warp: "#f3ece1", madder: "#a8402f", madderLight: "#d98a7b" },
 } as const;

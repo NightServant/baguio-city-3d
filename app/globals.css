@@ -117,52 +117,53 @@
 }
 
 /*
-  Dark: ube. The deep purple of Baguio's best-known pasalubong, the ube jam
-  from Good Shepherd, is the night ground instead of black or navy. Madder stays
+  Dark: walnut. The weave already takes its colours from natural dyes (undyed
+  bone, madder red, weld straw); walnut is the brown dye in that set, and its
+  deep brown is the night ground instead of black, navy or purple. Madder stays
   the one accent, split into a deep fill and a muted text tone (see the
   rules at the end of this file). Bone becomes the warp: the structural thread flips from black to
   white.
 */
 :root[data-theme="dark"] {
-  --background: #261b30;
+  --background: #2b221c;
   --foreground: #f3ece1;
-  --card: #2f223c;
+  --card: #352a23;
   --card-foreground: #f3ece1;
-  --popover: #2f223c;
+  --popover: #352a23;
   --popover-foreground: #f3ece1;
   --primary: #d98a7b;
   --primary-foreground: #f3ece1;
   --primary-hover: #b84a38;
   --primary-fill: #a8402f;
-  --secondary: #3a2b4a;
+  --secondary: #41342b;
   --secondary-foreground: #f3ece1;
-  --muted: #3a2b4a;
-  --muted-foreground: #c1b5d0;
+  --muted: #41342b;
+  --muted-foreground: #c9b8a5;
   --accent: #f3ece1;
-  --accent-foreground: #261b30;
+  --accent-foreground: #2b221c;
   --destructive: #ff8a78;
-  --border: #54416a;
-  --input: #54416a;
+  --border: #5e4d41;
+  --input: #5e4d41;
   --ring: #d98a7b;
   --chart-1: #a8402f;
   --chart-2: #f3ece1;
-  --chart-3: #c1b5d0;
+  --chart-3: #c9b8a5;
   --chart-4: #b5432f;
-  --chart-5: #54416a;
+  --chart-5: #5e4d41;
   --madder: #a8402f;
   --madder-lt: #d98a7b;
   --warp: #f3ece1;
-  --ecru: #3a2b4a;
+  --ecru: #41342b;
   --amber: #a8402f;
   --amber-foreground: #f3ece1;
   --contour: rgb(243 236 225 / 0.07);
-  --sidebar: #261b30;
+  --sidebar: #2b221c;
   --sidebar-foreground: #f3ece1;
   --sidebar-primary: #a8402f;
   --sidebar-primary-foreground: #f3ece1;
-  --sidebar-accent: #3a2b4a;
+  --sidebar-accent: #41342b;
   --sidebar-accent-foreground: #f3ece1;
-  --sidebar-border: #54416a;
+  --sidebar-border: #5e4d41;
   --sidebar-ring: #d98a7b;
   color-scheme: dark;
 }
@@ -385,10 +386,10 @@
 .legal-prose a { color: var(--primary); text-decoration: underline; text-underline-offset: 4px; }
 .legal-prose code { font-family: inherit; font-size: 0.9em; color: var(--foreground); }
 
-/* MapLibre's attribution box ships white; at night it takes the ube chrome. */
+/* MapLibre's attribution box ships white; at night it takes the walnut chrome. */
 [data-theme="dark"] .maplibregl-ctrl.maplibregl-ctrl-attrib,
 [data-theme="dark"] .maplibregl-ctrl-attrib.maplibregl-compact {
-  background-color: rgb(38 27 48 / 0.88);
+  background-color: rgb(43 34 28 / 0.88);
   color: var(--muted-foreground);
 }
 [data-theme="dark"] .maplibregl-ctrl-attrib a {
@@ -399,7 +400,7 @@
 }
 
 /* Dark accents split in two, because no single madder is both calm as a fill
-   and readable as text on ube. Fills (buttons, bands, badges) take a deep
+   and readable as text on walnut. Fills (buttons, bands, badges) take a deep
    madder with bone text (5.2:1); text, links and focus rings take a muted
    rose-madder (6.1:1 on the ground). Bright accents on a dark ground strain
    the eye, so neither is light and saturated. */

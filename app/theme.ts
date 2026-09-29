@@ -24,13 +24,13 @@ const MADDER_LT = "#B5432F";
 const MUTED = "#6B6156";
 const BORDER = "#D8CEBC";
 
-// Dark: ube ground, bone warp, madder lifted to read on ube.
-const UBE = WEAVE.dark.ground;
-const UBE_CARD = "#2f223c";
+// Dark: walnut ground, bone warp, madder lifted to read on walnut.
+const WALNUT = WEAVE.dark.ground;
+const WALNUT_CARD = "#352a23";
 const BONE_DK = WEAVE.dark.warp;
 const MADDER_DK = WEAVE.dark.madder; // deep fill; text accents use --primary (madderLight)
-const MUTED_DK = "#c1b5d0";
-const BORDER_DK = "#54416a";
+const MUTED_DK = "#c9b8a5";
+const BORDER_DK = "#5e4d41";
 
 export const theme = createTheme({
   // Same switch as globals.css: data-theme on <html>, set by InitColorSchemeScript.
@@ -57,8 +57,8 @@ export const theme = createTheme({
     dark: {
       palette: {
         primary: { main: MADDER_DK, light: "#d98a7b", dark: "#8c3526", contrastText: BONE_DK },
-        secondary: { main: BONE_DK, contrastText: UBE },
-        background: { default: UBE, paper: UBE_CARD },
+        secondary: { main: BONE_DK, contrastText: WALNUT },
+        background: { default: WALNUT, paper: WALNUT_CARD },
         text: { primary: BONE_DK, secondary: MUTED_DK },
         divider: BORDER_DK,
         error: { main: "#ff8a78" },

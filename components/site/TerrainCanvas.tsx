@@ -133,7 +133,7 @@ export function TerrainCanvas({
       geo.computeVertexNormals();
 
       // Base weave: the full grid, quiet.
-      // Warp lines vanish on the ube night ground, so they flip to bone.
+      // Warp lines vanish on the walnut night ground, so they flip to bone.
       const dark = document.documentElement.dataset.theme === "dark";
       const wire = new THREE.WireframeGeometry(geo);
       mesh = new THREE.LineSegments(
