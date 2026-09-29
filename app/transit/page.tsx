@@ -76,17 +76,11 @@ export default async function TransitPage() {
         {routes.map((route) => (
           <article
             key={route.code}
-            className="flex flex-col bg-card p-6 shadow-sm ring-1 ring-foreground/5 transition hover:shadow-md hover:shadow-primary/5 hover:ring-primary/40"
+            className="flex flex-col border border-border bg-card p-6"
           >
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="font-display text-lg leading-snug">
-                {route.name}
-              </h2>
-              <span className="readout text-muted-foreground">
-                Traditional {peso(route.fareBase)} for the first {JEEPNEY_BASE_KM} km, then{" "}
-                {peso(route.farePerKm)} per km
-              </span>
-            </div>
+            <h2 className="font-display text-lg leading-snug">
+              {route.name}
+            </h2>
 
             {/* Route-line motif */}
             <ol className="relative mt-5 flex-1 space-y-3 pl-4">

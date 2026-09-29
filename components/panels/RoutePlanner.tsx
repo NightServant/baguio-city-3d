@@ -139,8 +139,7 @@ export function RoutePlanner() {
                       {route.properties.name}
                     </span>
                     <span className={cn("block text-xs", active ? "opacity-80" : "text-muted-foreground")}>
-                      {route.properties.stops.length} stops. Traditional{" "}
-                      {peso(route.properties.fareBase)} for the first {JEEPNEY_BASE_KM} km
+                      {route.properties.stops.length} stops, {peso(route.properties.fareBase)} for the first {JEEPNEY_BASE_KM} km
                     </span>
                   </span>
                 </button>
@@ -272,7 +271,7 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
 
       {mode === "jeepney" && !activeRoute && (
         <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
-          Pick a route above first — jeepney fares follow the route&apos;s own rates.
+          Pick a route above first. Jeepney fares follow the route’s own rates.
         </p>
       )}
 

@@ -287,9 +287,9 @@
 /* ==========================================================================
    Motion layer.
 
-   Everything here describes the subject: route dashes travel, contour rings breathe outward, sections weave in as they
-   enter the viewport, and ridge layers parallax at different depths the way
-   real ridges do. Every rule is disabled under prefers-reduced-motion at the
+   Everything here describes the subject: route dashes travel, contour rings
+   breathe outward, sections weave in as they enter the viewport, and ridge
+   layers parallax at different depths the way real ridges do. Every rule is disabled under prefers-reduced-motion at the
    bottom of this block.
    ========================================================================== */
 

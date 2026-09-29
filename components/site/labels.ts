@@ -11,9 +11,9 @@ export const ERA_LABELS: Record<Era, string> = {
 
 export const ERA_YEARS: Record<Era, string> = {
   PRE_COLONIAL: "before 1900",
-  AMERICAN_COLONIAL: "1900–1941",
-  POST_WAR: "1942–1989",
-  MODERN: "1990–today",
+  AMERICAN_COLONIAL: "1900 to 1941",
+  POST_WAR: "1942 to 1989",
+  MODERN: "1990 to today",
 };
 
 export const CATEGORY_LABELS: Record<LandmarkCategory, string> = {

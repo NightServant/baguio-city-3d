@@ -160,7 +160,7 @@ export function DestinationSheet() {
                 <dt className="sr-only">Hours</dt>
                 <dd className="text-muted-foreground">
                   {props.hours
-                    ? `Open ${props.hours.open}–${props.hours.close}`
+                    ? `Open ${props.hours.open} to ${props.hours.close}`
                     : "Open all day"}
                 </dd>
               </div>

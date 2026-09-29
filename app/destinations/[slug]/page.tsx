@@ -104,7 +104,7 @@ export default async function DestinationPage({
 
             {era ? (
               <section className="max-w-2xl border border-accent-foreground/15 bg-accent/60 p-6">
-                <h2 className="font-display text-xl">
+                <h2 className="font-display text-xl text-accent-foreground">
                   {era.name}
                 </h2>
                 <p className="readout mt-2 text-accent-foreground">{ERA_YEARS[era.key]}</p>

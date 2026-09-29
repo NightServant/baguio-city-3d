@@ -18,7 +18,7 @@ interface ErasState {
 
 function yearRange(era: EraWithEvents): string {
   const start = era.startYear < 0 ? "…" : String(era.startYear);
-  return `${start}–${era.endYear ?? "now"}`;
+  return `${start} to ${era.endYear ?? "now"}`;
 }
 
 export function TimelineScrubber() {

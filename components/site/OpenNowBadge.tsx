@@ -50,7 +50,7 @@ export function OpenNowBadge({
     return () => clearInterval(id);
   }, [hours]);
 
-  const label = hours ? `${hours.open}–${hours.close}` : "Open 24 hours";
+  const label = hours ? `${hours.open} to ${hours.close}` : "24 hours";
 
   return (
     <span
@@ -69,9 +69,8 @@ export function OpenNowBadge({
             )}
           />
           <span className={open ? "text-foreground" : "text-destructive"}>
-            {open ? "Open now" : "Closed"}
+            {open ? "Open now," : "Closed,"}
           </span>
-          <span aria-hidden="true">·</span>
         </>
       )}
       {label}

@@ -6,7 +6,7 @@ for (const path of PAGES) {
     await page.goto(path, { waitUntil: "domcontentloaded" });
     const text = await page.locator("body").innerText();
     expect(text, "em dash").not.toMatch(/—/);
-    expect(text, "middot meta string").not.toMatch(/ · /);
+    expect(text, "middot meta string").not.toMatch(/·/);
     expect(text, "arrow glyph").not.toMatch(/[→←]/);
   });
 
