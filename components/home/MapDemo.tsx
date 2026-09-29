@@ -161,7 +161,12 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
   return (
     <figure className="weave-edge border-y border-r border-border bg-card">
       <div ref={frameRef} className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[16/10]">
-        <div ref={canvasRef} className="absolute inset-0" />
+        {/* MapLibre's stylesheet sets `position: relative` on its container and
+            beats Tailwind's layered `absolute`, which collapsed it to 0 px tall.
+            The wrapper holds the position; the container only fills it. */}
+        <div className="absolute inset-0">
+          <div ref={canvasRef} className="h-full w-full" />
+        </div>
         <Image
           src="/home/demo-map.jpg"
           alt={

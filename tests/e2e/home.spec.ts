@@ -34,6 +34,12 @@ test("the carousel steers the live map", async ({ page }) => {
   const how = page.locator("#how-it-works");
   await how.scrollIntoViewIfNeeded();
   await expect(how.locator("canvas.maplibregl-canvas")).toBeAttached({ timeout: 20_000 });
+  // Attached isn't enough: MapLibre's CSS once collapsed the container to 0 px
+  // tall, clipping a live canvas out of sight. It must fill the frame.
+  const frameBox = await how.locator("figure > div").first().boundingBox();
+  const mapBox = await how.locator(".maplibregl-map").boundingBox();
+  expect(mapBox!.height).toBeGreaterThan(0);
+  expect(mapBox!.height).toBeCloseTo(frameBox!.height, 0);
   await how.getByRole("button", { name: "Next destination" }).click();
   await expect(how.locator("figure").getByRole("status")).toHaveText(/^Showing .+ on the map$/);
   for (const href of ["/map", "/transit", "/eat-stay", "/history"]) {
