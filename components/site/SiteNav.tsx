@@ -36,7 +36,7 @@ export function SiteNav() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2" aria-label="Baguio 3D home">
           <PineMark className="size-5 text-primary" />
-          <span className="font-display text-lg font-semibold tracking-tight">
+          <span className="font-display text-lg">
             Baguio<span className="text-primary"> 3D</span>
           </span>
           <span className="readout mt-0.5 hidden text-muted-foreground lg:inline">1,500 m</span>

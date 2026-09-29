@@ -139,7 +139,7 @@ export function RoutePlanner() {
                       {route.properties.name}
                     </span>
                     <span className={cn("block text-xs", active ? "opacity-80" : "text-muted-foreground")}>
-                      {route.properties.code} · {route.properties.stops.length} stops · Traditional{" "}
+                      {route.properties.stops.length} stops. Traditional{" "}
                       {peso(route.properties.fareBase)} for the first {JEEPNEY_BASE_KM} km
                     </span>
                   </span>

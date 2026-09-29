@@ -4,11 +4,11 @@
  * Animated icons, drawn as inline SVG so they cost no dependency and inherit
  * currentColor from the weave palette.
  *
- * Each one animates the thing it depicts — the pine sways, the fog drifts, the
- * jeepney's route dashes travel, the contour rings breathe outward like
- * elevation being read off a map. Motion that describes the subject rather
- * than motion for its own sake. All of it stops under prefers-reduced-motion
- * (see the `motion-reduce` rules in globals.css).
+ * Each one animates the thing it depicts: the jeepney's route dashes travel and
+ * the contour rings breathe outward like elevation being read off a map. Motion
+ * that describes the subject rather than motion for its own sake. All of it
+ * stops under prefers-reduced-motion (see the reduced-motion rules in
+ * globals.css).
  */
 
 type IconProps = { className?: string };

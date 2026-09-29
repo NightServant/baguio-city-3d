@@ -4,8 +4,7 @@ export default function HistoryLoading() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20" aria-hidden>
       <div className="flex flex-col gap-3">
-        <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-        <div className="h-9 w-80 max-w-full animate-pulse rounded-lg bg-muted" />
+        <div className="h-9 w-80 max-w-full animate-pulse bg-muted" />
         <div className="h-4 w-full max-w-xl animate-pulse rounded bg-muted" />
         <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
       </div>
@@ -16,7 +15,7 @@ export default function HistoryLoading() {
             {/* Era header */}
             <div className="flex flex-col gap-3 border-b border-border pb-6">
               <div className="h-3 w-40 animate-pulse rounded bg-muted" />
-              <div className="h-9 w-64 max-w-full animate-pulse rounded-lg bg-muted" />
+              <div className="h-9 w-64 max-w-full animate-pulse bg-muted" />
               <div className="h-4 w-full max-w-2xl animate-pulse rounded bg-muted" />
               <div className="h-4 w-5/6 animate-pulse rounded bg-muted" />
             </div>

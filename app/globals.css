@@ -178,6 +178,13 @@
   html {
     @apply font-sans;
   }
+  /* The sticky mobile CTA is 3rem tall plus a gutter; keep anchored content
+     clear of it. */
+  @media (max-width: 47.99rem) {
+    html {
+      scroll-padding-bottom: 5rem;
+    }
+  }
   /* Display is the SAME family as body, pushed to the far end of Archivo's
      width axis. The stretch is the point: type under tension, like warp. */
   .font-display {
@@ -275,46 +282,17 @@
     letter-spacing: -0.01em;
     line-height: 1.2;
   }
-  /* Slow ambient fog drift for hero atmosphere; disabled under reduced-motion. */
-  .animate-fog {
-    animation: fog-drift 26s ease-in-out infinite alternate;
-  }
-}
-
-@keyframes fog-drift {
-  from {
-    transform: translate3d(-2.5%, 0, 0);
-  }
-  to {
-    transform: translate3d(2.5%, 0, 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-fog {
-    animation: none;
-  }
 }
 
 /* ==========================================================================
    Motion layer.
 
-   Everything here describes the subject: the pine sways, fog drifts, route
-   dashes travel, contour rings breathe outward, sections weave in as they
+   Everything here describes the subject: route dashes travel, contour rings breathe outward, sections weave in as they
    enter the viewport, and ridge layers parallax at different depths the way
    real ridges do. Every rule is disabled under prefers-reduced-motion at the
    bottom of this block.
    ========================================================================== */
 
-@keyframes icon-sway {
-  0%, 100% { transform: rotate(-2.5deg); }
-  50%      { transform: rotate(2.5deg); }
-}
-@keyframes icon-drift {
-  0%   { transform: translateX(-3px); opacity: 0.45; }
-  50%  { transform: translateX(3px);  opacity: 1; }
-  100% { transform: translateX(-3px); opacity: 0.45; }
-}
 @keyframes icon-route {
   to { stroke-dashoffset: -16; }
 }
@@ -323,8 +301,6 @@
   50%      { transform: scale(1.06); opacity: 1; }
 }
 
-.icon-sway  { animation: icon-sway 4.5s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
-.icon-drift { animation: icon-drift 5.5s ease-in-out infinite; }
 .icon-route { animation: icon-route 1.4s linear infinite; }
 .icon-ring  { animation: icon-ring 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 
@@ -384,7 +360,7 @@
 .baguio-swiper .swiper .swiper-button-next { left: 3.25rem; right: auto; }
 
 @media (prefers-reduced-motion: reduce) {
-  .icon-sway, .icon-drift, .icon-route, .icon-ring { animation: none !important; }
+  .icon-route, .icon-ring { animation: none !important; }
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .reveal-weave { clip-path: none !important; transition: none !important; }
   .parallax-layer { transform: none !important; }

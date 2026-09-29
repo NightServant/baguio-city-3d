@@ -18,7 +18,7 @@ export default function Error({
 
   return (
     <div className="mx-auto flex min-h-[60dvh] max-w-md flex-col items-center justify-center px-6 py-20 text-center">
-      <h1 className="font-display text-2xl font-semibold tracking-tight text-foreground">
+      <h1 className="font-display text-2xl text-foreground">
         The trail washed out
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

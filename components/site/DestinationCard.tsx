@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Destination } from "@/lib/content";
 import { CategoryBadge, EraBadge } from "@/components/site/badges";
@@ -28,7 +27,7 @@ export function DestinationCard({
       <div className="flex items-start justify-between gap-3">
         <h3
           className={cn(
-            "font-display font-semibold leading-snug tracking-tight",
+            "font-display leading-snug",
             featured ? "text-2xl sm:text-3xl" : "text-lg",
           )}
         >
@@ -39,13 +38,6 @@ export function DestinationCard({
             {d.name}
           </Link>
         </h3>
-        <ArrowUpRight
-          className={cn(
-            "mt-1 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary",
-            featured ? "size-5" : "size-4",
-          )}
-          aria-hidden="true"
-        />
       </div>
 
       {/* Measurements sit in labelled columns rather than a middot-joined

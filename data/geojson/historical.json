@@ -12,7 +12,7 @@
       "name": "American Hill Station",
       "startYear": 1900,
       "endYear": 1941,
-      "summary": "American authorities, seeking a cool refuge from lowland heat, transformed Kafagway into a planned summer capital. Architect Daniel Burnham's 1904 design gave the city its park, radial roads, and civic core, while the hand-carved Kennon Road linked it to the lowlands. Chartered in 1909, Baguio grew into the 'City of Pines,' a hub of government, mining wealth, and mountain leisure."
+      "summary": "American authorities, seeking a cool refuge from lowland heat, transformed Kafagway into a planned summer capital. Architect Daniel Burnham's 1905 plan gave the city its park, radial roads, and civic core, while the hand-carved Kennon Road linked it to the lowlands. Chartered in 1909, Baguio grew into the 'City of Pines,' a hub of government, mining wealth, and mountain leisure."
     },
     {
       "key": "POST_WAR",
@@ -60,9 +60,9 @@
     },
     {
       "title": "Burnham Plan for the Summer Capital",
-      "year": 1904,
+      "year": 1905,
       "era": "AMERICAN_COLONIAL",
-      "description": "Architect Daniel Hudson Burnham surveyed the plateau and drafted a city plan centered on a park, a civic core, and radiating avenues. His vision shaped the layout of Baguio that endures today.",
+      "description": "Architect Daniel Hudson Burnham surveyed the plateau in December 1904 and drafted a city plan centered on a park, a civic core, and radiating avenues. His vision shaped the layout of Baguio that endures today.",
       "coord": [120.59500, 16.41000]
     },
     {

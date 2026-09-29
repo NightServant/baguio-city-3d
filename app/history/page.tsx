@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getHistory } from "@/lib/content";
 import { SectionHeading } from "@/components/site/SectionHeading";
-import { Treeline } from "@/components/site/atmosphere";
 
 export const metadata: Metadata = {
   title: "History",
@@ -12,10 +11,10 @@ export const metadata: Metadata = {
 };
 
 function eraYears(startYear: number, endYear: number | null): string {
-  if (endYear === null) return `${startYear} — today`;
+  if (endYear === null) return `${startYear} to today`;
   // Pre-colonial "1500" reads better as "before 1900".
   if (startYear <= 1500) return `before ${endYear + 1}`;
-  return `${startYear} — ${endYear}`;
+  return `${startYear} to ${endYear}`;
 }
 
 export default async function HistoryPage() {
@@ -26,7 +25,6 @@ export default async function HistoryPage() {
       <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
         <SectionHeading
           as="h1"
-          eyebrow="The exhibit"
           title="Four eras of the City of Pines"
           lede="From Ibaloi cattle pasture to UNESCO Creative City in a little over a century. Events with a place on the mountain link straight to the 3D map."
         />
@@ -41,9 +39,9 @@ export default async function HistoryPage() {
                 {/* Era header */}
                 <header className="border-b border-border pb-6">
                   <p className="readout text-primary">
-                    Era {String(i + 1).padStart(2, "0")} · {eraYears(era.startYear, era.endYear)}
+                    Era {i + 1}, {eraYears(era.startYear, era.endYear)}
                   </p>
-                  <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                  <h2 className="mt-3 font-display text-3xl sm:text-4xl">
                     {era.name}
                   </h2>
                   <p className="mt-4 max-w-2xl text-base leading-8 text-muted-foreground text-pretty">
@@ -63,7 +61,7 @@ export default async function HistoryPage() {
                         <p className="font-mono text-sm font-semibold text-primary">
                           {event.year}
                         </p>
-                        <h3 className="mt-1 font-display text-lg font-medium tracking-tight">
+                        <h3 className="mt-1 font-display text-lg">
                           {event.title}
                         </h3>
                         <p className="mt-2 max-w-xl text-sm leading-7 text-muted-foreground">
@@ -86,7 +84,6 @@ export default async function HistoryPage() {
           })}
         </ol>
       </div>
-      <Treeline className="text-primary/25" />
     </div>
   );
 }

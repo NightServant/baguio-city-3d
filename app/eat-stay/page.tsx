@@ -49,9 +49,8 @@ export default async function EatStayPage({
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
       <SectionHeading
         as="h1"
-        eyebrow="Eat & stay"
         title="The pasalubong economy"
-        lede="Strawberry shortcake on Session Road, the nuns' ube jam by Mines View, fireplace lodges under the pines — with hours, price range, and a spot on the map."
+        lede="Strawberry shortcake on Session Road, the nuns' ube jam by Mines View, fireplace lodges under the pines, with hours, price range, and a spot on the map."
       />
 
       <div className="mt-8">
@@ -80,7 +79,7 @@ export default async function EatStayPage({
             return (
               <section key={cat}>
                 <div className="flex items-baseline justify-between gap-4 border-b border-border pb-3">
-                  <h2 className="font-display text-2xl font-semibold tracking-tight">
+                  <h2 className="font-display text-2xl">
                     {VENUE_CATEGORY_LABELS[cat]}
                   </h2>
                   <p className="readout text-muted-foreground">{group.length} listed</p>

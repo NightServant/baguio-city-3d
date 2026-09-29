@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { getTransitRoutes } from "@/lib/content";
@@ -43,7 +42,6 @@ export default async function TransitPage() {
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
       <SectionHeading
         as="h1"
-        eyebrow="Getting around"
         title="Jeepney lines & fares"
         lede={`Every line starts at the City Plaza terminal downtown. Base fare covers the first ${JEEPNEY_BASE_KM} km; the meter of the mountains is the barker's call, so round up and pay forward.`}
       />
@@ -78,15 +76,15 @@ export default async function TransitPage() {
         {routes.map((route) => (
           <article
             key={route.code}
-            className="flex flex-col rounded-2xl bg-card p-6 shadow-sm ring-1 ring-foreground/5 transition hover:shadow-md hover:shadow-primary/5 hover:ring-primary/40"
+            className="flex flex-col bg-card p-6 shadow-sm ring-1 ring-foreground/5 transition hover:shadow-md hover:shadow-primary/5 hover:ring-primary/40"
           >
             <div className="flex items-center justify-between gap-3">
-              <h2 className="font-display text-lg font-semibold leading-snug tracking-tight">
+              <h2 className="font-display text-lg leading-snug">
                 {route.name}
               </h2>
               <span className="readout text-muted-foreground">
-                Traditional {peso(route.fareBase)} for the first {JEEPNEY_BASE_KM} km ·{" "}
-                {peso(route.farePerKm)}/km after
+                Traditional {peso(route.fareBase)} for the first {JEEPNEY_BASE_KM} km, then{" "}
+                {peso(route.farePerKm)} per km
               </span>
             </div>
 
@@ -128,11 +126,11 @@ export default async function TransitPage() {
       </div>
 
       {/* Taxi explainer */}
-      <section className="mt-16 overflow-hidden rounded-2xl border border-border bg-secondary/60">
+      <section className="mt-16 overflow-hidden border border-border bg-secondary/60">
         <div className="grid gap-8 p-8 sm:p-10 lg:grid-cols-2">
           <div>
             <p className="readout text-primary">Taxi estimate</p>
-            <h2 className="mt-3 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2 className="mt-3 font-display text-2xl sm:text-3xl">
               Flagdown {peso(TAXI_FLAGDOWN_PHP)}, then the meter climbs with the road
             </h2>
             <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
@@ -141,17 +139,13 @@ export default async function TransitPage() {
               flagdown plus a distance charge every {TAXI_PER_METER_UNIT_M} m,
               plus waiting time in traffic.
             </p>
-            <LinkButton
-              href="/map"
-              className="mt-6"
-              endIcon={<ArrowRight className="size-4" />}
-            >
+            <LinkButton href="/map" className="mt-6">
               Estimate a real trip on the map
             </LinkButton>
           </div>
-          <div className="rounded-xl border border-border bg-card p-6">
+          <div className="border border-border bg-card p-6">
             <p className="readout text-muted-foreground">
-              Worked example · {SAMPLE_KM} km (Plaza → Mines View)
+              Worked example: {SAMPLE_KM} km, Plaza to Mines View
             </p>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex items-baseline justify-between gap-4">
@@ -160,14 +154,14 @@ export default async function TransitPage() {
               </div>
               <div className="flex items-baseline justify-between gap-4">
                 <dt className="text-muted-foreground">
-                  Distance · {peso(TAXI_PER_UNIT_PHP)} per {TAXI_PER_METER_UNIT_M} m
+                  Distance: {peso(TAXI_PER_UNIT_PHP)} per {TAXI_PER_METER_UNIT_M} m
                 </dt>
                 <dd className="font-mono">{peso(sample.breakdown.distanceCharge)}</dd>
               </div>
               <div className="flex items-baseline justify-between gap-4">
                 <dt className="text-muted-foreground">
-                  Waiting · {peso(TAXI_PER_MINUTE_WAIT_PHP)}/min ·{" "}
-                  {sample.breakdown.estMinutes} min est.
+                  Waiting: {peso(TAXI_PER_MINUTE_WAIT_PHP)} per min,{" "}
+                  about {sample.breakdown.estMinutes} min
                 </dt>
                 <dd className="font-mono">{peso(sample.breakdown.waitingCharge)}</dd>
               </div>
@@ -179,7 +173,7 @@ export default async function TransitPage() {
               </div>
             </dl>
             <p className="mt-4 text-xs leading-5 text-muted-foreground">
-              Estimate only — actual meters vary with traffic and route.
+              Estimate only. Actual meters vary with traffic and route.
             </p>
           </div>
         </div>

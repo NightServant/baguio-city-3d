@@ -112,7 +112,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
         .setHTML(
           `<div style="font-family:inherit">
             <strong>${escapeHtml(venue.name)}</strong>
-            <div style="opacity:.7;font-size:12px">${VENUE_CATEGORY_LABELS[venue.category]} · ${PRICE_GLYPHS[venue.priceRange]}</div>
+            <div style="opacity:.7;font-size:12px">${VENUE_CATEGORY_LABELS[venue.category]}, ${PRICE_GLYPHS[venue.priceRange]}</div>
           </div>`,
         )
         .addTo(map);
@@ -123,7 +123,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
     <section className="flex flex-col gap-2">
       {state.error && (
         <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
-          Venues aren&apos;t loading right now. The map still works — try again in a moment.
+          Venues aren’t loading right now. The map still works. Try again in a moment.
         </p>
       )}
 
@@ -150,8 +150,8 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
                   {venue.name}
                 </span>
                 <span className="block truncate text-xs text-muted-foreground">
-                  {VENUE_CATEGORY_LABELS[venue.category]} · {PRICE_GLYPHS[venue.priceRange]}
-                  {venue.hours ? ` · ${venue.hours.open}–${venue.hours.close}` : " · Open daily"}
+                  {VENUE_CATEGORY_LABELS[venue.category]}, {PRICE_GLYPHS[venue.priceRange]}
+                  {venue.hours ? `, ${venue.hours.open} to ${venue.hours.close}` : ", open daily"}
                 </span>
               </span>
             </button>

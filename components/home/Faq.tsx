@@ -40,7 +40,12 @@ const QUESTIONS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "Does it work on my phone?",
-    a: <>Yes, in any recent mobile browser. The 3D view needs a data connection because the terrain streams in as you move, so it doesn’t work offline.</>,
+    a: (
+      <>
+        Yes, in any recent mobile browser. The 3D view needs a data connection because the terrain streams in as you
+        move, so it doesn’t work offline.
+      </>
+    ),
   },
   {
     q: "How do I report a mistake?",
@@ -58,7 +63,7 @@ const QUESTIONS: { q: string; a: React.ReactNode }[] = [
 
 export function Faq() {
   return (
-    <section className="border-b border-border">
+    <section>
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,4fr)_minmax(0,7fr)] lg:gap-14">
         <h2 className="font-display text-4xl leading-[1.02] sm:text-5xl">Questions</h2>
         <div className="min-w-0 border-t border-border">

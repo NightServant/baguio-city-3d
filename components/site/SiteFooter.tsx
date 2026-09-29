@@ -20,7 +20,7 @@ export function SiteFooter() {
       <div className="border-t border-border bg-secondary/60 pb-20 md:pb-0">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="space-y-3">
-            <p className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
+            <p className="flex items-center gap-2 font-display text-lg">
               <PineMark className="size-4 text-primary" />
               <span>
                 Baguio<span className="text-primary"> 3D</span>

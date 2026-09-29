@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { getDestinationBySlug, getDestinations, getHistory, getTransitRoutes, getVenues } from "@/lib/content";
 import { clip } from "@/lib/site";
@@ -85,15 +84,15 @@ export default async function DestinationPage({
             <CategoryBadge category={destination.category} />
             {destination.era ? <EraBadge era={destination.era} /> : null}
           </div>
-          <h1 className="mt-4 font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+          <h1 className="mt-4 font-display text-4xl text-balance sm:text-5xl">
             {destination.name}
           </h1>
-          <p className="readout mt-4 text-muted-foreground">
-            {destination.elevationM != null
-              ? `ELEV ${formatElevation(destination.elevationM)} · `
-              : ""}
-            {formatCoord(destination.lng, destination.lat)}
-          </p>
+          <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
+            {destination.elevationM != null ? (
+              <div><dt className="text-xs text-muted-foreground">Elevation</dt><dd className="readout">{formatElevation(destination.elevationM)}</dd></div>
+            ) : null}
+            <div><dt className="text-xs text-muted-foreground">Position</dt><dd className="readout">{formatCoord(destination.lng, destination.lat)}</dd></div>
+          </dl>
         </header>
 
         {/* Body */}
@@ -104,13 +103,11 @@ export default async function DestinationPage({
             </p>
 
             {era ? (
-              <section className="max-w-2xl rounded-xl border border-accent-foreground/15 bg-accent/60 p-6">
-                <p className="readout text-accent-foreground">
-                  In its era · {ERA_YEARS[era.key]}
-                </p>
-                <h2 className="mt-2 font-display text-xl font-semibold tracking-tight">
+              <section className="max-w-2xl border border-accent-foreground/15 bg-accent/60 p-6">
+                <h2 className="font-display text-xl">
                   {era.name}
                 </h2>
+                <p className="readout mt-2 text-accent-foreground">{ERA_YEARS[era.key]}</p>
                 <p className="mt-3 text-sm leading-7 text-accent-foreground/90">
                   {era.summary}
                 </p>
@@ -145,7 +142,7 @@ export default async function DestinationPage({
           </div>
 
           {/* Fact panel */}
-          <aside className="h-fit rounded-xl border border-border bg-card p-6">
+          <aside className="h-fit border border-border bg-card p-6">
             <p className="readout text-muted-foreground">At a glance</p>
             <dl className="mt-4 space-y-4 text-sm">
               {destination.elevationM != null && (
@@ -173,11 +170,7 @@ export default async function DestinationPage({
                 </dd>
               </div>
             </dl>
-            <LinkButton
-              href={`/map?dest=${destination.slug}`}
-              className="mt-6 w-full"
-              endIcon={<ArrowRight className="size-4" />}
-            >
+            <LinkButton href={`/map?dest=${destination.slug}`} className="mt-6 w-full">
               Fly there on the map
             </LinkButton>
             <Link href={`/corrections?page=/destinations/${destination.slug}`} className="mt-4 block text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
@@ -190,7 +183,7 @@ export default async function DestinationPage({
         {nearby.length > 0 && (
           <section className="mt-16">
             <div className="flex flex-wrap items-end justify-between gap-4">
-              <h2 className="font-display text-2xl font-semibold tracking-tight">
+              <h2 className="font-display text-2xl">
                 Eat & stay nearby
               </h2>
               <p className="readout text-muted-foreground">

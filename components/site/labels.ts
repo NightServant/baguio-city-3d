@@ -43,9 +43,9 @@ export const VENUE_CATEGORY_SINGULAR: Record<VenueCategory, string> = {
   SOUVENIR: "Souvenir shop",
 };
 
-/** Format a coordinate pair as a survey readout, e.g. `16.4116° N · 120.5936° E`. */
+/** Format a coordinate pair as a survey readout, e.g. `16.4116° N, 120.5936° E`. */
 export function formatCoord(lng: number, lat: number): string {
-  return `${lat.toFixed(4)}° N · ${lng.toFixed(4)}° E`;
+  return `${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E`;
 }
 
 /** Format elevation, e.g. `1,445 m`. */
