@@ -14,7 +14,7 @@ import { useMapStore, type Basemap } from "@/stores/useMapStore";
 import { BAGUIO_BOUNDS, DEFAULT_CAMERA } from "@/lib/constants";
 import type { TerrainConfig } from "@/types/api";
 import { MapLayers } from "./MapLayers";
-import { applyWeaveBasemap } from "./basemapTheme";
+import { applyWeaveBasemap, blankMissingIcons } from "./basemapTheme";
 import { BASEMAP_STYLE, SATELLITE_STYLE, DEM_SOURCE, TERRAIN_EXAGGERATION, applyTerrain, applySky } from "@/lib/map/sources";
 
 /** Expand [minLng,minLat,maxLng,maxLat] outward so panning has a little slack. */
@@ -179,6 +179,7 @@ export function MapView() {
       useMapStore.getState().setFareQuery({ [fareQuery.picking]: coord, picking: null });
     };
     map.on("click", onMapClick);
+    blankMissingIcons(map);
 
     // Tile/network failures (basemap raster, vector tiles, or the Terrarium DEM)
     // fire `error` repeatedly — one per failed tile. Collapse them into a single

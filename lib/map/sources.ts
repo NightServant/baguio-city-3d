@@ -50,7 +50,11 @@ export function applyTerrain(m: MapLibreMap, exaggeration = TERRAIN_EXAGGERATION
       tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
       encoding: "terrarium",
       tileSize: 256,
-      maxzoom: 15,
+      // 14, not the 15 the tiles go to: the OpenFreeMap vector tiles stop at
+      // 14, and a DEM deeper than the basemap makes MapLibre warn "cannot
+      // calculate elevation if elevation maxzoom > source.maxzoom". The
+      // underlying DEM is ~30 m, so z14 already holds all its detail.
+      maxzoom: 14,
       attribution:
         "Terrain © <a href='https://github.com/tilezen/joerd/blob/master/docs/attribution.md'>Mapzen / Tilezen</a>, AWS Open Data",
     });

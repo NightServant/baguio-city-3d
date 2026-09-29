@@ -225,6 +225,17 @@ function roadPaints(p: Palette): Paint[] {
 
 const HILLSHADE_ID = "terrain-hillshade";
 
+/**
+ * Liberty's style names some POI icons ("office", "gate", "atm", …) that its
+ * sprite doesn't contain, and MapLibre logs a warning for each. Answer with a
+ * blank 1×1 image so they draw nothing, quietly. Call once per map.
+ */
+export function blankMissingIcons(map: MapLibreMap) {
+  map.on("styleimagemissing", (e) => {
+    if (!map.hasImage(e.id)) map.addImage(e.id, { width: 1, height: 1, data: new Uint8Array(4) });
+  });
+}
+
 /** True when the visitor's chosen (or system) theme is dark. */
 export function isDarkTheme(): boolean {
   return typeof document !== "undefined" && document.documentElement.dataset.theme === "dark";
@@ -243,8 +254,15 @@ export function applyWeaveBasemap(map: MapLibreMap, demSource: string) {
   // Relief first, so it sits under the road/label writes below and any failure
   // there still leaves the terrain readable.
   if (!map.getLayer(HILLSHADE_ID) && map.getSource(demSource)) {
+    // The shading gets its own copy of the DEM: sharing one raster-dem source
+    // between the hillshade and the 3D terrain renders the relief worse (and
+    // MapLibre warns about it). Same tiles, so the browser cache serves them.
+    const hillshadeSource = `${demSource}-hillshade`;
+    if (!map.getSource(hillshadeSource)) {
+      map.addSource(hillshadeSource, { ...map.getSource(demSource)!.serialize(), attribution: undefined });
+    }
     map.addLayer(
-      { id: HILLSHADE_ID, type: "hillshade", source: demSource, paint: { "hillshade-exaggeration": 0.5 } },
+      { id: HILLSHADE_ID, type: "hillshade", source: hillshadeSource, paint: { "hillshade-exaggeration": 0.5 } },
       // Above the land fills, below water and roads: ridges get modelled,
       // carriageways and labels stay crisp.
       map.getLayer("waterway_tunnel") ? "waterway_tunnel" : undefined,

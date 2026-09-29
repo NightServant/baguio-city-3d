@@ -21,7 +21,7 @@ export async function GET() {
       tiles: ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
       encoding: "terrarium",
       tileSize: 256,
-      maxzoom: 15,
+      maxzoom: 14, // matches lib/map/sources.ts (the basemap's own maxzoom)
     },
     exaggeration: TERRAIN_EXAGGERATION,
   };

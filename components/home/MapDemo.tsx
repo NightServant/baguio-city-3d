@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import { applyWeaveBasemap } from "@/components/map/basemapTheme";
+import { applyWeaveBasemap, blankMissingIcons } from "@/components/map/basemapTheme";
 import { DEFAULT_CAMERA } from "@/lib/constants";
 import { BASEMAP_STYLE, DEM_SOURCE, applyTerrain, applySky } from "@/lib/map/sources";
 import { cn } from "@/lib/utils";
@@ -82,6 +82,7 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
           attributionControl: { compact: true },
         });
         mapRef.current = map;
+        blankMissingIcons(map);
 
         let becameLive = false;
         let styleReady = false;
