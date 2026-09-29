@@ -69,6 +69,7 @@ test("the homepage's buttons live once, in the closing section", async ({ page }
   await expect(page.getByRole("link", { name: "Open the 3D map" })).toHaveCount(1);
   await expect(cta.getByRole("link", { name: "Open the 3D map" })).toHaveAttribute("href", "/map");
   await expect(cta.getByRole("link", { name: "Read the sources" })).toHaveAttribute("href", "/about#sources");
+  await expect(cta.getByRole("link", { name: "Suggest a correction" })).toHaveAttribute("href", "/corrections");
   await expect(page.locator('header a[href="/map"], main > section:first-child a[href="/map"]')).toHaveCount(0);
 });
 
@@ -130,14 +131,25 @@ async function luminance(page: import("@playwright/test").Page, shot: Buffer) {
   }, shot.toString("base64"));
 }
 
-test("the live map follows a theme toggle made mid-flight", async ({ page }) => {
+test("the live map follows a theme toggle, standing still or mid-flight", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto("/");
   const how = page.locator("#how-it-works");
   const figure = how.locator("figure");
   await figure.scrollIntoViewIfNeeded();
-  await expect(figure.getByRole("status")).toHaveText("Pick a place below and the map flies there", { timeout: 20_000 });
+  // The idle caption also shows before the map loads; the still fading out
+  // (opacity-0) is what marks the map as live and drawn.
+  await expect(figure.locator("img")).toHaveClass(/opacity-0/, { timeout: 20_000 });
   const map = figure.locator(".maplibregl-map");
+
+  // Standing still: the ground is drawn into cached terrain textures that a
+  // paint change didn't refresh, so only the labels used to change.
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await page.waitForTimeout(3000);
+  expect(await luminance(page, await map.screenshot())).toBeLessThan(110);
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await page.waitForTimeout(3000);
+  expect(await luminance(page, await map.screenshot())).toBeGreaterThan(150);
 
   // Toggle while the map is flying and loading tiles: the recolour used to be
   // skipped then, leaving a night map on a light page (and vice versa).

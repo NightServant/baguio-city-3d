@@ -266,4 +266,15 @@ export function applyWeaveBasemap(map: MapLibreMap, demSource: string) {
       // that is partly the wrong colour beats a map that throws on load.
     }
   }
+
+  // With 3D terrain on, MapLibre draws fills, lines and the hillshade into
+  // cached terrain textures, and a paint change doesn't invalidate them: after
+  // a theme toggle only the labels (drawn on top) changed, leaving a night
+  // ground under day labels until the tiles reloaded. Re-setting the terrain
+  // rebuilds those textures.
+  const terrain = map.getTerrain();
+  if (terrain) {
+    map.setTerrain(null);
+    map.setTerrain(terrain);
+  }
 }
