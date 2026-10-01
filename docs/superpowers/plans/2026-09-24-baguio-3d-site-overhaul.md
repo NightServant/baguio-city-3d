@@ -4326,7 +4326,7 @@ The full specification is `docs/baguio-3d-model-plan.md` (15 sections: aerial an
 | M7 | Optimization and export | Budgets in the spec's 1 October 2026 addendum met (0 bytes of 3D on first load; ≥ 30 fps on a Galaxy A51 class phone); every GLB opens in a standalone viewer |
 | M8 | Integration hardening | Full e2e green; landmark layer lazy (no three.js request before a destination sheet opens) |
 
-Per the plan-writing rule for separate subsystems, M1–M8 get their own bite-sized plan, written at M1 kickoff in a session with Blender and the MCP running. Every Blender step is authored against the live `bpy` API (spec §4.0: `bpy_api_lookup`, `describe_node_type`, `get_viewport_screenshot`); writing `bpy` code now would guess at exactly the API state the spec says to look up.
+Per the plan-writing rule for separate subsystems, M1–M8 get their own bite-sized plan, written at M1 kickoff in a session with Blender and the MCP running. **Written 1 Oct 2026:** the shared architecture contract `2026-10-01-baguio-3d-model-contract.md` and one plan per milestone, `2026-10-01-baguio-3d-model-m1.md` … `-m8.md`, all in this folder. Every Blender step is authored against the live `bpy` API (spec §4.0: `bpy_api_lookup`, `describe_node_type`, `get_viewport_screenshot`); writing `bpy` code now would guess at exactly the API state the spec says to look up.
 
 **Open questions still owed by the owner (spec §14):** whether bulk buildings ship to the web or only the 22 landmarks; whether 2 MB is the right payload ceiling; whether La Trinidad is modelled as context only. (The exaggeration question is resolved: query terrain at render time.)
 
