@@ -7,7 +7,7 @@
 // bottom snap container.
 import { useEffect } from "react";
 import { Bus, Hourglass, SlidersHorizontal, X } from "lucide-react";
-import { useActiveSheet, useMapActions } from "@/stores/useMapStore";
+import { useActiveSheet, useMapActions, useMapStore } from "@/stores/useMapStore";
 import { cn } from "@/lib/utils";
 import { FilterPanel } from "./FilterPanel";
 import { TimelineScrubber } from "./TimelineScrubber";
@@ -31,6 +31,7 @@ const PANEL_TITLES: Record<string, string> = {
 export function PanelChrome() {
   const activeSheet = useActiveSheet();
   const { openSheet, closeSheet, setSelectedSlug } = useMapActions();
+  const unavailable = useMapStore((s) => s.mapUnavailable);
 
   const panelOpen = activeSheet === "filters" || activeSheet === "transit" || activeSheet === "timeline";
 
@@ -51,6 +52,7 @@ export function PanelChrome() {
     return () => window.removeEventListener("keydown", onKey);
   }, [activeSheet, panelOpen, closeSheet, setSelectedSlug]);
 
+  if (unavailable) return null;
   return (
     <>
       {/* Mode dock */}

@@ -64,7 +64,9 @@ export function MapControls() {
   const basemap = useBasemap();
   const setBasemap = useMapStore((s) => s.setBasemap);
   const satelliteOn = basemap === "satellite";
+  const unavailable = useMapStore((s) => s.mapUnavailable);
 
+  if (unavailable) return null;
   return (
     <>
       {/* Preset chips — top center, horizontally scrollable on small screens */}

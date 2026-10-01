@@ -68,6 +68,8 @@ export interface UiState {
 
 interface MapStore {
   map: MapLibreMap | null;
+  /** True once MapLibre failed to start (no WebGL). The HUD hides itself. */
+  mapUnavailable: boolean;
   camera: CameraState;
   filters: FiltersState;
   transit: TransitState;
@@ -76,6 +78,7 @@ interface MapStore {
 
   // map instance
   setMap: (map: MapLibreMap | null) => void;
+  setMapUnavailable: () => void;
 
   // camera
   setCamera: (partial: Partial<Omit<CameraState, "bounds">>) => void;
@@ -116,6 +119,7 @@ const INITIAL_FILTERS: FiltersState = {
 
 export const useMapStore = create<MapStore>((set) => ({
   map: null,
+  mapUnavailable: false,
   camera: {
     center: DEFAULT_CAMERA.center as LngLat,
     zoom: DEFAULT_CAMERA.zoom,
@@ -133,6 +137,7 @@ export const useMapStore = create<MapStore>((set) => ({
   ui: { selectedSlug: null, activeSheet: null, basemap: "terrain", styleGeneration: 0 },
 
   setMap: (map) => set({ map }),
+  setMapUnavailable: () => set({ mapUnavailable: true }),
 
   setCamera: (partial) =>
     set((s) => ({ camera: { ...s.camera, ...partial } })),

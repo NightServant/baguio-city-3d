@@ -5,6 +5,8 @@
 // Uses OpenFreeMap tiles + AWS Terrarium terrain — no account, key, or token.
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { X } from "lucide-react";
 import maplibregl, {
   type Map as MapLibreMap,
@@ -38,6 +40,7 @@ export function MapView() {
   const errorDismissed = useRef(false);
   const basemap = useMapStore((s) => s.ui.basemap);
   const styleGeneration = useMapStore((s) => s.ui.styleGeneration);
+  const unavailable = useMapStore((s) => s.mapUnavailable);
   // Which basemap the map's CURRENT, FULLY LOADED style reflects. Only ever
   // updated inside the map's `style.load` handler (via pendingBasemapRef), so
   // `appliedBasemap === basemap` is a commit-time guarantee that the style is
@@ -65,17 +68,26 @@ export function MapView() {
     const initialBasemap = useMapStore.getState().ui.basemap;
     pendingBasemapRef.current = initialBasemap;
 
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: initialBasemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE,
-      center: DEFAULT_CAMERA.center as [number, number],
-      zoom: DEFAULT_CAMERA.zoom,
-      pitch: DEFAULT_CAMERA.pitch,
-      bearing: DEFAULT_CAMERA.bearing,
-      maxBounds: expandBounds(BAGUIO_BOUNDS),
-      maxPitch: 80,
-      cooperativeGestures: false,
-    });
+    let map: MapLibreMap;
+    try {
+      map = new maplibregl.Map({
+        container: containerRef.current,
+        style: initialBasemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE,
+        center: DEFAULT_CAMERA.center as [number, number],
+        zoom: DEFAULT_CAMERA.zoom,
+        pitch: DEFAULT_CAMERA.pitch,
+        bearing: DEFAULT_CAMERA.bearing,
+        maxBounds: expandBounds(BAGUIO_BOUNDS),
+        maxPitch: 80,
+        cooperativeGestures: false,
+      });
+    } catch {
+      // MapLibre throws here when no WebGL context can be created (disabled,
+      // blocklisted GPU, headless). Show MapFallback instead of the route's
+      // error page.
+      useMapStore.getState().setMapUnavailable();
+      return;
+    }
     mapRef.current = map;
     useMapStore.getState().setMap(map);
 
@@ -261,6 +273,7 @@ export function MapView() {
     map.setStyle(basemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE, { diff: false });
   }, [basemap, appliedBasemap, ready]);
 
+  if (unavailable) return <MapFallback />;
   return (
     <div className="absolute inset-0">
       <div ref={containerRef} className="size-full" aria-label="Baguio City 3D map" />
@@ -297,6 +310,50 @@ export function MapView() {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+const FALLBACK_LINKS = [
+  { href: "/destinations", label: "Destinations" },
+  { href: "/transit", label: "Jeepney routes and fares" },
+  { href: "/eat-stay", label: "Places to eat and stay" },
+  { href: "/history", label: "History" },
+];
+
+/** No WebGL: a still of the map, and the pages that carry the same content. */
+function MapFallback() {
+  return (
+    <div className="absolute inset-0">
+      <Image
+        src="/home/demo-map.jpg"
+        alt="Still of the 3D map of Baguio, with the terrain shaded"
+        fill
+        sizes="100vw"
+        className="object-cover"
+      />
+      <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="weave-edge max-w-md border-y border-r border-border bg-card p-6">
+          <h1 className="font-display text-2xl text-foreground">Your browser can&apos;t show the 3D map</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            The map needs WebGL, which is off or unsupported here. Turning on hardware acceleration in your
+            browser settings, or trying another browser, may bring it back. The same places, routes and history
+            are on these pages:
+          </p>
+          <ul className="mt-4 space-y-2 text-sm font-medium">
+            {FALLBACK_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href} className="text-primary underline-offset-4 hover:underline">
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Map data © OpenStreetMap contributors, OpenFreeMap. Terrain: Mapzen / Tilezen, AWS Open Data
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
