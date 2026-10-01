@@ -17,7 +17,7 @@ probe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(probe)
 
 GEO = ROOT / "data" / "geojson" / "landmarks.geojson"
-MIGRATION = ROOT / "supabase" / "migrations" / "20260924090000_correct_destination_elevations.sql"
+MIGRATION = ROOT / "supabase" / "migrations" / "20260924062116_correct_destination_elevations.sql"
 SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 
 text = GEO.read_text()
