@@ -582,11 +582,7 @@ Export must also emit `landmarks-manifest.json` — `slug`, `mesh_url`, `mesh_sc
 | **Supabase project is PAUSED** | **Medium** | ⚠️ Measured 2026-09-22: project `<project-ref>` reports `status: INACTIVE` (free tier auto-pauses when idle), so `/api/geo/*` returns **500** and the pooler rejects `<app-role>` with *"tenant/user not found"*. Terrain/basemap still render — they're third-party. **Restore the project before any phase that seeds `landmarks` rows.** |
 | **Drone footage is one flight, one season, one time of day** | **Low** | Fine for massing/colour; insufficient for lighting studies. |
 
-**Open questions for the user**
-1. Terrain exaggeration: scale meshes by 1.35, or drop exaggeration for the 3D layer?
-2. Should bulk buildings ship to the web at all, or are the 22 landmarks the only web-delivered geometry in v1?
-3. Is a 2 MB initial 3D payload acceptable, or should it be tighter?
-4. La Trinidad is inside the bounds but outside Baguio city limits and holds no destinations — model it as context geometry only?
+**Open questions for the user:** all four answered 1 October 2026. See the addendum of that date at the end.
 
 ---
 
@@ -635,3 +631,24 @@ Changes since this spec was written. The execution order now lives in Phase 9 of
 3. **The basemap is re-dyed and hill-shaded** (`components/map/basemapTheme.ts`). §13's visual review must cover both the weave basemap and satellite.
 4. **§15 step 4 (correct `elevation_m`) moved into the site overhaul** as its Task 4, ahead of any landmark work.
 5. **three.js has two users:** the homepage wireframe, which moves to the Problem section and loads only as that section nears (overhaul Task 24), and the landmark layer from §10. Both load it lazily; the landmark layer only when the first destination sheet opens (§9).
+
+---
+
+## Addendum, 1 October 2026: owner answers
+
+1. **Terrain exaggeration: yes, scale meshes.** Scale every mesh on Z only by the live `map.getTerrain()?.exaggeration`, read at render time and never hardcoded as 1.35. X and Y stay at true scale so footprints keep matching the OSM outlines and the basemap. `altitude_m` is multiplied by the same factor (§3a).
+2. **Building massing ships to the web.** §5 and §9 assumed it might not. It now streams as district tiles chosen by the viewport, and never loads as one file. Rough sizing, to be measured at M5: 120,751 footprints at about 25 triangles each is about 3 M triangles, roughly 10 to 15 MB compressed at full detail. So distant tiles must drop to simpler block massing.
+3. **Size budget.** This replaces the flat "≤ 2 MB" in §9. It is set for the slowest connection we design for: Lighthouse's default mobile throttling, which is 1.6 Mbps down, 150 ms RTT and 4× CPU slowdown ([Lighthouse throttling docs](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md)). The reference phone is the Galaxy A51 class used in [Alex Russell's 2024 budgets](https://infrequently.org/2024/01/performance-inequality-gap-2024/). At 1.6 Mbps, 100 KiB takes about 0.5 s.
+
+   | Item | Budget (compressed, over the wire) | Why |
+   |---|---|---|
+   | 3D on the first load of `/map` | **0 bytes** | Nothing 3D loads until the map is idle. First load stays exactly what it is today |
+   | 3D runtime (three.js, `GLTFLoader`, meshopt decoder) | **≤ 180 KiB** | Measured 1 Oct: the three.js chunk the homepage builds is 129 KiB gzip. `GLTFLoader` is 25 KiB and the meshopt decoder is 8 KiB |
+   | One building tile | **≤ 100 KiB** | About 0.5 s each, so the first buildings show about 1 s after the map goes idle |
+   | All tiles for `DEFAULT_CAMERA` | **≤ 1 MiB**, nearest tiles first | About 5 s for everything at 1.6 Mbps (Russell's 5 s P75 scale). At his 7.2 Mbps P75 network it is about 1.2 s |
+   | One landmark, textures included (KTX2) | **≤ 150 KiB**; tier-1 geometry stays ≤ 60 KiB inside that | Shows within about 1 s of opening its sheet |
+   | Total 3D in a session | **≤ 6 MiB** soft cap | Panning streams tiles. Files have content-hashed names and are cached forever, so a second visit downloads nothing |
+   | GPU (measured gate, not bytes) | **≥ 30 fps** while panning at the default view on a Galaxy A51 class phone | Starting settings: ≤ 500 k triangles and ≤ 100 draw calls for the 3D layer, textures in KTX2 only. These are tuning settings, adjusted on the phone at M8 |
+
+   Everything 3D in the default view is about 1.35 MiB (180 KiB runtime, 1 MiB of tiles, one 150 KiB landmark), loaded after the map is usable.
+4. **La Trinidad is context only:** terrain, roads, building massing and vegetation, but no hand-modeled buildings. One correction to the question: La Trinidad does hold a destination. `la-trinidad-strawberry-farms` (120.587, 16.464) is one of the 22 and keeps its landmark in M6.

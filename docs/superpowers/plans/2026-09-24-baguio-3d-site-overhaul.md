@@ -4319,11 +4319,11 @@ The full specification is `docs/baguio-3d-model-plan.md` (15 sections: aerial an
 |---|---|---|
 | M1 | Data: Copernicus GLO-30 DEM for the padded bounds; Geofabrik Philippines OSM extract clipped to the bounds | DEM agrees with the app's Terrarium DEM at the 15 trusted anchors (±35 m); OSM building count within 1% of 120,751. **Not** "the whole DEM spans 910–1,667 m": that range is the city limits, while the model bounds also take in lowland valleys and ground above 2,000 m (a z13 Terrarium survey of exactly `[120.5, 16.3, 120.7, 16.5]` read 153–2,230 m). Spec §5's range check needs the same correction; see its addendum |
 | M2 | Terrain authoring mesh in Blender (Displace from DEM, 3 LODs), driven through the Blender MCP | The 15 trusted anchors from spec §3(c) within 35 m; Mines View ridge at `120.628, 16.417` ≈ 1,530 m |
-| M3 | **Vertical slice: `baguio-cathedral`** end to end: model → GLB → manifest → `landmarks` row → rendered on `/map` | GLB ≤ 60 KB after gltfpack; base within ±2 m of `queryTerrainElevation` at the pin; survives terrain → satellite → terrain with no page errors; screenshot matches the drone reference |
+| M3 | **Vertical slice: `baguio-cathedral`** end to end: model → GLB → manifest → `landmarks` row → rendered on `/map` | GLB ≤ 150 KiB with textures (geometry ≤ 60 KiB) after gltfpack; base within ±2 m of `queryTerrainElevation` at the pin; survives terrain → satellite → terrain with no page errors; screenshot matches the drone reference |
 | M4 | Tier-1 landmarks: `burnham-park`, `session-road`, `mines-view-park`, `camp-john-hay` | Same gates as M3, each |
-| M5 | Context layers: roads, building massing (height heuristic), pine scatter, for renders and authoring | Spec §13 visual checks; no building floats on a slope |
+| M5 | Context layers: roads, building massing (height heuristic), pine scatter, for renders and authoring | Spec §13 visual checks; no building floats on a slope; massing ships as viewport tiles ≤ 100 KiB each, ≤ 1 MiB for the default view |
 | M6 | Remaining 17 landmarks | Same gates as M3 |
-| M7 | Optimization and export | Total payload ≤ 2 MB; every GLB opens in a standalone viewer |
+| M7 | Optimization and export | Budgets in the spec's 1 October 2026 addendum met (0 bytes of 3D on first load; ≥ 30 fps on a Galaxy A51 class phone); every GLB opens in a standalone viewer |
 | M8 | Integration hardening | Full e2e green; landmark layer lazy (no three.js request before a destination sheet opens) |
 
 Per the plan-writing rule for separate subsystems, M1–M8 get their own bite-sized plan, written at M1 kickoff in a session with Blender and the MCP running. Every Blender step is authored against the live `bpy` API (spec §4.0: `bpy_api_lookup`, `describe_node_type`, `get_viewport_screenshot`); writing `bpy` code now would guess at exactly the API state the spec says to look up.
