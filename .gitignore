@@ -55,3 +55,4 @@ supabase/roles.sql
 
 # 3D model source data (downloads and derived rasters; provenance is in model/sources.json)
 /model/data/
+__pycache__/
