@@ -207,14 +207,21 @@ class Shapes:
     def P(self, a, w, z):
         return (a * self.U[0] + w * self.V[0], a * self.U[1] + w * self.V[1], z)
 
-    def mesh(self, name, verts, faces, mat, uv="aw"):
+    def mesh(self, name, verts, faces, mat, uv="aw", uvs=None):
+        """uvs: optional explicit (u, v) per vertex, e.g. a road texture running along a street."""
         bm = bmesh.new()
         vs = [bm.verts.new(self.P(*v)) for v in verts]
         for f in faces:
             bm.faces.new([vs[i] for i in f])
         bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
         tile = self.tile.get(mat.name)
-        if tile:
+        if uvs is not None:
+            layer = bm.loops.layers.uv.new("UVMap")
+            idx = {v: i for i, v in enumerate(vs)}
+            for f in bm.faces:
+                for lp in f.loops:
+                    lp[layer].uv = uvs[idx[lp.vert]]
+        elif tile:
             layer = bm.loops.layers.uv.new("UVMap")
             src = dict(zip(vs, verts))
             for f in bm.faces:
@@ -234,9 +241,9 @@ class Shapes:
         self.coll.objects.link(ob)
         return ob
 
-    def hexa(self, name, bottom, top, mat, uv="aw"):
+    def hexa(self, name, bottom, top, mat, uv="aw", uvs=None):
         """Closed solid from 4 bottom and 4 top (a, w, z) corners in matching order."""
-        return self.mesh(name, bottom + top, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat, uv)
+        return self.mesh(name, bottom + top, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat, uv, uvs)
 
     def box(self, name, a0, a1, w0, w1, z0, z1, mat, uv="aw"):
         return self.hexa(name, [(a0, w0, z0), (a1, w0, z0), (a1, w1, z0), (a0, w1, z0)],

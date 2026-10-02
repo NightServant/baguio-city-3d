@@ -10,6 +10,9 @@ from pathlib import Path
 import bpy
 
 ROOT = Path(__file__).resolve().parents[2]
+# No normals: landmarks are faceted solids, and three's GLTFLoader flat-shades meshes without normals
+# (GLTFLoader.js useFlatShading). Measured on session-road (2026-10-02): see the ledger.
+NORMALS = False
 
 
 def export_landmark_glb(collection_name, out_path, image_format="WEBP", image_quality=80):
@@ -24,7 +27,7 @@ def export_landmark_glb(collection_name, out_path, image_format="WEBP", image_qu
         export_yup=True, export_apply=True, export_gn_mesh=False,
         export_cameras=False, export_lights=False, export_animations=False, export_skins=False, export_morph=False,
         export_materials="EXPORT", export_image_format=image_format, export_image_quality=image_quality,
-        export_texcoords=True, export_normals=True, export_tangents=False,
+        export_texcoords=True, export_normals=NORMALS, export_tangents=False,
         export_vertex_color="NONE", export_attributes=False, export_extras=False,
         export_draco_mesh_compression_enable=False, export_use_gltfpack=False,
     )

@@ -6,6 +6,7 @@
 
   uv run model/scripts/landmark_osm.py candidates <slug>       # OSM features within 250 m of the destination
   uv run model/scripts/landmark_osm.py footprint <slug> <id>…  # ids like way/123 or relation/456
+  uv run model/scripts/landmark_osm.py footprint-line <slug> <radius_m> <half_width_m> <id>…   # streets
 
 Overpass needs a non-personal user agent (curl's default gets HTTP 406). Responses are cached in
 model/data/landmarks/<slug>/osm.json, so re-runs don't hit the API."""
@@ -14,7 +15,7 @@ import subprocess
 import sys
 
 from pyproj import Transformer
-from shapely.geometry import Polygon, mapping
+from shapely.geometry import LineString, Point, Polygon, mapping
 from shapely.ops import orient, unary_union
 
 from common import LANDMARKS, LM_DATA, LOCAL_TM, ROOT
@@ -90,6 +91,42 @@ def footprint(slug, ids):
     print(f"{slug}: {len(parts)} part(s), {shape.area:,.0f} m2, anchor {alng:.6f},{alat:.6f}; exclusion {len(ring)} points")
 
 
+def footprint_line(slug, radius, half_width, ids):
+    """Streets: centrelines clipped to `radius` m around the destination, buffered by `half_width` m. The
+    exclusion ring is that corridor only (no extra buffer), so frontage buildings stay in the massing."""
+    fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
+    inv = Transformer.from_crs(LOCAL_TM, "EPSG:4326", always_xy=True)
+    els = {f"{e['type']}/{e['id']}": e for e in osm(slug)["elements"]}
+    pin = Point(fwd.transform(*destination(slug))).buffer(radius)
+    lines = []
+    for i in ids:
+        el = els[i]
+        line = LineString([fwd.transform(p["lon"], p["lat"]) for p in el["geometry"]]).intersection(pin)
+        for part in getattr(line, "geoms", [line]):
+            if part.length > 5:
+                lines.append((i, el.get("tags", {}), part))
+    corridor = unary_union([ln.buffer(half_width, cap_style="flat") for _, _, ln in lines])
+    c = corridor.centroid
+    parts = list(getattr(corridor, "geoms", [corridor]))
+    rings = [[[x - c.x, y - c.y] for x, y in orient(p, 1.0).exterior.coords[:-1]] for p in parts]
+    alng, alat = inv.transform(c.x, c.y)
+    out = LM_DATA / slug / "footprint.json"
+    out.write_text(json.dumps({"slug": slug, "anchor_lnglat": [alng, alat], "anchor_tm": [c.x, c.y], "rings": rings,
+                               "area_m2": corridor.area, "lines": [{"id": i, "lanes": t.get("lanes"), "oneway": t.get("oneway"),
+                               "points": [[x - c.x, y - c.y] for x, y in ln.coords]} for i, t, ln in lines]}, indent=2) + "\n")
+    hull = corridor if len(parts) == 1 else corridor.convex_hull
+    ring = [[round(v, 5) for v in inv.transform(x, y)] for x, y in hull.exterior.coords]
+    reg = json.loads(LANDMARKS.read_text())
+    reg[slug].update({"osm_ids": ids, "exclusion": ring, "anchor": [round(alng, 6), round(alat, 6)]})
+    LANDMARKS.write_text(json.dumps(reg, indent=2) + "\n")
+    print(f"{slug}: {len(lines)} centreline part(s), {sum(ln.length for _, _, ln in lines):,.0f} m, corridor {corridor.area:,.0f} m2")
+
+
 if __name__ == "__main__":
     cmd, slug, *rest = sys.argv[1:]
-    candidates(slug) if cmd == "candidates" else footprint(slug, rest)
+    if cmd == "candidates":
+        candidates(slug)
+    elif cmd == "footprint-line":
+        footprint_line(slug, float(rest[0]), float(rest[1]), rest[2:])
+    else:
+        footprint(slug, rest)
