@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Executed 2026-10-02 with two deviations** (slow link: a remote COG block fetch instead of the full tile; an Overpass extract instead of Geofabrik + osmium). See the ledger's "Phase 9, M1" section. The committed scripts are the source of truth.
+
 **Goal:** Put the two source datasets for the Blender model on disk, clipped to the map's padded bounds, with their provenance recorded and every M1 gate passing from one command.
 
 **Architecture:** Three small Python scripts under `model/scripts/` share one module (`common.py`) for the area, paths and the source ledger. `fetch_dem.py` downloads the Copernicus GLO-30 tile and clips it. `fetch_osm.py` downloads a dated Geofabrik Philippines extract and clips it with osmium. `check_m1.py` runs the gates. Downloads live in a gitignored `model/data/`. The committed `model/sources.json` records the URL, date, size, checksum, licence and attribution of each download.
