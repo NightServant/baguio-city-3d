@@ -43,3 +43,6 @@ LOCAL_TM = "+proj=tmerc +lat_0=16.4023 +lon_0=120.596 +k=1 +x_0=0 +y_0=0 +ellps=
 TERRAIN = DATA / "terrain"
 BLEND = DATA / "blend" / "baguio.blend"
 RENDERS = DATA / "renders"
+
+LANDMARKS = ROOT / "model" / "landmarks.json"
+LM_DATA = DATA / "landmarks"

@@ -24,7 +24,7 @@ The app's `ModelLayer` (M3) gains tile streaming: tiles intersecting the view lo
 - **Truth (C9):** inferred heights are plausible massing, never survey data. Any copy mentioning them says so (M8 adds the line to `/about#sources`).
 - **Determinism (C7):** the builder is seeded only by OSM ids; two runs give identical tile hashes.
 - **Every landmark needs an exclusion ring before tiles are built.** M3 and M4 fill 5; Task 0 fills the other 17.
-- **Roof palette needs owner sign-off.** The spec's verified roof colours include green (§1), while the site's UI palette rule is "no green anywhere" (overhaul Global Constraints, 2026-09-22). Ask the owner at kickoff whether map content follows the photographic reference (green roofs) or the UI rule. Record the answer in the ledger and set `ROOF_PALETTE` accordingly. Default if no answer: the spec's colours, because they're the city's real roofs.
+- **Roof palette (owner decision, 2026-10-02):** "Citywide roof palette have variety of colors", with an aerial reference image of hillside Baguio. Map roofs follow the city's real mix, green included; the site's no-green rule covers UI, not map content. Weights below are ESTIMATEs read from that reference.
 
 ## File map
 
@@ -59,7 +59,7 @@ The app's `ModelLayer` (M3) gains tile streaming: tiles intersecting the view lo
 
 **Interfaces:**
 - Consumes: `common.OSM, PADDED, LOCAL_TM, LANDMARKS, DATA, ROOT`; `model/landmarks.json` `exclusion` rings (all non-null); `data/geojson/landmarks.geojson` (the `session-road` coordinate is the CBD reference point); M3's `GLTFPACK` pin (import it from `pack_landmark`).
-- Produces: `public/models/buildings/index.json` = `{"zoom": int, "skirtM": float, "palette": str, "tiles": [{"id": "z-x-y", "anchor": [lng, lat], "bbox": [w, s, e, n], "near": {"url", "bytes", "triangles"}, "far": {"url", "bytes", "triangles"}}]}`. Tile GLBs: one mesh, one primitive, `POSITION` (float32, glTF +Y up, metres relative to the anchor, Y = metres above sea level), `COLOR_0` (normalized uint8 RGBA, linear), uint32 indices, one material (white base colour, roughness 0.9). After gltfpack the attributes are quantized and meshopt-compressed.
+- Produces: `public/models/buildings/index.json` = `{"zoom": int, "skirtM": float, "tiles": [{"id": "z-x-y", "anchor": [lng, lat], "bbox": [w, s, e, n], "near": {"url", "bytes", "triangles"}, "far": {"url", "bytes", "triangles"}}]}`. Tile GLBs: one mesh, one primitive, `POSITION` (float32, glTF +Y up, metres relative to the anchor, Y = metres above sea level), `COLOR_0` (normalized uint8 RGBA, linear), uint32 indices, one material (white base colour, roughness 0.9). After gltfpack the attributes are quantized and meshopt-compressed.
 
 - [ ] **Step 1: Write `model/scripts/build_massing.py`**
 
@@ -98,7 +98,6 @@ SKIRT_M = 3.0        # set in Task 2: buried wall depth below the lowest corner
 STOREY_M = 3.2       # spec §6
 ROOF_PITCH = math.radians(18)
 FAR_MIN_AREA = 60.0  # far LOD drops smaller buildings
-PALETTE = "spec"     # Task 0 owner decision: "spec" (photographic, incl. green) or "ui" (no green)
 PUBLIC = ROOT / "public" / "models" / "buildings"
 WORK = DATA / "massing"
 TERRARIUM = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
@@ -112,11 +111,10 @@ def srgb(r, g, b):
     return (round(f(r)), round(f(g)), round(f(b)), 255)
 
 
-# ESTIMATE weights from spec §1's ordering ("saturated red, green, blue, teal"); owner reviews renders.
-ROOFS_PITCHED = {
-    "spec": [(srgb(150, 58, 42), 35), (srgb(58, 108, 74), 25), (srgb(52, 86, 132), 20), (srgb(44, 120, 118), 10), (srgb(160, 162, 165), 10)],
-    "ui": [(srgb(150, 58, 42), 45), (srgb(52, 86, 132), 25), (srgb(44, 120, 118), 15), (srgb(160, 162, 165), 15)],
-}[PALETTE]
+# ESTIMATE weights read from the owner's aerial reference (2026-10-02): red/rust dominant, then blue,
+# green, teal, white/grey sheet, some orange.
+ROOFS_PITCHED = [(srgb(150, 58, 42), 32), (srgb(176, 64, 48), 10), (srgb(52, 86, 132), 15), (srgb(58, 108, 74), 13),
+                 (srgb(44, 120, 118), 10), (srgb(200, 200, 196), 12), (srgb(196, 112, 52), 8)]
 ROOF_FLAT = srgb(140, 140, 135)
 WALLS = [srgb(214, 204, 182), srgb(196, 196, 190), srgb(224, 214, 170), srgb(232, 228, 220)]
 
@@ -389,7 +387,7 @@ def build():
         for x, y, lod, entry, anchor, bbox in pool.map(pack, jobs):
             t = index.setdefault(f"{ZOOM}-{x}-{y}", {"id": f"{ZOOM}-{x}-{y}", "anchor": anchor, "bbox": bbox})
             t[lod] = entry
-    doc = {"zoom": ZOOM, "skirtM": SKIRT_M, "palette": PALETTE, "tiles": [index[k] for k in sorted(index)]}
+    doc = {"zoom": ZOOM, "skirtM": SKIRT_M, "tiles": [index[k] for k in sorted(index)]}
     (PUBLIC / "index.json").write_text(json.dumps(doc, indent=1) + "\n")
     sizes = np.array([t[l]["bytes"] for t in doc["tiles"] for l in ("near", "far") if l in t])
     print(f"tiles {len(doc['tiles'])}, files {len(sizes)}, bytes p50 {np.percentile(sizes, 50):,.0f} p95 {np.percentile(sizes, 95):,.0f} max {sizes.max():,}")
@@ -553,7 +551,6 @@ test("the default view loads its buildings within 1 MiB and 500k triangles, with
 ### Task 6: Sign-off
 
 - [ ] Append `## Phase 9, M5 (date)` to the ledger with:
-  - the palette decision;
   - the heuristic medians;
   - `SKIRT_M` and its p99;
   - the tile zoom, the size p50/p95/max, and the hashes check;

@@ -1,0 +1,95 @@
+# /// script
+# requires-python = ">=3.13,<3.14"
+# dependencies = ["pyproj==3.8.0", "shapely==2.1.2"]
+# ///
+"""Landmark procedure step B.
+
+  uv run model/scripts/landmark_osm.py candidates <slug>       # OSM features within 250 m of the destination
+  uv run model/scripts/landmark_osm.py footprint <slug> <id>…  # ids like way/123 or relation/456
+
+Overpass needs a non-personal user agent (curl's default gets HTTP 406). Responses are cached in
+model/data/landmarks/<slug>/osm.json, so re-runs don't hit the API."""
+import json
+import subprocess
+import sys
+
+from pyproj import Transformer
+from shapely.geometry import Polygon, mapping
+from shapely.ops import orient, unary_union
+
+from common import LANDMARKS, LM_DATA, LOCAL_TM, ROOT
+
+UA = "baguio-city-3d/1.0"
+RADIUS_M = 250
+BUFFER_M = 5  # exclusion = footprint grown by 5 m, so massing never touches the landmark
+
+
+def destination(slug):
+    for f in json.loads((ROOT / "data" / "geojson" / "landmarks.geojson").read_text())["features"]:
+        if f["properties"]["slug"] == slug:
+            return f["geometry"]["coordinates"]
+    raise SystemExit(f"unknown slug {slug}")
+
+
+def osm(slug):
+    cache = LM_DATA / slug / "osm.json"
+    if cache.exists():
+        return json.loads(cache.read_text())
+    lng, lat = destination(slug)
+    q = f"[out:json][timeout:60];(way(around:{RADIUS_M},{lat},{lng})[~\"^(building|leisure|amenity|tourism|historic|landuse|natural|man_made|highway)$\"~\".\"];relation(around:{RADIUS_M},{lat},{lng})[~\"^(building|leisure|amenity|tourism|historic|landuse)$\"~\".\"];);out geom tags;"
+    out = subprocess.run(["curl", "-fsS", "--retry", "4", "--retry-all-errors", "--retry-delay", "30", "-A", UA, "--data-urlencode", f"data={q}",
+                          "https://overpass-api.de/api/interpreter"], check=True, capture_output=True, text=True).stdout
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(out)
+    return json.loads(out)
+
+
+def polygons(el, fwd):
+    """Closed rings of a way or a multipolygon relation's outer members, in model-frame metres."""
+    if el["type"] == "way":
+        rings = [el.get("geometry", [])]
+    else:
+        rings = [m.get("geometry", []) for m in el.get("members", []) if m.get("role") == "outer"]
+    out = []
+    for ring in rings:
+        if len(ring) >= 4 and ring[0] == ring[-1]:
+            out.append(Polygon([fwd.transform(p["lon"], p["lat"]) for p in ring]))
+    return out
+
+
+def candidates(slug):
+    fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
+    for el in osm(slug)["elements"]:
+        polys = polygons(el, fwd)
+        area = sum(p.area for p in polys)
+        t = el.get("tags", {})
+        keys = {k: t[k] for k in ("name", "building", "building:levels", "height", "leisure", "amenity", "tourism", "historic") if k in t}
+        print(f"{el['type']}/{el['id']}\tarea {area:,.0f} m2\t{json.dumps(keys, ensure_ascii=False)}")
+
+
+def footprint(slug, ids):
+    fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
+    inv = Transformer.from_crs(LOCAL_TM, "EPSG:4326", always_xy=True)
+    els = {f"{e['type']}/{e['id']}": e for e in osm(slug)["elements"]}
+    missing = [i for i in ids if i not in els]
+    if missing:
+        raise SystemExit(f"not in the cached candidates: {missing}")
+    shape = unary_union([p for i in ids for p in polygons(els[i], fwd)])
+    c = shape.centroid
+    parts = list(getattr(shape, "geoms", [shape]))
+    rings = [[[x - c.x, y - c.y] for x, y in orient(p, 1.0).exterior.coords[:-1]] for p in parts]
+    alng, alat = inv.transform(c.x, c.y)
+    out = LM_DATA / slug / "footprint.json"
+    out.write_text(json.dumps({"slug": slug, "anchor_lnglat": [alng, alat], "anchor_tm": [c.x, c.y],
+                               "rings": rings, "area_m2": shape.area}, indent=2) + "\n")
+    hull = shape.buffer(BUFFER_M).convex_hull if len(parts) > 1 else shape.buffer(BUFFER_M)
+    ring = [[round(v, 5) for v in inv.transform(x, y)] for x, y in hull.exterior.coords]
+    reg = json.loads(LANDMARKS.read_text())
+    reg[slug].update({"osm_ids": ids, "exclusion": ring, "anchor": [round(alng, 6), round(alat, 6)]})
+    LANDMARKS.write_text(json.dumps(reg, indent=2) + "\n")
+    print(f"{slug}: {len(parts)} part(s), {shape.area:,.0f} m2, anchor {alng:.6f},{alat:.6f}; exclusion {len(ring)} points")
+
+
+if __name__ == "__main__":
+    cmd, slug, *rest = sys.argv[1:]
+    candidates(slug) if cmd == "candidates" else footprint(slug, rest)
