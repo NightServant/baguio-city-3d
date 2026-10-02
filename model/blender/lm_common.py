@@ -242,11 +242,19 @@ class Shapes:
         return self.hexa(name, [(a0, w0, z0), (a1, w0, z0), (a1, w1, z0), (a0, w1, z0)],
                          [(a0, w0, z1), (a1, w0, z1), (a1, w1, z1), (a0, w1, z1)], mat, uv)
 
-    def prism(self, name, pts, z0, z1, mat, uv="aw"):
-        """Vertical prism over a polygon of (a, w) points."""
+    def prism(self, name, pts, z0, z1, mat, uv="aw", tessellate=False):
+        """Vertical prism over a polygon of (a, w) points. tessellate=True splits the caps into triangles
+        with mathutils' polygon tessellator: a concave n-gon cap can otherwise triangulate badly and leave
+        holes (seen on Burnham Lake's 28-point outline)."""
         n = len(pts)
         verts = [(a, w, z0) for a, w in pts] + [(a, w, z1) for a, w in pts]
-        faces = [tuple(range(n)), tuple(range(n, 2 * n))] + [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+        if tessellate:
+            from mathutils.geometry import tessellate_polygon
+            tris = tessellate_polygon([[(a, w, 0.0) for a, w in pts]])
+            caps = [tuple(t) for t in tris] + [tuple(n + i for i in t) for t in tris]
+        else:
+            caps = [tuple(range(n)), tuple(range(n, 2 * n))]
+        faces = caps + [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
         return self.mesh(name, verts, faces, mat, uv)
 
     def gable_along_a(self, name, a0, a1, w0, w1, ze, mat):

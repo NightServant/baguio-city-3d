@@ -16,13 +16,13 @@
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
-      "url": "/models/landmarks/burnham-park.982f567a.glb",
+      "url": "/models/landmarks/burnham-park.f6a61ae0.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 888,
-      "bytes": 20164,
-      "geometryBytes": 18052,
-      "sha256": "982f567a66af52e6860374a2cde8665b232172205a7f898cac2a8a7f6ed7995d"
+      "triangles": 4486,
+      "bytes": 59664,
+      "geometryBytes": 57416,
+      "sha256": "f6a61ae02787c2f552e3b922a4b94a3f845ff4e62091eb65d1c5a5b9a49ee184"
     }
   ]
 }

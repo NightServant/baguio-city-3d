@@ -1,6 +1,6 @@
 """Review renders for one landmark in context (landmark procedure step C): three close views plus the
 nearest app preset camera, Workbench with shadows and cavity, and a contact sheet.
-Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/render_landmark.py -- <slug> <facade-bearing-deg> [preset]
+Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/render_landmark.py -- <slug> <facade-bearing-deg> [preset] [distance-scale]
 <facade-bearing-deg> is the direction the camera looks to face the landmark's front (clockwise from north)."""
 import math
 import sys
@@ -11,7 +11,8 @@ import bpy
 ROOT = Path(__file__).resolve().parents[2]
 args = sys.argv[sys.argv.index("--") + 1:]
 slug, front = args[0], float(args[1])
-preset = args[2] if len(args) > 2 else None
+preset = args[2] if len(args) > 2 and args[2] != "-" else None
+scale = float(args[3]) if len(args) > 3 else 1.0  # widen the close views for large sites (a lake, a park)
 out = ROOT / "model" / "data" / "renders" / "landmarks"
 out.mkdir(parents=True, exist_ok=True)
 
@@ -38,7 +39,7 @@ def shoot(name, bearing, pitch, dist):
     return scene.render.filepath
 
 
-shots = [shoot("front", front, 70, 95), shoot("aerial", front + 35, 50, 140), shoot("side", front + 95, 72, 110)]
+shots = [shoot("front", front, 70, 95 * scale), shoot("aerial", front + 35, 50, 140 * scale), shoot("side", front + 95, 72, 110 * scale)]
 if preset:
     scene.camera = bpy.data.objects[f"CAM_{preset}"]
     scene.render.filepath = str(out / f"{slug}-preset-{preset}.png")
