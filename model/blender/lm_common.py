@@ -113,3 +113,182 @@ def context_instance(slug, fp):
     inst.location = (ax, ay, terrain_z([(ax, ay)])[0])
     bpy.data.collections["00_REFERENCE"].objects.link(inst)
     return inst
+
+
+# --- Shared shape and pattern helpers (moved from the cathedral script, M4) --------------------------
+
+import math  # noqa: E402
+
+import numpy as np  # noqa: E402
+
+
+def srgb(r, g, b):
+    """sRGB 0-255 -> linear 0-1, for Principled Base Color."""
+    f = lambda c: (c / 255) / 12.92 if c / 255 <= 0.04045 else (((c / 255) + 0.055) / 1.055) ** 2.4
+    return (f(r), f(g), f(b))
+
+
+def pattern_image(name, rgb):
+    """Pack a generated sRGB pattern (n x n x 3, rows from the bottom) into the .blend as an image."""
+    old = bpy.data.images.get(name)
+    if old:
+        bpy.data.images.remove(old)
+    n = rgb.shape[0]
+    img = bpy.data.images.new(name, n, n, alpha=False)
+    rgba = np.concatenate([np.clip(rgb, 0, 1), np.ones((n, n, 1))], axis=2).astype(np.float32)
+    img.pixels.foreach_set(rgba.ravel())
+    img.pack()
+    return img
+
+
+def textured(name, img, mean_rgb, roughness):
+    mat = material(name, mean_rgb, roughness)
+    nt = mat.node_tree
+    tex = next((n for n in nt.nodes if n.type == "TEX_IMAGE"), None) or nt.nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    nt.links.new(tex.outputs["Color"], next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED").inputs["Base Color"])
+    return mat
+
+
+# Generated, seeded 256 px tiles (no downloads; deterministic). Values are sRGB.
+N = 256
+
+
+def _grid():
+    Y, X = (np.mgrid[0:N, 0:N] + 0.5) / N  # Y = v (up), X = u
+    return Y, X, np.random.default_rng(1936).normal(0.0, 1.0, (N, N, 1))
+
+
+def wall_blocks(rgb=(0.925, 0.925, 0.910)):
+    """Painted walls with faint block joints: 0.5 m courses, 1 m blocks, running bond (2 m tile)."""
+    Y, X, grain = _grid()
+    row = np.floor(Y * 4)
+    bx, by = (X * 2 + (row % 2) * 0.5) % 1.0, (Y * 4) % 1.0
+    joint = (np.minimum(bx, 1 - bx) < 0.010) | (np.minimum(by, 1 - by) < 0.018)
+    block = 1 + 0.012 * np.sin(np.floor(X * 2 + (row % 2) * 0.5) * 12.9898 + row * 78.233)
+    shade = block[..., None] * (1 + 0.010 * grain) * np.where(joint, 0.88, 1.0)[..., None]
+    return np.array(rgb) * shade
+
+
+def corrugated(rgb=(0.77, 0.16, 0.14)):
+    """Corrugated metal roofing: 8 ribs per 1 m tile, running down the slope, light weathering."""
+    Y, X, grain = _grid()
+    rib = 0.90 + 0.14 * np.sin(2 * np.pi * 8 * X)
+    return np.array(rgb) * (rib[..., None] * (1 + 0.025 * grain))
+
+
+def fish_scales(rgb=(0.78, 0.17, 0.15)):
+    """Fish-scale shingles: 6 rows x 6 scales per 1.5 m tile, alternate rows offset."""
+    Y, X, grain = _grid()
+    row = np.floor(Y * 6)
+    cx = (X * 6 + (row % 2) * 0.5) % 1.0 - 0.5
+    cy = (Y * 6) % 1.0
+    edge = 0.42 - 0.42 * np.sqrt(np.clip(1 - (2 * cx) ** 2, 0, 1))
+    t = np.clip((cy - edge) / (1 - edge + 1e-6), 0, 1)
+    shade = np.where(cy >= edge, 1.06 - 0.24 * t, 0.70)
+    shade = np.where(np.abs(cy - edge) < 0.035, 0.52, shade)
+    col = np.floor(X * 6 + (row % 2) * 0.5) % 6
+    tint = 1 + 0.05 * np.sin(col * 12.9898 + row * 78.233)
+    return np.array(rgb) * ((shade * tint)[..., None] * (1 + 0.02 * grain))
+
+
+class Shapes:
+    """Modeling in a building frame: a runs along `bearing_deg` (clockwise from north), w to its right,
+    z up; all solids are closed. Textured materials named in `tile` get box-mapped UVs at tile[name]
+    metres per repeat: on roofs uv="aw" runs ribs down a ridge laid along a, uv="wa" for a ridge
+    along w; on walls and spires v is height, so pattern rows stay level."""
+
+    def __init__(self, coll, bearing_deg, tile=None, pitch_deg=38.0):
+        b = math.radians(bearing_deg)
+        self.U = (math.sin(b), math.cos(b))
+        self.V = (self.U[1], -self.U[0])
+        self.coll, self.tile, self.pitch = coll, tile or {}, math.tan(math.radians(pitch_deg))
+
+    def P(self, a, w, z):
+        return (a * self.U[0] + w * self.V[0], a * self.U[1] + w * self.V[1], z)
+
+    def mesh(self, name, verts, faces, mat, uv="aw"):
+        bm = bmesh.new()
+        vs = [bm.verts.new(self.P(*v)) for v in verts]
+        for f in faces:
+            bm.faces.new([vs[i] for i in f])
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        tile = self.tile.get(mat.name)
+        if tile:
+            layer = bm.loops.layers.uv.new("UVMap")
+            src = dict(zip(vs, verts))
+            for f in bm.faces:
+                pts = [src[lp.vert] for lp in f.loops]
+                n = [sum((p[(k + 1) % 3] - q[(k + 1) % 3]) * (p[(k + 2) % 3] + q[(k + 2) % 3])
+                         for p, q in zip(pts, pts[1:] + pts[:1])) for k in range(3)]  # Newell normal
+                axis = max(range(3), key=lambda k: abs(n[k]))
+                for lp in f.loops:
+                    a, w, z = src[lp.vert]
+                    u, v = ((a, w) if uv == "aw" else (w, a)) if axis == 2 else ((w, z) if axis == 0 else (a, z))
+                    lp[layer].uv = (u / tile, v / tile)
+        me = bpy.data.meshes.new(name)
+        bm.to_mesh(me)
+        bm.free()
+        me.materials.append(mat)
+        ob = bpy.data.objects.new(name, me)
+        self.coll.objects.link(ob)
+        return ob
+
+    def hexa(self, name, bottom, top, mat, uv="aw"):
+        """Closed solid from 4 bottom and 4 top (a, w, z) corners in matching order."""
+        return self.mesh(name, bottom + top, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat, uv)
+
+    def box(self, name, a0, a1, w0, w1, z0, z1, mat, uv="aw"):
+        return self.hexa(name, [(a0, w0, z0), (a1, w0, z0), (a1, w1, z0), (a0, w1, z0)],
+                         [(a0, w0, z1), (a1, w0, z1), (a1, w1, z1), (a0, w1, z1)], mat, uv)
+
+    def prism(self, name, pts, z0, z1, mat, uv="aw"):
+        """Vertical prism over a polygon of (a, w) points."""
+        n = len(pts)
+        verts = [(a, w, z0) for a, w in pts] + [(a, w, z1) for a, w in pts]
+        faces = [tuple(range(n)), tuple(range(n, 2 * n))] + [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+        return self.mesh(name, verts, faces, mat, uv)
+
+    def gable_along_a(self, name, a0, a1, w0, w1, ze, mat):
+        wm, zr = (w0 + w1) / 2, ze + (w1 - w0) / 2 * self.pitch
+        verts = [(a0, w0, ze), (a1, w0, ze), (a1, w1, ze), (a0, w1, ze), (a0, wm, zr), (a1, wm, zr)]
+        return self.mesh(name, verts, [(0, 1, 2, 3), (0, 1, 5, 4), (3, 2, 5, 4), (0, 3, 4), (1, 2, 5)], mat), zr
+
+    def gable_along_w(self, name, a0, a1, w0, w1, ze, mat):
+        am, zr = (a0 + a1) / 2, ze + (a1 - a0) / 2 * self.pitch
+        verts = [(a0, w0, ze), (a0, w1, ze), (a1, w1, ze), (a1, w0, ze), (am, w0, zr), (am, w1, zr)]
+        return self.mesh(name, verts, [(0, 1, 2, 3), (0, 1, 5, 4), (3, 2, 5, 4), (0, 3, 4), (1, 2, 5)], mat, uv="wa"), zr
+
+    def gable_wall(self, name, a0, a1, w0, w1, ze, zr, mat):
+        """Triangular wall filling a gable end, thickness a0..a1."""
+        wm = (w0 + w1) / 2
+        return self.mesh(name, [(a0, w0, ze), (a0, w1, ze), (a0, wm, zr), (a1, w0, ze), (a1, w1, ze), (a1, wm, zr)],
+                         [(0, 1, 2), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], mat)
+
+    def pyramid(self, name, ac, wc, half, z0, z1, mat):
+        verts = [(ac - half, wc - half, z0), (ac + half, wc - half, z0), (ac + half, wc + half, z0), (ac - half, wc + half, z0), (ac, wc, z1)]
+        return self.mesh(name, verts, [(0, 1, 2, 3), (0, 1, 4), (1, 2, 4), (2, 3, 4), (3, 0, 4)], mat)
+
+    def cone(self, name, ac, wc, r, z0, z1, mat, seg=8):
+        ring = [(ac + r * math.cos(2 * math.pi * i / seg), wc + r * math.sin(2 * math.pi * i / seg), z0) for i in range(seg)]
+        return self.mesh(name, ring + [(ac, wc, z1)], [tuple(range(seg))] + [(i, (i + 1) % seg, seg) for i in range(seg)], mat)
+
+    def disc(self, name, axis, at, c1, c2, r, depth, mat, seg=16):
+        """Thin cylinder on a wall: axis 'a' (wall faces along a, centre w=c1, z=c2) or 'w' (centre a=c1, z=c2)."""
+        ring = [(r * math.cos(2 * math.pi * i / seg), r * math.sin(2 * math.pi * i / seg)) for i in range(seg)]
+        if axis == "a":
+            verts = [(at, c1 + x, c2 + y) for x, y in ring] + [(at - depth, c1 + x, c2 + y) for x, y in ring]
+        else:
+            verts = [(c1 + x, at, c2 + y) for x, y in ring] + [(c1 + x, at - depth, c2 + y) for x, y in ring]
+        faces = [tuple(range(seg)), tuple(range(seg, 2 * seg))] + [(i, (i + 1) % seg, seg + (i + 1) % seg, seg + i) for i in range(seg)]
+        return self.mesh(name, verts, faces, mat)
+
+    def arch_panel(self, name, axis, at, c, width, z0, z1, depth, mat):
+        """Pointed-arch opening as a thin pentagonal prism on a wall facing along `axis`."""
+        h = width / 2
+        pts = [(c - h, z0), (c + h, z0), (c + h, z1 - h), (c, z1), (c - h, z1 - h)]
+        if axis == "a":
+            verts = [(at, x, z) for x, z in pts] + [(at - depth, x, z) for x, z in pts]
+        else:
+            verts = [(x, at, z) for x, z in pts] + [(x, at - depth, z) for x, z in pts]
+        return self.mesh(name, verts, [(0, 1, 2, 3, 4), (5, 6, 7, 8, 9)] + [(i, (i + 1) % 5, 5 + (i + 1) % 5, 5 + i) for i in range(5)], mat)
