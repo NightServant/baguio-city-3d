@@ -31,11 +31,25 @@ All heights are ESTIMATE: none is published (S1). Method: proportions read from 
 - Apse wall 9 m with a half-cone roof to 14 m. Porch 5 m with a red lean-to roof.
 
 ## Review (2026-10-02)
-Renders: `model/data/renders/landmarks/baguio-cathedral-{front,aerial,side,preset-session-road}.png`. 1,693 triangles; foundation 2.8 m to the lowest ground under the footprint.
+Renders: `model/data/renders/landmarks/baguio-cathedral-{front,aerial,side,preset-session-road}.png`. First pass 1,693 triangles; foundation 2.8 m to the lowest ground under the footprint.
 Compared with S3, these match:
 - twin square white towers with steep red four-sided spires, white balustrades and blue-grey corner caps;
 - the clock on the west tower's front and a rose window on the east tower's;
 - the central gable with its white cross and grey rose window, and the statue niche over the red-roofed porch;
 - the red nave, transept and apse; white walls with grey trim.
 
-Simplified: the spires' scale pattern, the tower trim bands and louvre detail, and the stained-glass tracery. From the session-road preset (z16) the cathedral reads as a red mark on the hill, as expected at that range.
+Simplified in the first pass: the spires' scale pattern, the tower trim bands and louvre detail, and the stained-glass tracery.
+
+Detail pass (owner request, 2026-10-02: "add more details such as wall and roof patterns"). 2,425 triangles; 41.4 KB packed (geometry 34.0 KB, textures 7.4 KB).
+- Patterns, as generated, seeded 256 px tiles (no downloads; deterministic):
+  - fish-scale shingles on the spires (6 × 6 per 1.5 m);
+  - corrugated red roofing on the nave, transept, apse and porch (8 ribs per metre, running down each slope);
+  - painted walls with faint block joints (0.5 m courses, running bond).
+- Relief:
+  - a plinth, a string course and pilasters along the nave;
+  - two bands and corner pilasters on each tower;
+  - louvre slats over the belfry openings;
+  - ridge caps;
+  - six spokes and a hub on the façade rose window;
+  - finials with crosses on the spires.
+- The rib, scale and joint spacings are ESTIMATEs for a plausible look at map scale, not survey data. From the session-road preset (z16) the cathedral reads as a red mark on the hill, as expected at that range.

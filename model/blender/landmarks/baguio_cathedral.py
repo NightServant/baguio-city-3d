@@ -8,6 +8,7 @@ from pathlib import Path
 
 import bmesh
 import bpy
+import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import lm_common as lm  # noqa: E402
@@ -25,24 +26,103 @@ def srgb(r, g, b):
 
 
 coll, fp = lm.begin(SLUG)
-WALL = lm.material("MAT_cathedral_wall", srgb(236, 236, 232), 0.85)    # [S3] white walls
 TRIM = lm.material("MAT_cathedral_trim", srgb(150, 155, 160), 0.8)     # [S3] grey trim
-ROOF = lm.material("MAT_cathedral_roof", srgb(196, 42, 36), 0.6)       # [S3] red roofs and spires
 CAP = lm.material("MAT_cathedral_cap", srgb(110, 125, 140), 0.6)       # [S3] blue-grey pinnacle caps
 DARK = lm.material("MAT_cathedral_opening", srgb(58, 60, 64), 0.9)     # openings, louvres
 ROBE = lm.material("MAT_cathedral_statue", srgb(70, 100, 175), 0.7)    # [S3] statue niche, blue robe
+RIDGE = lm.material("MAT_cathedral_ridge", srgb(150, 32, 28), 0.6)     # ridge caps, darker than the sheet
 
+
+def pattern_image(name, rgb):
+    """Pack a generated sRGB pattern (n x n x 3, rows from the bottom) into the .blend as an image."""
+    old = bpy.data.images.get(name)
+    if old:
+        bpy.data.images.remove(old)
+    n = rgb.shape[0]
+    img = bpy.data.images.new(name, n, n, alpha=False)
+    rgba = np.concatenate([np.clip(rgb, 0, 1), np.ones((n, n, 1))], axis=2).astype(np.float32)
+    img.pixels.foreach_set(rgba.ravel())
+    img.pack()
+    return img
+
+
+def textured(name, img, mean_rgb, roughness):
+    mat = lm.material(name, mean_rgb, roughness)
+    nt = mat.node_tree
+    tex = next((n for n in nt.nodes if n.type == "TEX_IMAGE"), None) or nt.nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    nt.links.new(tex.outputs["Color"], next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED").inputs["Base Color"])
+    return mat
+
+
+# Generated, seeded 256 px tiles (no downloads; deterministic). Values are sRGB.
+N = 256
+Y, X = (np.mgrid[0:N, 0:N] + 0.5) / N          # Y = v (up), X = u
+rng = np.random.default_rng(1936)              # seeded; the cathedral's completion year [S1]
+grain = rng.normal(0.0, 1.0, (N, N, 1))
+
+
+def wall_pattern():
+    """[S3] painted concrete walls with faint block joints: 0.5 m courses, 1 m blocks, running bond (2 m tile)."""
+    row = np.floor(Y * 4)
+    bx, by = (X * 2 + (row % 2) * 0.5) % 1.0, (Y * 4) % 1.0
+    joint = (np.minimum(bx, 1 - bx) < 0.010) | (np.minimum(by, 1 - by) < 0.018)
+    block = 1 + 0.012 * np.sin(np.floor(X * 2 + (row % 2) * 0.5) * 12.9898 + row * 78.233)
+    shade = block[..., None] * (1 + 0.010 * grain) * np.where(joint, 0.88, 1.0)[..., None]
+    return np.array([0.925, 0.925, 0.910]) * shade
+
+
+def corrugated_pattern():
+    """[S3] red metal roofing: 8 ribs per 1 m tile, running down the slope, light weathering."""
+    rib = 0.90 + 0.14 * np.sin(2 * np.pi * 8 * X)
+    return np.array([0.77, 0.16, 0.14]) * (rib[..., None] * (1 + 0.025 * grain))
+
+
+def scale_pattern():
+    """[S3] the spires' fish-scale shingles: 6 rows x 6 scales per 1.5 m tile, alternate rows offset."""
+    row = np.floor(Y * 6)
+    cx = (X * 6 + (row % 2) * 0.5) % 1.0 - 0.5
+    cy = (Y * 6) % 1.0
+    edge = 0.42 - 0.42 * np.sqrt(np.clip(1 - (2 * cx) ** 2, 0, 1))      # scalloped lower edge
+    t = np.clip((cy - edge) / (1 - edge + 1e-6), 0, 1)
+    shade = np.where(cy >= edge, 1.06 - 0.24 * t, 0.70)                   # lit lower lip, shadowed top
+    shade = np.where(np.abs(cy - edge) < 0.035, 0.52, shade)              # the gap between scales
+    col = np.floor(X * 6 + (row % 2) * 0.5) % 6
+    tint = 1 + 0.05 * np.sin(col * 12.9898 + row * 78.233)
+    return np.array([0.78, 0.17, 0.15]) * ((shade * tint)[..., None] * (1 + 0.02 * grain))
+
+
+WALL = textured("MAT_cathedral_wall", pattern_image("TEX_cathedral_wall", wall_pattern()), srgb(236, 236, 232), 0.85)
+ROOF = textured("MAT_cathedral_roof", pattern_image("TEX_cathedral_roof", corrugated_pattern()), srgb(196, 42, 36), 0.55)
+SCALES = textured("MAT_cathedral_spire", pattern_image("TEX_cathedral_spire", scale_pattern()), srgb(190, 40, 34), 0.6)
+TILE = {WALL.name: 2.0, ROOF.name: 1.0, SCALES.name: 1.5}   # metres per texture repeat
 
 def P(a, w, z):
     return (a * U[0] + w * V[0], a * U[1] + w * V[1], z)
 
 
-def mesh(name, verts, faces, mat):
+def mesh(name, verts, faces, mat, uv="aw"):
+    """Faces in building coordinates (a, w, z). Textured materials get box-mapped UVs in the building
+    frame at TILE[mat] metres per repeat: on roofs, uv="aw" runs the ribs down a ridge laid along a,
+    uv="wa" for a ridge laid along w; on walls and spires, v is height, so pattern rows stay level."""
     bm = bmesh.new()
     vs = [bm.verts.new(P(*v)) for v in verts]
     for f in faces:
         bm.faces.new([vs[i] for i in f])
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    tile = TILE.get(mat.name)
+    if tile:
+        layer = bm.loops.layers.uv.new("UVMap")
+        src = dict(zip(vs, verts))
+        for f in bm.faces:
+            pts = [src[lp.vert] for lp in f.loops]
+            n = [sum((p[(k + 1) % 3] - q[(k + 1) % 3]) * (p[(k + 2) % 3] + q[(k + 2) % 3])
+                     for p, q in zip(pts, pts[1:] + pts[:1])) for k in range(3)]  # Newell normal
+            axis = max(range(3), key=lambda k: abs(n[k]))
+            for lp in f.loops:
+                a, w, z = src[lp.vert]
+                u, v = ((a, w) if uv == "aw" else (w, a)) if axis == 2 else ((w, z) if axis == 0 else (a, z))
+                lp[layer].uv = (u / tile, v / tile)
     me = bpy.data.meshes.new(name)
     bm.to_mesh(me)
     bm.free()
@@ -52,9 +132,9 @@ def mesh(name, verts, faces, mat):
     return ob
 
 
-def hexa(name, bottom, top, mat):
+def hexa(name, bottom, top, mat, uv="aw"):
     """Closed solid from 4 bottom and 4 top (a, w, z) corners in matching order."""
-    return mesh(name, bottom + top, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat)
+    return mesh(name, bottom + top, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], mat, uv)
 
 
 def box(name, a0, a1, w0, w1, z0, z1, mat):
@@ -79,7 +159,7 @@ def gable_along_a(name, a0, a1, w0, w1, ze, mat):
 def gable_along_w(name, a0, a1, w0, w1, ze, mat):
     am, zr = (a0 + a1) / 2, ze + (a1 - a0) / 2 * PITCH
     verts = [(a0, w0, ze), (a0, w1, ze), (a1, w1, ze), (a1, w0, ze), (am, w0, zr), (am, w1, zr)]
-    return mesh(name, verts, [(0, 1, 2, 3), (0, 1, 5, 4), (3, 2, 5, 4), (0, 3, 4), (1, 2, 5)], mat), zr
+    return mesh(name, verts, [(0, 1, 2, 3), (0, 1, 5, 4), (3, 2, 5, 4), (0, 3, 4), (1, 2, 5)], mat, uv="wa"), zr
 
 
 def gable_wall(name, a0, a1, w0, w1, ze, zr, mat):
@@ -121,7 +201,7 @@ def arch_panel(name, axis, at, c, width, z0, z1, depth, mat):
     return mesh(name, verts, [(0, 1, 2, 3, 4), (5, 6, 7, 8, 9)] + [(i, (i + 1) % 5, 5 + (i + 1) % 5, 5 + i) for i in range(5)], mat)
 
 
-depth = lm.foundation(coll, fp, WALL)
+depth = lm.foundation(coll, fp, TRIM)   # a grey plinth where the hill falls away
 
 # Nave [S2]: a -23.1..15.0, w -8.8..9.2; eave 11 m, ridge from the 38° pitch (ESTIMATE)
 EAVE = 11.0
@@ -151,7 +231,7 @@ mesh("apse_roof_cone", ring + [(AC, AW, apse_ridge)], [(i, i + 1, 13) for i in r
 # Porch [S2]: a -25.5..-23.1, w -4.3..4.5; 5 m with a red lean-to (ESTIMATE)
 box("porch", -25.5, -23.1, -4.3, 4.5, 0.0, 5.0, WALL)
 hexa("porch_roof", [(-25.9, -4.7, 4.6), (-23.1, -4.7, 5.8), (-23.1, 4.9, 5.8), (-25.9, 4.9, 4.6)],
-     [(-25.9, -4.7, 4.85), (-23.1, -4.7, 6.05), (-23.1, 4.9, 6.05), (-25.9, 4.9, 4.85)], ROOF)
+     [(-25.9, -4.7, 4.85), (-23.1, -4.7, 6.05), (-23.1, 4.9, 6.05), (-25.9, 4.9, 4.85)], ROOF, uv="wa")
 arch_panel("porch_door", "a", -25.45, 0.1, 2.6, 0.0, 3.8, 0.15, DARK)
 
 # Façade [S3]: rose window, cross at the apex, statue niche, flanking arched windows
@@ -182,7 +262,18 @@ for name, wc, clock in (("west", -6.3, True), ("east", 6.7, False)):
     for i, (pa, pw) in enumerate(((ac - h, wc - h), (ac - h, wc + h), (ac + h, wc - h), (ac + h, wc + h))):
         box(f"tower_{name}_pinnacle_{i}", pa - 0.2, pa + 0.2, pw - 0.2, pw + 0.2, SHAFT, SHAFT + BAL + 0.5, WALL)
         cone(f"tower_{name}_cap_{i}", pa, pw, 0.3, SHAFT + BAL + 0.5, SHAFT + BAL + 1.6, CAP)
-    pyramid(f"tower_{name}_spire", ac, wc, h - 0.3, SHAFT, SHAFT + BAL + SPIRE, ROOF)
+    pyramid(f"tower_{name}_spire", ac, wc, h - 0.3, SHAFT, SHAFT + BAL + SPIRE, SCALES)
+    box(f"tower_{name}_finial", ac - 0.08, ac + 0.08, wc - 0.08, wc + 0.08, SHAFT + BAL + SPIRE - 0.3, SHAFT + BAL + SPIRE + 1.6, TRIM)
+    box(f"tower_{name}_finial_bar", ac - 0.06, ac + 0.06, wc - 0.35, wc + 0.35, SHAFT + BAL + SPIRE + 1.0, SHAFT + BAL + SPIRE + 1.15, TRIM)
+    for z in (6.0, 11.0):  # [S3] horizontal bands
+        box(f"tower_{name}_band_{z:.0f}", ac - h - 0.12, ac + h + 0.12, wc - h - 0.12, wc + h + 0.12, z, z + 0.3, TRIM)
+    for i, (pa, pw) in enumerate(((ac - h, wc - h), (ac - h, wc + h), (ac + h, wc - h), (ac + h, wc + h))):  # corner pilasters
+        box(f"tower_{name}_corner_{i}", pa - 0.28, pa + 0.28, pw - 0.28, pw + 0.28, 1.2, SHAFT - 0.45, TRIM)
+    out_w = (wc - h) if name == "west" else (wc + h)
+    for k, z in enumerate((12.9, 13.6, 14.3, 15.0)):  # louvre slats over the belfry openings
+        box(f"tower_{name}_slat_front_{k}", ac - h - 0.2, ac - h - 0.1, wc - 0.75, wc + 0.75, z, z + 0.12, TRIM)
+        w0, w1 = (out_w - 0.2, out_w - 0.1) if name == "west" else (out_w + 0.1, out_w + 0.2)
+        box(f"tower_{name}_slat_out_{k}", ac - 0.75, ac + 0.75, w0, w1, z, z + 0.12, TRIM)
     # belfry louvres on all four faces, and a lower slit
     arch_panel(f"tower_{name}_louvre_front", "a", ac - h - 0.02, wc, 1.7, 12.5, 16.2, 0.12, DARK)
     arch_panel(f"tower_{name}_louvre_back", "a", ac + h + 0.12, wc, 1.7, 12.5, 16.2, 0.12, DARK)
@@ -195,6 +286,23 @@ for name, wc, clock in (("west", -6.3, True), ("east", 6.7, False)):
     else:
         disc(f"tower_{name}_rose_inner", "a", ac - h - 0.1, wc, 18.0, 0.6, 0.08, DARK)
     disc(f"tower_{name}_side_rose", "w", (wc - h - 0.02) if name == "west" else (wc + h + 0.12), ac, 18.0, 1.0, 0.12, TRIM)
+
+
+# Detail [S3]: plinth, string course and pilasters along the nave; ridge caps; rose-window tracery
+for side, (f0, f1), (p0, p1) in (("w", (-8.95, -8.8), (-9.15, -8.8)), ("e", (9.2, 9.35), (9.2, 9.55))):
+    box(f"plinth_{side}", -23.1, 15.0, f0, f1, 0.0, 0.9, TRIM)
+    box(f"string_course_{side}", -23.1, 15.0, f0, f1, 9.7, 10.0, TRIM)
+    for a in (-18.6, -14.4, -10.2, -6.0, -1.8, 2.4):
+        box(f"pilaster_{side}_{a:+.0f}", a - 0.35, a + 0.35, p0, p1, 0.0, 10.4, TRIM)
+box("nave_ridge_cap", -22.9, 15.4, 0.02, 0.38, nave_ridge - 0.05, nave_ridge + 0.18, RIDGE)
+box("transept_ridge_cap", 9.87, 10.23, -13.3, 12.7, tr_ridge - 0.05, tr_ridge + 0.18, RIDGE)
+for k in range(6):  # six spokes over the façade rose window
+    t = math.pi * k / 6
+    da, dz = 1.35 * math.cos(t), 1.35 * math.sin(t)
+    pa, pz = 0.07 * -math.sin(t), 0.07 * math.cos(t)
+    corners = [(0.2 - da - pa, 13.0 - dz - pz), (0.2 + da - pa, 13.0 + dz - pz), (0.2 + da + pa, 13.0 + dz + pz), (0.2 - da + pa, 13.0 - dz + pz)]
+    hexa(f"rose_spoke_{k}", [(-23.62, w, z) for w, z in corners], [(-23.52, w, z) for w, z in corners], WALL)
+disc("rose_hub", "a", -23.6, 0.2, 13.0, 0.32, 0.1, WALL)
 
 front = P(-34.0, 0.2, 0.0)
 lm.human_reference(coll, front[0], front[1])

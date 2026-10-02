@@ -18,7 +18,7 @@ out.mkdir(parents=True, exist_ok=True)
 scene = bpy.context.scene
 scene.render.engine = "BLENDER_WORKBENCH"
 sh = scene.display.shading
-sh.light, sh.color_type, sh.show_shadows, sh.show_cavity = "STUDIO", "MATERIAL", True, True
+sh.light, sh.color_type, sh.show_shadows, sh.show_cavity = "STUDIO", "TEXTURE", True, True  # textures where a material has one
 scene.render.resolution_x, scene.render.resolution_y, scene.render.resolution_percentage = 1280, 800, 100
 ax, ay, az = bpy.data.objects[f"CTX_{slug}"].location
 target = (ax, ay, az + 12.0)
