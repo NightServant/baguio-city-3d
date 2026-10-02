@@ -52,3 +52,6 @@ supabase/roles.sql
 # test runners
 /test-results/
 /playwright-report/
+
+# 3D model source data (downloads and derived rasters; provenance is in model/sources.json)
+/model/data/

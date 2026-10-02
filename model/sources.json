@@ -1,0 +1,40 @@
+{
+  "copernicus-glo30": {
+    "url": "https://copernicus-dem-30m.s3.eu-central-1.amazonaws.com/Copernicus_DSM_COG_10_N16_00_E120_00_DEM/Copernicus_DSM_COG_10_N16_00_E120_00_DEM.tif",
+    "etag": "c262f946e69aff6694e7c22a1786a754",
+    "last_modified": "Mon, 09 May 2022 14:06:19 GMT",
+    "remote_bytes": 32368281,
+    "blocks": [
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "window_posts": [
+      1692,
+      1692,
+      937,
+      937
+    ],
+    "file": "model/data/dem/copernicus-glo30-baguio.tif",
+    "retrieved": "2026-10-02",
+    "bytes": 2366305,
+    "sha256": "21d4e015ae7dffaa54fa92cfa5f4790b6d9e6a6b5427075567ab6279e41d8d78",
+    "vertical_datum": "EGM2008 (EPSG:3855)",
+    "licence": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+    "attribution": "produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved",
+    "access_note": "Copernicus Digital Elevation Model (DEM) was accessed on 2026-10-02 from https://registry.opendata.aws/copernicus-dem"
+  }
+}
