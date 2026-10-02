@@ -68,7 +68,7 @@
         "elevation_m": 1453,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "05:00", "close": "20:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/baguio-cathedral.578796e0.glb"
       }
     },
     {
