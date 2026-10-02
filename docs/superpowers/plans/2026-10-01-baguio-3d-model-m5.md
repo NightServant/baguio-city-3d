@@ -4,7 +4,7 @@
 
 **Goal:** Put the city's buildings on the web map as streamed massing tiles: about 120k OSM footprints with inferred heights and the spec's roof palette, sitting on the app's own terrain, within the budgets. Also give Blender roads and pine cover for renders.
 
-**Architecture:** One `uv run` Python builder reads M1's OSM extract and does everything else:
+**Architecture:** One `uv run` Python builder reads M1's OSM extract (Overpass JSON, see the M1 deviation in the ledger) and does everything else:
 - Infers each building's height (spec §6 heuristic, seeded by OSM id).
 - Samples AWS Terrarium (the map's own DEM) for bases.
 - Drops buildings inside landmark exclusion rings (contract C3).
@@ -13,7 +13,7 @@
 
 The app's `ModelLayer` (M3) gains tile streaming: tiles intersecting the view load after the first `idle`, near detail at zoom ≥ 15 and far detail below. Each tile draws with its own projection matrix. Roads and pines are render-only Blender work.
 
-**Tech Stack:** Python 3.13 via `uv run` (`numpy==2.3.3`, `pyproj==3.8.0`, `shapely==2.1.2`, `mapbox-earcut==1.0.3`, `pillow==11.3.0`; all verified to install, and earcut's output winds CCW, 1 Oct 2026), `osmium-tool` (M1), gltfpack (M3's pinned version), three 0.186, Playwright.
+**Tech Stack:** Python 3.13 via `uv run` (`numpy==2.3.3`, `pyproj==3.8.0`, `shapely==2.1.2`, `mapbox-earcut==1.0.3`, `pillow==11.3.0`; all verified to install, and earcut's output winds CCW, 1 Oct 2026), gltfpack (M3's pinned version), three 0.186, Playwright.
 
 **Spec:** spec §1 (roofs are the visual signature; hillside pitched corrugated metal in red, green, blue, teal; CBD flat concrete), §6 (height heuristic, terrain interaction, "plausible massing, not survey data"), §8 (seeded, deterministic), §9; owner answer 2 (building blocks go on the web, 1 Oct 2026); contract C2 (tile coordinates, Terrarium bases), C3, C5, C6.
 
@@ -187,17 +187,31 @@ def tile_bounds(x, y, z):
 
 
 def load_buildings():
-    """OSM building polygons (ways and multipolygons) with tags, via osmium export."""
-    WORK.mkdir(parents=True, exist_ok=True)
-    pbf, seq = WORK / "buildings.osm.pbf", WORK / "buildings.geojsonseq"
-    subprocess.run(["osmium", "tags-filter", "--overwrite", "-o", str(pbf), str(OSM), "w/building", "r/building"], check=True)
-    subprocess.run(["osmium", "export", "--overwrite", "-f", "geojsonseq", "--geometry-types=polygon",
-                    "-a", "type,id", "-o", str(seq), str(pbf)], check=True)
+    """OSM building polygons (ways and multipolygon relations) with tags, from M1's Overpass extract."""
+    from shapely.geometry import LineString, Polygon
+    from shapely.ops import linemerge, polygonize, unary_union
     out = []
-    for line in seq.read_text().splitlines():
-        f = json.loads(line.lstrip("\x1e"))
-        p = f["properties"]
-        out.append((f"{p.pop('@type')}/{p.pop('@id')}", p, shape(f["geometry"])))
+    for el in json.loads(OSM.read_text())["elements"]:
+        tags = el.get("tags", {})
+        if "building" not in tags:
+            continue
+        if el["type"] == "way":
+            g = el.get("geometry") or []
+            if len(g) < 4 or g[0] != g[-1]:
+                continue
+            geom = Polygon([(p["lon"], p["lat"]) for p in g])
+        else:
+            parts = {"outer": [], "inner": []}
+            for m in el.get("members", []):
+                if m.get("type") == "way" and m.get("role") in parts and m.get("geometry"):
+                    parts[m["role"]].append(LineString([(p["lon"], p["lat"]) for p in m["geometry"]]))
+            if not parts["outer"]:
+                continue
+            geom = unary_union(list(polygonize(linemerge(parts["outer"]))))
+            if parts["inner"]:
+                geom = geom.difference(unary_union(list(polygonize(linemerge(parts["inner"])))))
+        if geom.is_valid and not geom.is_empty and geom.geom_type in ("Polygon", "MultiPolygon"):
+            out.append((f"{el['type']}/{el['id']}", tags, geom))
     return sorted(out, key=lambda b: b[0])  # stable order -> deterministic output
 
 
@@ -524,7 +538,7 @@ test("the default view loads its buildings within 1 MiB and 500k triangles, with
 **Files:** Create `model/blender/context_roads.py`, `model/blender/context_pines.py`, and a `uv run` exporter `model/scripts/context_data.py`.
 
 - [ ] **Step 1:** `context_data.py` writes `model/data/context/roads.npz` and `buildings.npz` (polylines in the model frame) for Blender:
-  - Roads: OSM `w/highway` from M1's extract via `osmium export`, as model-frame polylines with their `highway` class.
+  - Roads: the `highway` ways in M1's Overpass extract (`model/data/osm/baguio-padded.json`, `geometry` arrays), as model-frame polylines with their `highway` class.
   - Buildings: footprints, used as the pine exclusion mask.
 - [ ] **Step 2:** `context_roads.py` (headless) builds one mesh per highway class in `20_ROADS`:
   - Width by class (spec §6: motorway/trunk 12 m, primary 9 m, secondary 7–9 m, residential 5–6 m, service/track 3 m).
