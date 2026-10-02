@@ -78,7 +78,9 @@ function createLayer(map: MapLibreMap, { THREE }: Kit, shown: Map<string, Shown>
     render(_gl, options) {
       if (!renderer || shown.size === 0) return;
       const exaggeration = map.getTerrain()?.exaggeration ?? 1;
-      const mvp = new THREE.Matrix4().fromArray(options.modelViewProjectionMatrix as unknown as number[]);
+      // Mercator [0..1] -> clip, float64. Not options.modelViewProjectionMatrix: in MapLibre 5 that one
+      // works in world pixels (maplibre-gl-dev.js getProjectionDataForCustomLayer, 5.24).
+      const mvp = new THREE.Matrix4().fromArray(options.defaultProjectionData.mainMatrix as unknown as number[]);
       renderer.resetState();
       for (const { entry, scene } of shown.values()) {
         const ground = map.queryTerrainElevation([entry.lng, entry.lat]);
