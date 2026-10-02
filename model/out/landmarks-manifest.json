@@ -1,0 +1,16 @@
+{
+  "landmarks": [
+    {
+      "slug": "baguio-cathedral",
+      "lng": 120.598528,
+      "lat": 16.412729,
+      "url": "/models/landmarks/baguio-cathedral.6aacf612.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 1693,
+      "bytes": 21200,
+      "geometryBytes": 21200,
+      "sha256": "6aacf6125007c5cd15aeb640db42dca260651e83b4d4977cd55bb07657ff0160"
+    }
+  ]
+}
