@@ -3,7 +3,7 @@
 // Floating camera controls: preset fly-to chips, zoom, and a compass/pitch
 // reset. Sized for thumbs — every hit area is at least 40px.
 import { Compass, Minus, Plus, Satellite } from "lucide-react";
-import { useMapStore, useBasemap } from "@/stores/useMapStore";
+import { useMapStore, useBasemap, useActiveSheet } from "@/stores/useMapStore";
 import { CAMERA_PRESETS, DEFAULT_CAMERA } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +65,8 @@ export function MapControls() {
   const setBasemap = useMapStore((s) => s.setBasemap);
   const satelliteOn = basemap === "satellite";
   const unavailable = useMapStore((s) => s.mapUnavailable);
+  // The destination sheet covers the right edge (desktop) or the lower 60% (phones); keep the stack clear of it.
+  const sheetOpen = useActiveSheet() === "destination";
 
   if (unavailable) return null;
   return (
@@ -90,7 +92,14 @@ export function MapControls() {
       </div>
 
       {/* Basemap + zoom + compass — right edge */}
-      <div className="absolute right-3 top-1/2 z-hud flex -translate-y-1/2 flex-col gap-2">
+      <div
+        className={cn(
+          "absolute z-hud flex flex-col gap-2 transition-[right,top] duration-200 ease-out motion-reduce:transition-none",
+          sheetOpen
+            ? "right-3 top-20 sm:right-[calc(22rem+1.5rem)] sm:top-1/2 sm:-translate-y-1/2"
+            : "right-3 top-1/2 -translate-y-1/2",
+        )}
+      >
         <button
           type="button"
           aria-label="Toggle satellite imagery"
