@@ -5,8 +5,7 @@
 // Loading + error states; closing clears the selection.
 import { useEffect, useState } from "react";
 import { Clock, ImageIcon, Mountain, X } from "lucide-react";
-import { useSelectedSlug, useActiveSheet, useMapActions, useMapStore } from "@/stores/useMapStore";
-import { addLandmarkModel } from "@/components/map/layers/LandmarkLayer";
+import { useSelectedSlug, useActiveSheet, useMapActions } from "@/stores/useMapStore";
 import { CATEGORY_COLORS, CATEGORY_LABELS, ERA_LABELS } from "@/components/map/categoryStyle";
 import type { DestinationFeature } from "@/types/api";
 import { cn } from "@/lib/utils";
@@ -37,12 +36,6 @@ export function DestinationSheet() {
       })
       .then((feature) => {
         setState({ feature, loading: false, error: false });
-        // Landmark scaffold: no-op today (all meshUrl null), real hook-in later.
-        addLandmarkModel(
-          useMapStore.getState().map,
-          feature.properties.landmark,
-          feature.geometry.coordinates,
-        );
       })
       .catch((err) => {
         if (controller.signal.aborted || err?.name === "AbortError") return;

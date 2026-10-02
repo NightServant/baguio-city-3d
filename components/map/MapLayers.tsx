@@ -6,12 +6,12 @@ import type { Map as MapLibreMap } from "maplibre-gl";
 import { useMarkerLayer } from "./layers/MarkerLayer";
 import { useTransitLayer } from "./layers/TransitLayer";
 import { useHistoryOverlay } from "./layers/HistoryOverlay";
-import { useLandmarkLayer } from "./layers/LandmarkLayer";
+import { useModelLayer } from "./layers/ModelLayer";
 
 export function MapLayers({ map }: { map: MapLibreMap }) {
   useMarkerLayer(map);
   useTransitLayer(map);
   useHistoryOverlay(map);
-  useLandmarkLayer(map);
+  useModelLayer(map);
   return null;
 }

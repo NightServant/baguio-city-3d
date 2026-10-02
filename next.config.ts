@@ -8,7 +8,7 @@ const GA_HOSTS = "https://www.googletagmanager.com https://*.google-analytics.co
 // workers from blob: URLs; Emotion and MapLibre inject inline styles.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${TILE_HOSTS} ${GA_HOSTS}`,
   "font-src 'self'",
@@ -35,7 +35,12 @@ const nextConfig: NextConfig = {
   // `next dev` (which serves from .next/dev) with stale or missing files.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      // 3D model files are content-hashed, so they never change (contract C4); their indexes do.
+      { source: "/models/:file(.*\\.glb)", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/models/:dir/index.json", headers: [{ key: "Cache-Control", value: "public, max-age=300" }] },
+      { source: "/:path*", headers: securityHeaders },
+    ];
   },
 };
 
