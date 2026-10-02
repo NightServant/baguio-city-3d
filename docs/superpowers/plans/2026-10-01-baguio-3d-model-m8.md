@@ -31,7 +31,8 @@
 ```ts
 import { expect, test } from "@playwright/test";
 
-test("nothing 3D is requested before the map's first idle", async ({ page }) => {
+test("nothing 3D is requested before the map's first idle (or the 10 s fallback, contract C5)", async ({ page }) => {
+  // On a fast link idle comes well inside 10 s; if this flakes on a slow one, the fallback fired first.
   const early: string[] = [];
   page.on("request", async (r) => {
     const path = new URL(r.url()).pathname;

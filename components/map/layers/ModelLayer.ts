@@ -41,11 +41,20 @@ const loadIndex = () =>
     .then((j: { landmarks: LandmarkEntry[] }) => j.landmarks)
     .catch(() => []));
 
+// The first idle, or IDLE_FALLBACK_MS after the layer first mounts, whichever comes first. On a slow
+// link idle can keep slipping while tiles stream in (55 s measured at 6 KB/s, 2026-10-02), and a
+// visitor who keeps panning might otherwise never see a model; 10 s keeps the first render clear.
+const IDLE_FALLBACK_MS = 10_000;
 const firstIdle = new WeakMap<MapLibreMap, Promise<void>>();
 function whenFirstIdle(map: MapLibreMap) {
   let p = firstIdle.get(map);
   if (!p) {
-    p = map.loaded() ? Promise.resolve() : new Promise<void>((resolve) => map.once("idle", () => resolve()));
+    p = map.loaded()
+      ? Promise.resolve()
+      : new Promise<void>((resolve) => {
+          map.once("idle", () => resolve());
+          setTimeout(resolve, IDLE_FALLBACK_MS);
+        });
     firstIdle.set(map, p);
   }
   return p;
