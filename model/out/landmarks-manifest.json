@@ -11,6 +11,18 @@
       "bytes": 41444,
       "geometryBytes": 34004,
       "sha256": "578796e0fe0c7e3afb2b45718c6851261dc4b140b1bde0a74b87df25b024ba5c"
+    },
+    {
+      "slug": "burnham-park",
+      "lng": 120.594665,
+      "lat": 16.410741,
+      "url": "/models/landmarks/burnham-park.982f567a.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 888,
+      "bytes": 20164,
+      "geometryBytes": 18052,
+      "sha256": "982f567a66af52e6860374a2cde8665b232172205a7f898cac2a8a7f6ed7995d"
     }
   ]
 }

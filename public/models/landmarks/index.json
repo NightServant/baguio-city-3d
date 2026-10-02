@@ -7,6 +7,14 @@
       "url": "/models/landmarks/baguio-cathedral.578796e0.glb",
       "rotationDeg": 0,
       "altitudeM": 0
+    },
+    {
+      "slug": "burnham-park",
+      "lng": 120.594665,
+      "lat": 16.410741,
+      "url": "/models/landmarks/burnham-park.982f567a.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
     }
   ]
 }
