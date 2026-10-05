@@ -12,7 +12,7 @@
         "elevation_m": 1442,
         "era": "AMERICAN_COLONIAL",
         "hours": null,
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/burnham-park.440e9cdc.glb"
       }
     },
     {
@@ -26,7 +26,7 @@
         "elevation_m": 1449,
         "era": "AMERICAN_COLONIAL",
         "hours": null,
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/session-road.461fe017.glb"
       }
     },
     {
@@ -68,7 +68,7 @@
         "elevation_m": 1453,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "05:00", "close": "20:00" },
-        "meshUrl": "/models/landmarks/baguio-cathedral.578796e0.glb"
+        "meshUrl": "/models/landmarks/baguio-cathedral.1a6af15c.glb"
       }
     },
     {
