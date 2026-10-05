@@ -37,6 +37,18 @@
       "sha256": "c3a7bde84e9b44b529c6e1c57f5bc8aa37e10ea3ea000044fd3bb5b9ffacc94a"
     },
     {
+      "slug": "lourdes-grotto",
+      "lng": 120.580839,
+      "lat": 16.409523,
+      "url": "/models/landmarks/lourdes-grotto.70593ef6.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 3860,
+      "bytes": 47328,
+      "geometryBytes": 36520,
+      "sha256": "70593ef6c1cdca84cc90f5b05e16e2ca673325cdb995b7b7c09812c0f4342136"
+    },
+    {
       "slug": "mines-view-park",
       "lng": 120.62745,
       "lat": 16.419638,
@@ -59,6 +71,18 @@
       "bytes": 32316,
       "geometryBytes": 25640,
       "sha256": "afd63228a5108b84301cf9f134cc97673f1f606241c89742edc0175209592dc2"
+    },
+    {
+      "slug": "wright-park",
+      "lng": 120.619604,
+      "lat": 16.414443,
+      "url": "/models/landmarks/wright-park.0068c356.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 3378,
+      "bytes": 35784,
+      "geometryBytes": 30574,
+      "sha256": "0068c356f3e620f195602a4fa837b860a9d345772f786b56fb5789947f5af2f2"
     }
   ]
 }

@@ -25,6 +25,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "lourdes-grotto",
+      "lng": 120.580839,
+      "lat": 16.409523,
+      "url": "/models/landmarks/lourdes-grotto.70593ef6.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "mines-view-park",
       "lng": 120.62745,
       "lat": 16.419638,
@@ -37,6 +45,14 @@
       "lng": 120.597329,
       "lat": 16.412624,
       "url": "/models/landmarks/session-road.afd63228.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "wright-park",
+      "lng": 120.619604,
+      "lat": 16.414443,
+      "url": "/models/landmarks/wright-park.0068c356.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     }

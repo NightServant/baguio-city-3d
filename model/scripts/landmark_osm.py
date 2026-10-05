@@ -26,6 +26,11 @@ BUFFER_M = 5  # exclusion = footprint grown by 5 m, so massing never touches the
 
 
 def destination(slug):
+    """Where to search: the registry's osm_center (the real OSM feature, cited) when the destination pin is off
+    (many tier-2 pins are 0.2-5 km from their feature, 2026-10-05), else the pin."""
+    centre = json.loads(LANDMARKS.read_text())[slug].get("osm_center")
+    if centre:
+        return centre["lnglat"]
     for f in json.loads((ROOT / "data" / "geojson" / "landmarks.geojson").read_text())["features"]:
         if f["properties"]["slug"] == slug:
             return f["geometry"]["coordinates"]
@@ -37,7 +42,7 @@ def osm(slug):
     if cache.exists():
         return json.loads(cache.read_text())
     lng, lat = destination(slug)
-    q = f"[out:json][timeout:60];(way(around:{RADIUS_M},{lat},{lng})[~\"^(building|leisure|amenity|tourism|historic|landuse|natural|man_made|highway)$\"~\".\"];relation(around:{RADIUS_M},{lat},{lng})[~\"^(building|leisure|amenity|tourism|historic|landuse)$\"~\".\"];);out geom tags;"
+    q = f"[out:json][timeout:60];(way(around:{RADIUS_M},{lat},{lng})[~\"^(building|leisure|amenity|tourism|historic|landuse|natural|man_made|highway)$\"~\".\"];relation(around:{RADIUS_M},{lat},{lng})[~\"^(building|leisure|amenity|tourism|historic|landuse)$\"~\".\"];);out geom;"  # not "out geom tags": tags verbosity drops relation members
     out = subprocess.run(["curl", "-fsS", "--retry", "4", "--retry-all-errors", "--retry-delay", "30", "-A", UA, "--data-urlencode", f"data={q}",
                           "https://overpass-api.de/api/interpreter"], check=True, capture_output=True, text=True).stdout
     cache.parent.mkdir(parents=True, exist_ok=True)

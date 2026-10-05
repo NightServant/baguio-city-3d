@@ -701,7 +701,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/baguio-city-hall.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.59135,
+        16.41381
+      ],
+      "source": "OSM way/43615687, Overpass name search 2026-10-05"
+    }
   },
   "baguio-museum": {
     "tier": 2,
@@ -710,7 +717,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/baguio-museum.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.59843,
+        16.40702
+      ],
+      "source": "OSM way/209340226, Overpass name search 2026-10-05"
+    }
   },
   "baguio-public-market": {
     "tier": 2,
@@ -719,7 +733,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/baguio-public-market.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.59467,
+        16.41526
+      ],
+      "source": "OSM way/299600081, Overpass name search 2026-10-05"
+    }
   },
   "bencab-museum": {
     "tier": 2,
@@ -728,7 +749,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/bencab-museum.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.55034,
+        16.4106
+      ],
+      "source": "OSM way/112289880, Overpass name search 2026-10-05"
+    }
   },
   "botanical-garden": {
     "tier": 2,
@@ -737,7 +765,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/botanical-garden.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.61376,
+        16.41429
+      ],
+      "source": "OSM relation/14181288, Overpass name search 2026-10-05"
+    }
   },
   "burnham-park": {
     "tier": 1,
@@ -1877,7 +1912,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/diplomat-hotel-ruins.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.58664,
+        16.40402
+      ],
+      "source": "OSM node/12260358283, Overpass name search 2026-10-05"
+    }
   },
   "good-shepherd-convent": {
     "tier": 2,
@@ -1886,7 +1928,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/good-shepherd-convent.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.62623,
+        16.42209
+      ],
+      "source": "OSM node/1252077236, Overpass name search 2026-10-05"
+    }
   },
   "igorot-stone-kingdom": {
     "tier": 2,
@@ -1895,7 +1944,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/igorot-stone-kingdom.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.57506,
+        16.43198
+      ],
+      "source": "OSM way/1034070960, Overpass name search 2026-10-05"
+    }
   },
   "la-trinidad-strawberry-farms": {
     "tier": 2,
@@ -1904,7 +1960,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/la-trinidad-strawberry-farms.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.58203,
+        16.45315
+      ],
+      "source": "OSM relation/7917267, Overpass name search 2026-10-05"
+    }
   },
   "lions-head-kennon-road": {
     "tier": 2,
@@ -1913,16 +1976,396 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/lions-head-kennon-road.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.606,
+        16.36761
+      ],
+      "source": "OSM way/109582851, Overpass name search 2026-10-05"
+    }
   },
   "lourdes-grotto": {
     "tier": 2,
-    "scope": "",
-    "osm_ids": [],
-    "exclusion": null,
-    "anchor": null,
+    "scope": "The grotto (rock, niche, statue, sign arch, altar), its plaza, the stairway with twin flights and blue rails, and the Chapel of Jesus and Maria.",
+    "osm_ids": [
+      "way/1153950697"
+    ],
+    "exclusion": [
+      [
+        120.58071,
+        16.40949
+      ],
+      [
+        120.5807,
+        16.4095
+      ],
+      [
+        120.5807,
+        16.4095
+      ],
+      [
+        120.5807,
+        16.4095
+      ],
+      [
+        120.5807,
+        16.40951
+      ],
+      [
+        120.5807,
+        16.40951
+      ],
+      [
+        120.5807,
+        16.40952
+      ],
+      [
+        120.58069,
+        16.40952
+      ],
+      [
+        120.58069,
+        16.40952
+      ],
+      [
+        120.58069,
+        16.40953
+      ],
+      [
+        120.5807,
+        16.40953
+      ],
+      [
+        120.5807,
+        16.40954
+      ],
+      [
+        120.5807,
+        16.40954
+      ],
+      [
+        120.5807,
+        16.40955
+      ],
+      [
+        120.5807,
+        16.40955
+      ],
+      [
+        120.5807,
+        16.40955
+      ],
+      [
+        120.58071,
+        16.40956
+      ],
+      [
+        120.58072,
+        16.40957
+      ],
+      [
+        120.58072,
+        16.40957
+      ],
+      [
+        120.58072,
+        16.40958
+      ],
+      [
+        120.58072,
+        16.40958
+      ],
+      [
+        120.58073,
+        16.40959
+      ],
+      [
+        120.58073,
+        16.40959
+      ],
+      [
+        120.58073,
+        16.40959
+      ],
+      [
+        120.58073,
+        16.4096
+      ],
+      [
+        120.58074,
+        16.4096
+      ],
+      [
+        120.58075,
+        16.40961
+      ],
+      [
+        120.58075,
+        16.40961
+      ],
+      [
+        120.58076,
+        16.40962
+      ],
+      [
+        120.58076,
+        16.40963
+      ],
+      [
+        120.58077,
+        16.40963
+      ],
+      [
+        120.58077,
+        16.40963
+      ],
+      [
+        120.58077,
+        16.40963
+      ],
+      [
+        120.58078,
+        16.40963
+      ],
+      [
+        120.58078,
+        16.40963
+      ],
+      [
+        120.58079,
+        16.40964
+      ],
+      [
+        120.58079,
+        16.40964
+      ],
+      [
+        120.5808,
+        16.40964
+      ],
+      [
+        120.58081,
+        16.40965
+      ],
+      [
+        120.58081,
+        16.40965
+      ],
+      [
+        120.58081,
+        16.40965
+      ],
+      [
+        120.58082,
+        16.40965
+      ],
+      [
+        120.58082,
+        16.40966
+      ],
+      [
+        120.58083,
+        16.40966
+      ],
+      [
+        120.58083,
+        16.40966
+      ],
+      [
+        120.58084,
+        16.40966
+      ],
+      [
+        120.58084,
+        16.40966
+      ],
+      [
+        120.58085,
+        16.40966
+      ],
+      [
+        120.58085,
+        16.40966
+      ],
+      [
+        120.58085,
+        16.40966
+      ],
+      [
+        120.58086,
+        16.40966
+      ],
+      [
+        120.58086,
+        16.40966
+      ],
+      [
+        120.58087,
+        16.40965
+      ],
+      [
+        120.58087,
+        16.40965
+      ],
+      [
+        120.58087,
+        16.40965
+      ],
+      [
+        120.58097,
+        16.40955
+      ],
+      [
+        120.58098,
+        16.40955
+      ],
+      [
+        120.58098,
+        16.40955
+      ],
+      [
+        120.58098,
+        16.40954
+      ],
+      [
+        120.58098,
+        16.40954
+      ],
+      [
+        120.58098,
+        16.40953
+      ],
+      [
+        120.58099,
+        16.40953
+      ],
+      [
+        120.58099,
+        16.40953
+      ],
+      [
+        120.58099,
+        16.40952
+      ],
+      [
+        120.58099,
+        16.40952
+      ],
+      [
+        120.58099,
+        16.40951
+      ],
+      [
+        120.58098,
+        16.40951
+      ],
+      [
+        120.58098,
+        16.4095
+      ],
+      [
+        120.58098,
+        16.4095
+      ],
+      [
+        120.58098,
+        16.4095
+      ],
+      [
+        120.58098,
+        16.40949
+      ],
+      [
+        120.58097,
+        16.40949
+      ],
+      [
+        120.58088,
+        16.4094
+      ],
+      [
+        120.58087,
+        16.40939
+      ],
+      [
+        120.58087,
+        16.40939
+      ],
+      [
+        120.58086,
+        16.40939
+      ],
+      [
+        120.58086,
+        16.40939
+      ],
+      [
+        120.58086,
+        16.40938
+      ],
+      [
+        120.58085,
+        16.40938
+      ],
+      [
+        120.58085,
+        16.40938
+      ],
+      [
+        120.58084,
+        16.40938
+      ],
+      [
+        120.58084,
+        16.40938
+      ],
+      [
+        120.58083,
+        16.40938
+      ],
+      [
+        120.58083,
+        16.40938
+      ],
+      [
+        120.58082,
+        16.40939
+      ],
+      [
+        120.58082,
+        16.40939
+      ],
+      [
+        120.58082,
+        16.40939
+      ],
+      [
+        120.58081,
+        16.40939
+      ],
+      [
+        120.58081,
+        16.4094
+      ],
+      [
+        120.58071,
+        16.40949
+      ]
+    ],
+    "anchor": [
+      120.580839,
+      16.409523
+    ],
     "sheet": "model/landmarks/lourdes-grotto.md",
-    "status": "planned"
+    "status": "shipped",
+    "osm_center": {
+      "lnglat": [
+        120.58061,
+        16.4096
+      ],
+      "source": "OSM node/384119717, Overpass name search 2026-10-05"
+    }
   },
   "mile-hi-cjh-viewdeck": {
     "tier": 2,
@@ -1931,7 +2374,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/mile-hi-cjh-viewdeck.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.61664,
+        16.4015
+      ],
+      "source": "OSM way/1441662281, Overpass name search 2026-10-05"
+    }
   },
   "mines-view-park": {
     "tier": 1,
@@ -2383,7 +2833,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/philippine-military-academy.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.61967,
+        16.36086
+      ],
+      "source": "OSM node/5350499243, Overpass name search 2026-10-05"
+    }
   },
   "session-road": {
     "tier": 1,
@@ -2654,7 +3111,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/tam-awan-village.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.57663,
+        16.42997
+      ],
+      "source": "OSM way/209022152, Overpass name search 2026-10-05"
+    }
   },
   "teachers-camp": {
     "tier": 2,
@@ -2663,7 +3127,14 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/teachers-camp.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.60834,
+        16.41217
+      ],
+      "source": "OSM way/3495210, Overpass name search 2026-10-05"
+    }
   },
   "the-mansion": {
     "tier": 2,
@@ -2672,15 +3143,311 @@
     "exclusion": null,
     "anchor": null,
     "sheet": "model/landmarks/the-mansion.md",
-    "status": "planned"
+    "status": "planned",
+    "osm_center": {
+      "lnglat": [
+        120.62153,
+        16.41236
+      ],
+      "source": "OSM way/43615594, Overpass name search 2026-10-05"
+    }
   },
   "wright-park": {
     "tier": 2,
-    "scope": "",
-    "osm_ids": [],
-    "exclusion": null,
-    "anchor": null,
+    "scope": "The Pool of Pines: the stepped reflecting pool, its rim, brick promenades and verges, potted shrubs and pine rows.",
+    "osm_ids": [
+      "way/331614609"
+    ],
+    "exclusion": [
+      [
+        120.61912,
+        16.4151
+      ],
+      [
+        120.6202,
+        16.41388
+      ],
+      [
+        120.6202,
+        16.41388
+      ],
+      [
+        120.62021,
+        16.41388
+      ],
+      [
+        120.62021,
+        16.41387
+      ],
+      [
+        120.62021,
+        16.41387
+      ],
+      [
+        120.62021,
+        16.41386
+      ],
+      [
+        120.62021,
+        16.41386
+      ],
+      [
+        120.62021,
+        16.41386
+      ],
+      [
+        120.62021,
+        16.41385
+      ],
+      [
+        120.62021,
+        16.41385
+      ],
+      [
+        120.62021,
+        16.41384
+      ],
+      [
+        120.62021,
+        16.41384
+      ],
+      [
+        120.62021,
+        16.41383
+      ],
+      [
+        120.62021,
+        16.41383
+      ],
+      [
+        120.6202,
+        16.41383
+      ],
+      [
+        120.6202,
+        16.41382
+      ],
+      [
+        120.6202,
+        16.41382
+      ],
+      [
+        120.62015,
+        16.41378
+      ],
+      [
+        120.62015,
+        16.41378
+      ],
+      [
+        120.62014,
+        16.41378
+      ],
+      [
+        120.62014,
+        16.41378
+      ],
+      [
+        120.62013,
+        16.41377
+      ],
+      [
+        120.62013,
+        16.41377
+      ],
+      [
+        120.62012,
+        16.41377
+      ],
+      [
+        120.62012,
+        16.41377
+      ],
+      [
+        120.62012,
+        16.41377
+      ],
+      [
+        120.62011,
+        16.41377
+      ],
+      [
+        120.62011,
+        16.41377
+      ],
+      [
+        120.6201,
+        16.41377
+      ],
+      [
+        120.6201,
+        16.41378
+      ],
+      [
+        120.62009,
+        16.41378
+      ],
+      [
+        120.62009,
+        16.41378
+      ],
+      [
+        120.62009,
+        16.41378
+      ],
+      [
+        120.62008,
+        16.41379
+      ],
+      [
+        120.61901,
+        16.415
+      ],
+      [
+        120.619,
+        16.415
+      ],
+      [
+        120.619,
+        16.41501
+      ],
+      [
+        120.619,
+        16.41501
+      ],
+      [
+        120.619,
+        16.41502
+      ],
+      [
+        120.619,
+        16.41502
+      ],
+      [
+        120.619,
+        16.41503
+      ],
+      [
+        120.61899,
+        16.41503
+      ],
+      [
+        120.61899,
+        16.41503
+      ],
+      [
+        120.619,
+        16.41504
+      ],
+      [
+        120.619,
+        16.41504
+      ],
+      [
+        120.619,
+        16.41505
+      ],
+      [
+        120.619,
+        16.41505
+      ],
+      [
+        120.619,
+        16.41506
+      ],
+      [
+        120.619,
+        16.41506
+      ],
+      [
+        120.61901,
+        16.41506
+      ],
+      [
+        120.61901,
+        16.41507
+      ],
+      [
+        120.61906,
+        16.4151
+      ],
+      [
+        120.61906,
+        16.41511
+      ],
+      [
+        120.61907,
+        16.41511
+      ],
+      [
+        120.61907,
+        16.41511
+      ],
+      [
+        120.61907,
+        16.41511
+      ],
+      [
+        120.61908,
+        16.41511
+      ],
+      [
+        120.61908,
+        16.41511
+      ],
+      [
+        120.61909,
+        16.41511
+      ],
+      [
+        120.61909,
+        16.41511
+      ],
+      [
+        120.6191,
+        16.41511
+      ],
+      [
+        120.6191,
+        16.41511
+      ],
+      [
+        120.61911,
+        16.41511
+      ],
+      [
+        120.61911,
+        16.41511
+      ],
+      [
+        120.61911,
+        16.41511
+      ],
+      [
+        120.61912,
+        16.4151
+      ],
+      [
+        120.61912,
+        16.4151
+      ],
+      [
+        120.61912,
+        16.4151
+      ]
+    ],
+    "anchor": [
+      120.619604,
+      16.414443
+    ],
     "sheet": "model/landmarks/wright-park.md",
-    "status": "planned"
+    "status": "shipped",
+    "osm_center": {
+      "lnglat": [
+        120.61839,
+        16.41507
+      ],
+      "source": "OSM relation/12714120, Overpass name search 2026-10-05"
+    }
   }
 }
