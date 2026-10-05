@@ -307,3 +307,78 @@ class Shapes:
         else:
             verts = [(x, at, z) for x, z in pts] + [(x, at - depth, z) for x, z in pts]
         return self.mesh(name, verts, [(0, 1, 2, 3, 4), (5, 6, 7, 8, 9)] + [(i, (i + 1) % 5, 5 + (i + 1) % 5, 5 + i) for i in range(5)], mat)
+
+
+# --- Ready-made CC0 assets (owner request 2026-10-05) -----------------------------------------------
+# Kits fetched by model/scripts/fetch_assets.py (provenance in model/sources.json).
+ASSET_DIR = ROOT / "model" / "data" / "assets" / "kenney"
+ASSETS = {
+    "pine_tall_c": "nature-kit/Models/GLTF format/tree_pineTallC_detailed.glb",
+    "pine_tall_a": "nature-kit/Models/GLTF format/tree_pineTallA_detailed.glb",
+    "broadleaf": "nature-kit/Models/GLTF format/tree_default.glb",
+    "oak": "nature-kit/Models/GLTF format/tree_oak.glb",
+    "rowboat": "watercraft-kit/Models/GLB format/boat-row-small.glb",
+    "rowboat_large": "watercraft-kit/Models/GLB format/boat-row-large.glb",
+    "street_light": "city-kit-roads/Models/GLB format/light-curved.glb",
+    "traffic_light": "city-kit-roads/Models/GLB format/traffic-light.glb",
+}
+
+
+def asset_mesh(name, height, recolor=None):
+    """One mesh per asset, imported once: all its parts joined with transforms applied, base centred on
+    the origin, scaled to `height` metres. recolor maps a material-name prefix to an sRGB 0-255 colour
+    (e.g. Kenney's teal leaves to a Benguet-pine green). Placed copies share this mesh, so a GLB
+    stores it once."""
+    key = f"ASSET_{name}_{height:g}"
+    me = bpy.data.meshes.get(key)
+    if me:
+        return me
+    before = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(ASSET_DIR / ASSETS[name]))
+    new = [o for o in bpy.data.objects if o not in before]
+    parts = [o for o in new if o.type == "MESH"]
+    mats = []                                   # joined material list, first-seen order
+    for o in parts:
+        for m in o.data.materials:
+            if m and m not in mats:
+                mats.append(m)
+    bm = bmesh.new()
+    for o in parts:
+        part = o.data.copy()
+        part.transform(o.matrix_world)
+        for poly in part.polygons:              # part-local slot -> joined list index
+            m = o.data.materials[poly.material_index] if o.data.materials else None
+            poly.material_index = mats.index(m) if m in mats else 0
+        bm.from_mesh(part)
+        bpy.data.meshes.remove(part)
+    lo = [min(v.co[i] for v in bm.verts) for i in range(3)]
+    hi = [max(v.co[i] for v in bm.verts) for i in range(3)]
+    k = height / (hi[2] - lo[2])
+    for v in bm.verts:
+        v.co.x, v.co.y, v.co.z = (v.co.x - (lo[0] + hi[0]) / 2) * k, (v.co.y - (lo[1] + hi[1]) / 2) * k, (v.co.z - lo[2]) * k
+    me = bpy.data.meshes.new(key)
+    bm.to_mesh(me)
+    bm.free()
+    for m in mats:
+        me.materials.append(m)
+    for o in new:
+        bpy.data.objects.remove(o, do_unlink=True)
+    for mat in me.materials:
+        for prefix, rgb in (recolor or {}).items():
+            if mat.name.startswith(prefix):
+                c = srgb(*rgb)
+                bsdf = next((n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if mat.use_nodes else None
+                if bsdf:
+                    bsdf.inputs["Base Color"].default_value = (*c, 1.0)
+                mat.diffuse_color = (*c, 1.0)
+    return me
+
+
+def place(coll, name, mesh, x, y, z, heading_deg=0.0, scale=1.0):
+    """A linked copy of an asset mesh at local (x east, y north, z up), turned clockwise from north."""
+    ob = bpy.data.objects.new(name, mesh)
+    ob.location = (x, y, z)
+    ob.rotation_euler = (0.0, 0.0, -math.radians(heading_deg))
+    ob.scale = (scale, scale, scale)
+    coll.objects.link(ob)
+    return ob

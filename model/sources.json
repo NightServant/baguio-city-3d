@@ -48,5 +48,32 @@
     "md5": "5b9a9245f87f8ff048d627e42078ff9c",
     "licence": "Open Database License 1.0, https://www.openstreetmap.org/copyright",
     "attribution": "© OpenStreetMap contributors"
+  },
+  "kenney-nature-kit": {
+    "url": "https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip",
+    "file": "model/data/assets/kenney/nature-kit.zip",
+    "sha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d",
+    "bytes": 10537521,
+    "retrieved": "2026-10-05",
+    "licence": "Creative Commons CC0 1.0 (public domain dedication), https://creativecommons.org/publicdomain/zero/1.0/",
+    "attribution": "Kenney (www.kenney.nl), CC0; credit appreciated, not required"
+  },
+  "kenney-city-kit-roads": {
+    "url": "https://kenney.nl/media/pages/assets/city-kit-roads/74288c9459-1787042796/kenney_city-kit-roads.zip",
+    "file": "model/data/assets/kenney/city-kit-roads.zip",
+    "sha256": "22058af3d68173a7cf9bda9f0e243a8cef6bd68168c302ebc76327063849674e",
+    "bytes": 2849382,
+    "retrieved": "2026-10-05",
+    "licence": "Creative Commons CC0 1.0 (public domain dedication), https://creativecommons.org/publicdomain/zero/1.0/",
+    "attribution": "Kenney (www.kenney.nl), CC0; credit appreciated, not required"
+  },
+  "kenney-watercraft-kit": {
+    "url": "https://kenney.nl/media/pages/assets/watercraft-kit/a335cfed49-1713519620/kenney_watercraft-pack.zip",
+    "file": "model/data/assets/kenney/watercraft-kit.zip",
+    "sha256": "cd1470c1cf441c7f46d0944ae6d0d897242365dc97677c5079b3238965d659f3",
+    "bytes": 1870991,
+    "retrieved": "2026-10-05",
+    "licence": "Creative Commons CC0 1.0 (public domain dedication), https://creativecommons.org/publicdomain/zero/1.0/",
+    "attribution": "Kenney (www.kenney.nl), CC0; credit appreciated, not required"
   }
 }

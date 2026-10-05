@@ -21,6 +21,9 @@ OSM: `way/42936372` (`building=cathedral`, `building:levels=2`, `amenity=place_o
   - Central gable with a white cross at its apex, a statue niche (blue robe) above the porch, and a central rose window.
 - [S4] Spec §1, drone caption: "built 1936", twin spires on a hilltop with a forecourt plaza. Its "rose/cream" walls predate the current white paint shown in S3; S3 wins as the newer reference.
 
+- [Assets] Ready-made CC0 models from Kenney (www.kenney.nl): Nature Kit, City Kit (Roads) and Watercraft Kit, fetched by `model/scripts/fetch_assets.py` with sha256 and provenance in `model/sources.json`. Owner request, 2026-10-05.
+  Pines (`tree_pineTallC_detailed`, `tree_pineTallA_detailed`, 14 to 17 m) and broadleaf trees (`tree_default`, 10 m) on the grounds, recoloured toward S3's greens.
+
 ## Estimates
 All heights are ESTIMATE: none is published (S1). Method: proportions read from S3 against S2's measured tower flank width (4.6 m). Confidence: medium (±20%).
 - Tower square side 5.0 m: between S2's 4.6 m flank and S3's visibly broader towers.

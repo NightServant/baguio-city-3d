@@ -14,6 +14,9 @@ OSM: five `highway=primary`, `oneway=yes` centreline parts within 220 m. The mai
   - buildings of 4 to 8 storeys.
 - [S4] `data/geojson/landmarks.geojson`: "Baguio's sloping main artery … climb toward the cathedral steps."
 
+- [Assets] Ready-made CC0 models from Kenney (www.kenney.nl): Nature Kit, City Kit (Roads) and Watercraft Kit, fetched by `model/scripts/fetch_assets.py` with sha256 and provenance in `model/sources.json`. Owner request, 2026-10-05.
+  Median trees (`tree_default`, `tree_oak`, about 6.5 m) and curved street lights (`light-curved`, 7.5 m, arms over each carriageway).
+
 ## Estimates
 - Lanes 3.0 m each (S1 gives the count, not the width). Each carriageway builds its half of the median, 0.6 m, 0.4 m high, so the halves meet even where the centrelines are 6 m apart.
 - Sidewalks 1.85 m plus a 0.15 m kerb (S2). Awnings 3.2 m high, 1.9 m deep, over about 65% of the frontage in seeded runs of blue or galvanized (S2: "much, not all"). Posts at the kerb.
@@ -25,3 +28,7 @@ Renders: `model/data/renders/landmarks/session-road-{front,aerial,side,preset-se
 - Compared with S3: the divided road, the tree-lined planted median with lamps, the sidewalks and the awning runs read as Session Road from the street view.
 - First pass: each 1 m median half spilled onto the opposite carriageway where the centrelines are 6 m apart; narrowed to 0.6 m.
 - Simplified: crosswalks, traffic lights, the star lanterns (seasonal), and individual shop signs.
+
+Fix (owner report, 2026-10-05: "Asphalt is not fully rendered"):
+- The terrain showed through the road. Cross-sections sat on the centreline height, while the 30 m terrain between them rose higher. Each cross-section now takes the highest terrain over a patch spanning its neighbouring segments and the full width, plus 0.15 m.
+- Each carriageway's median now reaches the midline to the opposite carriageway, so no bare strip is left where the OSM centrelines are more than 7 m apart.

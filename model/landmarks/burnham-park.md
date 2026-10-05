@@ -16,6 +16,9 @@ OSM: `way/330642119` "Burnham Park Lake", 15,875 m², 28 vertices, about 180 m a
   - a line of rental stalls under green roofs along the north shore, and a blue-roofed pavilion at the north-west corner;
   - a dense ring of pines and broadleaf trees; an open lake with no island.
 
+- [Assets] Ready-made CC0 models from Kenney (www.kenney.nl): Nature Kit, City Kit (Roads) and Watercraft Kit, fetched by `model/scripts/fetch_assets.py` with sha256 and provenance in `model/sources.json`. Owner request, 2026-10-05.
+  Its trees (Kenney pines at 15 to 18 m, broadleaf at 11 m, recoloured toward S5's greens) and its wooden rowboats (`boat-row-small`) replace the hand-built ones. The swan and pedal boats stay hand-built; no kit has them.
+
 ## Estimates
 - Water level 0.3 m above the highest terrain sample under the lake. Copernicus is not a water surface, and the offset avoids z-fighting with the map's terrain (M4 plan).
 - Rim: concrete, 1.2 m wide, 0.6 m above the water.

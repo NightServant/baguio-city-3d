@@ -35,7 +35,7 @@ def main(slug):
     reg = json.loads(LANDMARKS.read_text())[slug]
     raw = DATA / "out" / f"{slug}.raw.glb"
     packed = DATA / "out" / f"{slug}.packed.glb"
-    subprocess.run(["npx", "-y", GLTFPACK, "-i", str(raw), "-o", str(packed), "-cc"], check=True)
+    subprocess.run(["npx", "-y", GLTFPACK, "-i", str(raw), "-o", str(packed), "-cc", "-mi"], check=True)  # -mi: repeated assets as GPU instances
     data = packed.read_bytes()
     tris, geometry = glb_stats(data)
     whole_cap, geom_cap = BUDGET[reg["tier"]]

@@ -4,37 +4,37 @@
       "slug": "baguio-cathedral",
       "lng": 120.598528,
       "lat": 16.412729,
-      "url": "/models/landmarks/baguio-cathedral.2ed2a83c.glb",
+      "url": "/models/landmarks/baguio-cathedral.1a6af15c.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 2425,
-      "bytes": 27196,
-      "geometryBytes": 19756,
-      "sha256": "2ed2a83c01bfbbcaeb64fcf68483788c0381e3136f393e11d1e1855448e85443"
+      "triangles": 2827,
+      "bytes": 34356,
+      "geometryBytes": 26916,
+      "sha256": "1a6af15c0d07a8d8e58b301291f12c67ff2612ed2b38c33a610a0080b7b13f31"
     },
     {
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
-      "url": "/models/landmarks/burnham-park.57a46f36.glb",
+      "url": "/models/landmarks/burnham-park.440e9cdc.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 4486,
-      "bytes": 30732,
-      "geometryBytes": 28484,
-      "sha256": "57a46f362e66b7809afac29d3956091718e31f52fe74e75b9699c499d00da9ec"
+      "triangles": 3400,
+      "bytes": 33960,
+      "geometryBytes": 29710,
+      "sha256": "440e9cdc7f35ac3b54e88b39992a39f4caee16db200b0baf8ebc289a9f1a3972"
     },
     {
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,
-      "url": "/models/landmarks/session-road.0edfe44e.glb",
+      "url": "/models/landmarks/session-road.461fe017.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 4576,
-      "bytes": 27500,
-      "geometryBytes": 23142,
-      "sha256": "0edfe44e9a6b949c525a28a154aca36540ef17bb6e7c11fa6acbc981a497192a"
+      "triangles": 3762,
+      "bytes": 32360,
+      "geometryBytes": 25684,
+      "sha256": "461fe0174e696002e9ed5b6b2491ff490052c4f38a5945c989af0e27759248fd"
     }
   ]
 }

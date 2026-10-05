@@ -92,6 +92,7 @@ function createLayer(map: MapLibreMap, { THREE }: Kit, shown: Map<string, Shown>
         camera.projectionMatrix.copy(mvp).multiply(local);
         renderer.render(scene, camera);
       }
+      renderer.resetState(); // hand the shared context back clean, as MapLibre's three.js-on-terrain example does
     },
   };
 }

@@ -129,6 +129,25 @@ for k in range(6):  # six spokes over the façade rose window
     S.hexa(f"rose_spoke_{k}", [(-23.62, w, z) for w, z in corners], [(-23.52, w, z) for w, z in corners], WALL)
 S.disc("rose_hub", "a", -23.6, 0.2, 13.0, 0.32, 0.1, WALL)
 
+# [S3] trees on the cathedral grounds, along the sides and behind the apse, never in front of the
+# façade (the forecourt and the stairs from Session Road). Ready-made CC0 Kenney assets; seeded.
+import numpy as np  # noqa: E402
+
+PINES = [lm.asset_mesh("pine_tall_c", 17.0, {"leafs": (58, 92, 56), "woodBark": (92, 70, 54)}),
+         lm.asset_mesh("pine_tall_a", 14.0, {"leafs": (52, 86, 52), "woodBark": (92, 70, 54)})]
+BROAD = lm.asset_mesh("broadleaf", 10.0, {"leafs": (88, 122, 60), "woodBark": (110, 84, 60)})
+rng = np.random.default_rng(1920)             # seeded; groundbreaking year [S1]
+ax, ay = fp["anchor_tm"]
+ground = lm.terrain_z([(ax, ay)])[0]
+spots = [(a, side * rng.uniform(14.0, 19.0)) for a in np.arange(-14.0, 24.0, 7.5) for side in (-1, 1)]
+spots += [(rng.uniform(31.0, 36.0), w) for w in (-9.0, 0.0, 9.0)]
+for n, (a, w) in enumerate(spots):
+    x, y, _ = S.P(a, w, 0.0)
+    gz = lm.terrain_z([(ax + x, ay + y)])[0]
+    mesh = BROAD if n % 4 == 3 else PINES[n % 2]
+    lm.place(coll, f"tree_{n:02d}", mesh, x, y, (gz - ground if gz is not None else 0.0) - 0.3,
+             rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+
 front = S.P(-34.0, 0.2, 0.0)
 lm.human_reference(coll, front[0], front[1])
 lm.report(SLUG, coll, depth)

@@ -1,5 +1,6 @@
 """burnham-park: Burnham Lake: water, concrete rim, rental boats (swans, pedal boats, rowboats), the
-green-roofed rental stalls on the north shore, the blue-roofed pavilion, and the ring of trees.
+green-roofed rental stalls on the north shore, the blue-roofed pavilion, and the ring of trees
+(ready-made CC0 Kenney pines, broadleaf trees and rowboats).
 Dimensions: model/landmarks/burnham-park.md ([S2] OSM outline; water level, rim and boats are ESTIMATEs).
 Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/landmarks/burnham_park.py"""
 import math
@@ -28,9 +29,6 @@ def ripples(rgb=(0.10, 0.47, 0.50)):   # [S5] turquoise-teal
 WATER = lm.textured("MAT_burnham_water", lm.pattern_image("TEX_burnham_water", ripples()), srgb(26, 120, 128), 0.15)
 RIM = lm.textured("MAT_burnham_rim", lm.pattern_image("TEX_burnham_rim", lm.wall_blocks((0.62, 0.62, 0.60))), srgb(158, 158, 153), 0.9)
 BED = lm.material("MAT_burnham_bed", srgb(84, 80, 72), 0.95)
-HULLS = [lm.material(f"MAT_burnham_boat_{k}", srgb(*c), 0.6) for k, c in enumerate(
-    ((196, 52, 44), (52, 92, 170), (226, 190, 60), (236, 236, 232), (220, 120, 50)))]   # ESTIMATE fleet colours
-SEAT = lm.material("MAT_burnham_seat", srgb(120, 90, 60), 0.8)
 SWAN = lm.material("MAT_burnham_swan", srgb(240, 240, 236), 0.6)          # [S5] white swan boats
 BEAK = lm.material("MAT_burnham_beak", srgb(230, 120, 40), 0.6)
 PEDAL = lm.material("MAT_burnham_pedal", srgb(236, 196, 40), 0.6)        # [S5] yellow pedal boats
@@ -38,9 +36,11 @@ CANOPY = lm.material("MAT_burnham_canopy", srgb(210, 60, 40), 0.7)       # [S5] 
 STALL_ROOF = lm.material("MAT_burnham_stall_roof", srgb(40, 150, 120), 0.6)   # [S5] green-roofed rental stalls
 PAVILION_ROOF = lm.material("MAT_burnham_pavilion_roof", srgb(50, 90, 170), 0.6)  # [S5] blue-roofed pavilion
 POST = lm.material("MAT_burnham_post", srgb(200, 200, 194), 0.8)
-TRUNK = lm.material("MAT_burnham_trunk", srgb(90, 70, 50), 0.9)
-PINE = lm.material("MAT_burnham_pine", srgb(52, 84, 52), 0.9)
-LEAF = lm.material("MAT_burnham_leaf", srgb(86, 116, 60), 0.9)
+# Ready-made CC0 assets (Kenney kits, model/sources.json), recoloured toward S5's greens
+PINES = [lm.asset_mesh("pine_tall_c", 18.0, {"leafs": (58, 92, 56), "woodBark": (92, 70, 54)}),
+         lm.asset_mesh("pine_tall_a", 15.0, {"leafs": (52, 86, 52), "woodBark": (92, 70, 54)})]
+BROADLEAF = lm.asset_mesh("broadleaf", 11.0, {"leafs": (88, 122, 60), "woodBark": (110, 84, 60)})
+ROWBOAT = lm.asset_mesh("rowboat", 0.7)    # Kenney wooden rowboat, about 2.6 m long at this height
 S = lm.Shapes(coll, 0.0, {WATER.name: 4.0, RIM.name: 2.0})   # bearing 0: a = north (y), w = east (x)
 
 ring = fp["rings"][0]                       # local metres around the lake's centroid, CCW
@@ -109,9 +109,8 @@ while boats < 40:                           # [S5] about 40 to 60 boats out on a
         for i, (pl, pw) in enumerate(((-0.6, -0.55), (-0.6, 0.55), (0.5, -0.55), (0.5, 0.55))):
             slab(f"boat_{boats:02d}_post_{i}", f, pl - 0.04, pl + 0.04, pw - 0.04, pw + 0.04, water + 0.5, water + 1.5, POST)
         slab(f"boat_{boats:02d}_canopy", f, -0.8, 0.7, -0.75, 0.75, water + 1.5, water + 1.6, CANOPY)
-    else:                                   # rowboat in the rental colours, with a seat
-        slab(f"boat_{boats:02d}_hull", f, -1.4, 1.4, -0.6, 0.6, water - 0.1, water + 0.45, HULLS[boats % len(HULLS)])
-        slab(f"boat_{boats:02d}_seat", f, -0.15, 0.15, -0.6, 0.6, water + 0.3, water + 0.42, SEAT)
+    else:                                   # wooden rowboat (ready-made asset)
+        lm.place(coll, f"boat_{boats:02d}_rowboat", ROWBOAT, bx, by, water - 0.2, rng.uniform(0, 360))
     boats += 1
 
 # [S5] rental stalls under green roofs along the north shore, set back 2 m from the rim
@@ -157,12 +156,8 @@ for n in range(int(total // 11)):
         continue
     gz = terrain_z([(ax + tx, ay + ty)])[0]
     gz = (gz - ground) if gz is not None else water
-    S.box(f"tree_{n:02d}_trunk", ty - 0.25, ty + 0.25, tx - 0.25, tx + 0.25, gz - 1.0, gz + 4.0, TRUNK)
-    if n % 3:
-        S.cone(f"tree_{n:02d}_crown", ty, tx, 3.2, gz + 3.0, gz + 16.0, PINE, seg=7)
-    else:
-        S.cone(f"tree_{n:02d}_crown_low", ty, tx, 4.2, gz + 6.5, gz + 3.5, LEAF, seg=7)
-        S.cone(f"tree_{n:02d}_crown_high", ty, tx, 4.2, gz + 6.5, gz + 11.0, LEAF, seg=7)
+    mesh = BROADLEAF if n % 3 == 0 else PINES[n % 2]   # two pines to one broadleaf (S5)
+    lm.place(coll, f"tree_{n:02d}", mesh, tx, ty, gz - 0.3, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
 
 lm.human_reference(coll, ring[0][0] * 1.08, ring[0][1] * 1.08)
 print("WATER", round(water, 2), "m above the centroid's ground")
