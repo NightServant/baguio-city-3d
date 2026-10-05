@@ -57,7 +57,7 @@ def inside(px, py):
 # Water level: above every terrain sample on the shore AND on a 5 m grid inside the lake. The 30 m DEM
 # bulges above the water in the lake's middle (2026-10-02 render); S5 shows open water there.
 grid = [(x, y) for x in np.arange(-100, 101, 5.0) for y in np.arange(-100, 101, 5.0) if inside(x, y)]
-water = max(lm.rel_ground(fp, ring + grid)) + 0.3      # both DEMs (the app draws its own); ESTIMATE offset
+water = max(lm.rel_ground(fp, ring + grid)) + 0.3      # the map's terrain (lm.rel_ground); ESTIMATE offset
 depth = lm.foundation(coll, fp, BED)
 
 S.prism("lake_water", [(y, x) for x, y in ring], water - 0.2, water, WATER, tessellate=True)

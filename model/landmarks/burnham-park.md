@@ -43,6 +43,6 @@ Compared with S5, these match:
 The first render showed a white patch mid-lake. That was the DEM rising above the water there, not a shoreline inlet; the interior sampling fixed it. From the burnham-park preset the lake sits west-south-west of the cathedral, as on the map.
 
 ## Ground fit (2026-10-05)
-The water level and tree bases now come from both DEMs (contract C2, ground fitting).
+The water level now comes from the map's own terrain, and the tree bases from the lower of the two DEMs (contract C2, ground fitting).
 - The map's own terrain tilts about 7 m across the lake, so the water now sits 3.77 m above the centroid's ground, clear of it everywhere.
 - On the low (south-west) side the rim shows a few metres of wall.

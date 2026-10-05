@@ -98,7 +98,7 @@ for k, ln in enumerate(fp["lines"]):
         a, b = pts[max(i - 1, 0)], pts[min(i + 1, len(pts) - 1)]
         patch = [(a[0] + (b[0] - a[0]) * t + nrm[i][0] * o, a[1] + (b[1] - a[1]) * t + nrm[i][1] * o)
                  for t in np.linspace(0, 1, 11) for o in (-h - 2.0, -h, 0.0, h, h + 1.0)]
-        rel.append(max(lm.rel_ground(fp, patch)) + 0.15)        # both DEMs: the app draws its own terrain
+        rel.append(max(lm.rel_ground(fp, patch)) + 0.15)        # the map's terrain (lm.rel_ground)
     lowest = min(lowest, min(rel) - 1.5)
     # Median: reach the midline to the opposite carriageway, so the gap between them always fills
     med = []

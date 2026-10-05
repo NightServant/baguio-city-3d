@@ -28,13 +28,13 @@
       "slug": "camp-john-hay",
       "lng": 120.617989,
       "lat": 16.398924,
-      "url": "/models/landmarks/camp-john-hay.043a5fdb.glb",
+      "url": "/models/landmarks/camp-john-hay.c3a7bde8.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 5552,
-      "bytes": 104692,
-      "geometryBytes": 49792,
-      "sha256": "043a5fdb8bb8c9414c95af02eec97ef8c0da87666db38cae503cb889eecde5d1"
+      "triangles": 5698,
+      "bytes": 108892,
+      "geometryBytes": 53984,
+      "sha256": "c3a7bde84e9b44b529c6e1c57f5bc8aa37e10ea3ea000044fd3bb5b9ffacc94a"
     },
     {
       "slug": "mines-view-park",
@@ -52,13 +52,13 @@
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,
-      "url": "/models/landmarks/session-road.024eeb67.glb",
+      "url": "/models/landmarks/session-road.afd63228.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 3762,
-      "bytes": 32356,
-      "geometryBytes": 25680,
-      "sha256": "024eeb67a2e089a121612992145dff261cebc09158b698795e531c94fc261fd6"
+      "bytes": 32316,
+      "geometryBytes": 25640,
+      "sha256": "afd63228a5108b84301cf9f134cc97673f1f606241c89742edc0175209592dc2"
     }
   ]
 }

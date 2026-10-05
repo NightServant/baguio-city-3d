@@ -2,6 +2,7 @@
 nearest app preset camera, Workbench with shadows and cavity, and a contact sheet.
 Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/render_landmark.py -- <slug> <facade-bearing-deg> [preset] [distance-scale]
 <facade-bearing-deg> is the direction the camera looks to face the landmark's front (clockwise from north)."""
+import json
 import math
 import sys
 from pathlib import Path
@@ -39,7 +40,27 @@ def shoot(name, bearing, pitch, dist):
     return scene.render.filepath
 
 
+# Review on the terrain the app draws (contract C2, ground fitting): a 6 m grid of the map's DEM round the
+# landmark stands in for the Copernicus terrain, a surface model that reads tree canopy, in the close views.
+sys.path.insert(0, str(ROOT / "model" / "blender"))
+import lm_common as lm  # noqa: E402
+fp = json.loads((ROOT / "model" / "data" / "landmarks" / slug / "footprint.json").read_text())
+R, STEP = 300 * scale, 6.0
+n = int(2 * R / STEP) + 1
+xs = [-R + STEP * i for i in range(n)]
+zs = lm.map_ground(fp, [(x, y) for y in xs for x in xs] + [(0.0, 0.0)])
+me = bpy.data.meshes.new("MAP_GROUND")
+me.from_pydata([(ax + x, ay + y, az + zs[j * n + i] - zs[-1]) for j, y in enumerate(xs) for i, x in enumerate(xs)], [],
+               [(j * n + i, j * n + i + 1, (j + 1) * n + i + 1, (j + 1) * n + i) for j in range(n - 1) for i in range(n - 1)])
+ground = bpy.data.objects.new("MAP_GROUND", me)
+bpy.data.collections["00_REFERENCE"].objects.link(ground)
+terrain = [o for o in bpy.data.objects if o.name.startswith("TERRAIN_")]
+for o in terrain:
+    o.hide_render = True
 shots = [shoot("front", front, 70, 95 * scale), shoot("aerial", front + 35, 50, 140 * scale), shoot("side", front + 95, 72, 110 * scale)]
+for o in terrain:
+    o.hide_render = False
+ground.hide_render = True
 if preset:
     scene.camera = bpy.data.objects[f"CAM_{preset}"]
     scene.render.filepath = str(out / f"{slug}-preset-{preset}.png")

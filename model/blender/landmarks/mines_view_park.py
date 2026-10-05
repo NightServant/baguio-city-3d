@@ -51,7 +51,7 @@ def q(x, y, z):
 
 
 def ztop(pts):
-    """Highest ground over the given local points, relative to the anchor's, on either DEM (lm.rel_ground)."""
+    """Highest ground over the given local points, relative to the anchor's, on the map's terrain (lm.rel_ground)."""
     return max(lm.rel_ground(fp, pts))
 
 

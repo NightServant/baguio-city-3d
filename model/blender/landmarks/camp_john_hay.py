@@ -110,14 +110,28 @@ def octagon(cx, cy, r, phase=math.pi / 8):
 
 # --- Bell Amphitheater [S2, S3]: a lawn ringed on the north, east and west by five curved terraces, open
 # to the south, where the gazebo stands; the stairway (way/1358311047) comes down the axis from the north.
+# Fitted to the map's terrain (lm.rel_ground). The 30 m DEMs can't hold the real excavated bowl, so the lawn
+# drapes 0.2 m over the ground and each terrace, the gazebo and each tread sit on their own patch of it:
+# a level lawn either floated or sank on the slope (owner report 2026-10-05).
 LX, LY, RX, RY = -18.5, -7.0, 11.0, 7.5          # lawn centre and semi-axes (ESTIMATE, fitted to the S2 outline)
 GX, GY = -17.5, -19.5                           # gazebo centre, in the outline's south lobe
-lawn = [(LX + RX * math.cos(t), LY + RY * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
-plat = octagon(GX, GY, 5.8)
-zf = top(lawn + plat + [(LX, LY), (GX, GY)]) + 0.15     # the lawn is level, above both DEMs everywhere
-S.prism("lawn", [(y, x) for x, y in lawn], low(lawn) - 1.0, zf, GRASS)
-lowest = min(lowest, low(lawn) - 1.0)
-TIERS, STEP_W, RISE = 5, 2.3, 0.45
+RINGS, NSEG = 4, 24
+grid = [(LX, LY)] + [(LX + RX * r / RINGS * math.cos(t), LY + RY * r / RINGS * math.sin(t))
+                     for r in range(1, RINGS + 1) for t in np.linspace(0, 2 * math.pi, NSEG, endpoint=False)]
+gz = [z + 0.2 for z in lm.rel_ground(fp, grid)]
+zb = low(grid) - 1.0
+lowest = min(lowest, zb)
+edge = range(1 + (RINGS - 1) * NSEG, 1 + RINGS * NSEG)            # outer ring indices
+verts = [q(x, y, z) for (x, y), z in zip(grid, gz)] + [q(grid[e][0], grid[e][1], zb) for e in edge]
+faces = [(0, 1 + i, 1 + (i + 1) % NSEG) for i in range(NSEG)]
+for r in range(RINGS - 1):
+    a, b = 1 + r * NSEG, 1 + (r + 1) * NSEG
+    faces += [(a + i, b + i, b + (i + 1) % NSEG, a + (i + 1) % NSEG) for i in range(NSEG)]
+B = len(grid)
+faces += [(edge[i], B + i, B + (i + 1) % NSEG, edge[(i + 1) % NSEG]) for i in range(NSEG)] + [tuple(range(B, B + NSEG))]
+S.mesh("lawn", verts, faces, GRASS)
+lawn_z = lambda x, y: lm.rel_ground(fp, [(x, y)])[0] + 0.2
+TIERS, STEP_W, RISE = 5, 2.3, 0.35
 SPAN = (math.radians(-28), math.radians(208))   # the terraces wrap from east-south-east round to west-south-west
 GAP = math.radians(7)                           # half-width of the stairway's gap on the north axis
 SEG = 22
@@ -131,8 +145,8 @@ for k in range(TIERS):
             continue
         r0, r1 = k * STEP_W, (k + 1) * STEP_W
         quad = [(LX + (RX + r) * math.cos(t), LY + (RY + r) * math.sin(t)) for r, t in ((r0, t0), (r1, t0), (r1, t1), (r0, t1))]
-        h = max(zf + RISE * (k + 1), top(quad) + 0.1, heights.get((k - 1, s), zf) + 0.3)   # always steps up outward
-        heights[(k, s)] = h
+        h = max(top(quad) + 0.15 + RISE * (k + 1), heights.get((k - 1, s), (0, -99))[0] + 0.3)   # always steps up outward
+        heights[(k, s)] = (h, mid)
         slab(f"tier_{k}_{s:02d}", quad, h, FLOWERS if k % 2 == 1 else GRASS)
         hq = [(LX + (RX + r) * math.cos(t), LY + (RY + r) * math.sin(t)) for r, t in ((r0 + 0.15, t0), (r0 + 0.75, t0), (r0 + 0.75, t1), (r0 + 0.15, t1))]
         slab(f"hedge_{k}_{s:02d}", hq, h + 0.55, HEDGE, z0=h - 0.2)              # [S3] hedge along each tier's front
@@ -140,11 +154,12 @@ for k in range(TIERS):
 # Gazebo [S3, photos 1-3]: octagonal, on three white steps; eight stone pillars; green octagonal roof with a
 # small lantern and finial; white beam ring. Sizes are ESTIMATEs from the people in S3.
 base = octagon(GX, GY, 5.8)
-S.prism("gazebo_base", [(y, x) for x, y in base], low(base) - 1.0, zf, PAVING)     # stone where the ground falls away
+z0g = top(base) + 0.15                          # its own level: the ground under its platform, not the lawn's
+S.prism("gazebo_base", [(y, x) for x, y in base], low(base) - 1.0, z0g, PAVING)
 lowest = min(lowest, low(base) - 1.0)
 for i, r in enumerate((5.8, 5.2, 4.6)):
-    S.prism(f"gazebo_step_{i}", [(y, x) for x, y in octagon(GX, GY, r)], zf, zf + 0.3 * (i + 1), WHITE)
-zg = zf + 0.9
+    S.prism(f"gazebo_step_{i}", [(y, x) for x, y in octagon(GX, GY, r)], z0g, z0g + 0.3 * (i + 1), WHITE)
+zg = z0g + 0.9
 for i, (px, py) in enumerate(octagon(GX, GY, 3.9)):
     S.box(f"gazebo_pillar_{i}", py - 0.25, py + 0.25, px - 0.25, px + 0.25, zg, zg + 3.0, PILLAR)
 ring = octagon(GX, GY, 3.9)
@@ -156,19 +171,16 @@ S.prism("gazebo_lantern", [(y, x) for x, y in octagon(GX, GY, 0.7)], zg + 5.0, z
 S.cone("gazebo_lantern_roof", GY, GX, 1.0, zg + 5.8, zg + 6.5, ROOF, seg=8)
 beam("gazebo_finial", (GX, GY, zg + 6.4), (GX, GY, zg + 7.2), 0.05, WHITE)
 
-# The stairway [S2] way/1358311047 and on up the slope to the north: 2.4 m stone treads, 1 m long, level
-# with the highest ground under each; inside the terraces they descend evenly to the lawn.
+# The stairway [S2] way/1358311047 and on up the slope to the north: 2.4 m stone treads, 1 m long, each on
+# the highest ground under it, so the terraces stand either side of it.
 y_top, y_lawn = 38.4, LY + RY - 0.3
 x_at = lambda y: -19.6 + (y + 1.6) / 40.0 * 2.0          # [S2] the way runs (-17.6, 38.4) -> (-19.6, -1.6)
-y_out = LY + RY + TIERS * STEP_W
-h_out = max(h for (k, s), h in heights.items() if k == TIERS - 1)
 n = math.ceil(y_top - y_lawn)
 for i in range(n):
     y0, y1 = y_lawn + i, min(y_lawn + i + 1.05, y_top)
     quad = [(x_at(y0) - 1.2, y0), (x_at(y0) + 1.2, y0), (x_at(y1) + 1.2, y1), (x_at(y1) - 1.2, y1)]
-    h = top(quad) + 0.15
-    if y0 < y_out:                                         # through the terraces: an even flight to the lawn
-        h = max(h, zf + (h_out - zf) * (y0 - y_lawn) / (y_out - y_lawn))
+    h = top(quad) + 0.15                                   # on the ground, cut between the beds as in S3 (a flight
+                                                           # raised to the rim read as a ramp: owner report 2026-10-05)
     slab(f"stair_{i:02d}", quad, h, PAVING)
     if i % 4 == 2:                                         # [S3] white urn planters with teal rims, both sides
         for side in (-1, 1):
@@ -183,8 +195,9 @@ for i, t in enumerate(np.linspace(0, 2 * math.pi, 9, endpoint=False)):
     lx, ly = LX + (RX - 0.6) * math.cos(t), LY + (RY - 0.6) * math.sin(t)
     if math.hypot(lx - GX, ly - GY) < 6.5 or abs(lx - x_at(ly)) < 2:
         continue
-    beam(f"lamp_{i}", (lx, ly, zf), (lx, ly, zf + 3.2), 0.06, LAMP)
-    S.box(f"lamp_head_{i}", ly - 0.2, ly + 0.2, lx - 0.2, lx + 0.2, zf + 3.2, zf + 3.7, WHITE)
+    lz = lawn_z(lx, ly)
+    beam(f"lamp_{i}", (lx, ly, lz - 0.3), (lx, ly, lz + 3.2), 0.06, LAMP)
+    S.box(f"lamp_head_{i}", ly - 0.2, ly + 0.2, lx - 0.2, lx + 0.2, lz + 3.2, lz + 3.7, WHITE)
 
 # --- The Bell House [S2] way/109375754 (L plan), in its own frame: the north side runs at bearing 103.1
 H = lm.Shapes(coll, 103.1, {ROOF.name: 1.0}, pitch_deg=26.0)
@@ -251,7 +264,7 @@ for px, py in spots:
     trees += 1
 
 lm.human_reference(coll, LX + 3.0, LY)
-print("LAWN", round(zf, 2), "HOUSE FLOOR", round(hf, 2), "TREES", trees)
+print("GAZEBO", round(z0g, 2), "HOUSE FLOOR", round(hf, 2), "TREES", trees)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

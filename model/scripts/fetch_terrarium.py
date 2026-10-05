@@ -3,9 +3,9 @@
 # dependencies = ["numpy==2.3.3", "pillow==11.3.0"]
 # ///
 """The map's own terrain: AWS Terrain Tiles (Terrarium encoding), zoom 14, the source and zoom that
-lib/map/sources.ts gives MapLibre. Landmarks lay ground-hugging parts on the higher of this and Copernicus
-(lm_common.rel_ground): the app sets each model on this terrain, and the two DEMs differ by metres on steep
-slopes (Mines View's walkway sank under the map's ground, owner report 2026-10-05).
+lib/map/sources.ts gives MapLibre. Landmarks lay ground-hugging parts on this terrain
+(lm_common.rel_ground): the app sets each model on it, and Copernicus, a surface model that reads tree
+canopy, differs by metres (owner reports 2026-10-05: Mines View's walkway sank, Camp John Hay's stairs floated).
 Fetches the z14 tiles within 400 m of every landmark destination, decodes each to metres
 (model/data/terrarium/14/<x>/<y>.npy, float32 256 x 256, rows from the north) and records provenance.
 Run: uv run model/scripts/fetch_terrarium.py"""

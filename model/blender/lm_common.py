@@ -97,14 +97,18 @@ def map_ground(fp, pts):
 
 
 def rel_ground(fp, pts, low=False):
-    """Ground under local points relative to the anchor's ground, from both DEMs: Copernicus (authoring and
-    Blender renders) and the map's own terrain (the app sets each model on it at the anchor). The higher of
-    the two keeps ground-hugging parts above both; low=True gives the lower, for depths and tree bases."""
+    """Ground under local points relative to the anchor's ground, on the terrain the app draws (map_ground):
+    the app sets each model on it, so ground-hugging parts fit it alone. Copernicus GLO-30 is a surface
+    model that reads tree canopy (5-10 m high over Camp John Hay's pines), so fitting to the higher of the
+    two floated the Bell Amphitheater's stairs (owner report 2026-10-05). low=True gives the lower of the
+    two DEMs, for depths and tree bases, so nothing floats in the Blender review either."""
+    mp = map_ground(fp, list(pts) + [(0.0, 0.0)])
+    rel = [m - mp[-1] for m in mp[:-1]]
+    if not low:
+        return rel
     ax, ay = fp["anchor_tm"]
     cop = terrain_z([(ax + x, ay + y) for x, y in pts] + [(ax, ay)])
-    mp = map_ground(fp, list(pts) + [(0.0, 0.0)])
-    pick = min if low else max
-    return [pick(m - mp[-1], c - cop[-1]) if c is not None else m - mp[-1] for c, m in zip(cop[:-1], mp[:-1])]
+    return [min(m, c - cop[-1]) if c is not None else m for m, c in zip(rel, cop[:-1])]
 
 
 def foundation(coll, fp, mat):
@@ -250,6 +254,15 @@ def flagstones(rgb=(0.56, 0.53, 0.49), seed=1950):
     return np.array(rgb) * (shade[..., None] * (1 + 0.03 * grain))
 
 
+def inside(ring, px, py):
+    """Even-odd point-in-polygon test for a ring [[x, y], ...] in local metres."""
+    hit = False
+    for (x0, y0), (x1, y1) in zip(ring, ring[1:] + ring[:1]):
+        if (y0 > py) != (y1 > py) and px < x0 + (py - y0) * (x1 - x0) / (y1 - y0):
+            hit = not hit
+    return hit
+
+
 class Shapes:
     """Modeling in a building frame: a runs along `bearing_deg` (clockwise from north), w to its right,
     z up; all solids are closed. Textured materials named in `tile` get box-mapped UVs at tile[name]
@@ -298,6 +311,21 @@ class Shapes:
         ob = bpy.data.objects.new(name, me)
         self.coll.objects.link(ob)
         return ob
+
+    def xy(self, x, y, z):
+        """Local (x east, y north, z) -> this frame's (a, w, z)."""
+        return (x * self.U[0] + y * self.U[1], x * self.V[0] + y * self.V[1], z)
+
+    def beam(self, name, p0, p1, half, mat):
+        """Square-section member between local (x, y, z) points p0 and p1."""
+        d = np.subtract(p1, p0)
+        d = d / np.linalg.norm(d)
+        u = np.cross(d, (0, 0, 1)) if abs(d[2]) < 0.99 else np.array((1.0, 0, 0))
+        u = u / np.linalg.norm(u) * half
+        v = np.cross(d, u)
+        v = v / np.linalg.norm(v) * half
+        cs = [-u - v, u - v, u + v, -u + v]
+        return self.hexa(name, [self.xy(*np.add(p0, c)) for c in cs], [self.xy(*np.add(p1, c)) for c in cs], mat)
 
     def hexa(self, name, bottom, top, mat, uv="aw", uvs=None):
         """Closed solid from 4 bottom and 4 top (a, w, z) corners in matching order."""

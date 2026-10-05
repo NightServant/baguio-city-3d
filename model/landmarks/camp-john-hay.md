@@ -40,13 +40,13 @@ Exclusion ring = their union grown by 5 m (`model/landmarks.json`).
 
 ## Estimates
 Every height is an ESTIMATE, since none is published (S1). Method: scaled from the people in S3, taking 1.6 to 1.7 m as head height, and fitted to S2's outlines. Confidence: medium (±25%).
-- **Lawn:** an ellipse 22 × 15 m, level with the highest ground under it (either DEM, contract C2 ground fitting).
-- **Terraces:** five tiers of 2.3 m, each 0.45 m above the last, or higher where the ground rises. They wrap from east-south-east round the north to west-south-west and leave a 14° gap for the stairway. Hedges are 0.6 m wide and 0.55 m high; alternate tiers are flower beds.
+- **Lawn:** an ellipse 22 × 15 m, draped 0.2 m over the map's terrain (contract C2, ground fitting). The 30 m DEMs can't hold the real excavated bowl, so a level lawn either floated or sank on the slope.
+- **Terraces:** five tiers of 2.3 m, each 0.35 m above the ground under it per tier from the lawn, and always at least 0.3 m above the tier inside it. They wrap from east-south-east round the north to west-south-west and leave a 14° gap for the stairway. Hedges are 0.6 m wide and 0.55 m high; alternate tiers are flower beds.
 - **Gazebo:**
-  - three 0.3 m white steps on octagons of radius 5.8, 5.2 and 4.6 m, over a stone base where the ground falls away;
+  - three 0.3 m white steps, at its own level (the highest ground under its platform), on octagons of radius 5.8, 5.2 and 4.6 m, over a stone base where the ground falls away;
   - eight 0.5 m stone pillars 3 m tall on a 3.9 m radius, with a white beam ring;
   - a green octagonal roof to 5.6 m with a lantern and finial to about 8 m above the floor.
-- **Stairway:** 2.4 m wide, 1 m treads. Urn planters every 4 m on both sides.
+- **Stairway:** 2.4 m wide, 1 m treads, each on the ground under it, so the terraces stand either side of it. Urn planters every 4 m on both sides.
 - **Bell House:**
   - main floor 0.6 m above the highest ground under the outline;
   - walls 3.4 m, set 2.2 m in from the outline for the veranda;
@@ -71,7 +71,17 @@ Compared with S3, these match:
 - the raised veranda on white columns, with its lower level.
 
 Two changes after the first pass:
-- The terraces first rose 0.6 m a tier and read as a mound above the ground, so they now rise 0.45 m.
+- The terraces first rose 0.6 m a tier and read as a mound above the ground, so they now rise 0.35 m.
 - The gazebo's lowest step first ran down to the ground in white, so there is now a stone base.
 
 Simplified: the gazebo's arched lattice between the pillars, the house's gables and vents, and the paths round the house.
+
+Ground fit (owner report, 2026-10-05: "the stairs are misplaced"):
+- The first build fitted to the higher of two DEMs. Copernicus reads the pine canopy here at 5 to 10 m above the map's bare terrain, so the stairway rose as a ramp and the gazebo and house stood on tall bases in the map.
+- Now:
+  - everything sits on the map's terrain (contract C2, ground fitting);
+  - the lawn drapes over it;
+  - the stair treads follow it between the terraces;
+  - the house floor is 0.85 m above the anchor's ground, down from 7 m.
+- Checked in the live map (headless Playwright screenshot).
+- Packed: 108.9 KB, of which geometry is 54.0 KB.
