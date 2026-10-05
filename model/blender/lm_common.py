@@ -233,6 +233,23 @@ def fish_scales(rgb=(0.78, 0.17, 0.15)):
     return np.array(rgb) * ((shade * tint)[..., None] * (1 + 0.02 * grain))
 
 
+def flagstones(rgb=(0.56, 0.53, 0.49), seed=1950):
+    """Crazy paving: 24 stones per tile (Voronoi cells, wrapped), dark grout, per-stone tint."""
+    Y, X, grain = _grid()
+    pts = np.random.default_rng(seed).uniform(0, 1, (24, 2))
+    d1, d2, idx = np.full(X.shape, 9.0), np.full(X.shape, 9.0), np.zeros(X.shape)
+    for k, (px, py) in enumerate(pts):
+        for ox in (-1, 0, 1):
+            for oy in (-1, 0, 1):
+                d = np.hypot(X - px - ox, Y - py - oy)
+                closer = d < d1
+                d2 = np.where(closer, d1, np.minimum(d2, d))
+                idx = np.where(closer, k, idx)
+                d1 = np.where(closer, d, d1)
+    shade = np.where(d2 - d1 < 0.02, 0.6, 1 + 0.08 * np.sin(idx * 12.9898))
+    return np.array(rgb) * (shade[..., None] * (1 + 0.03 * grain))
+
+
 class Shapes:
     """Modeling in a building frame: a runs along `bearing_deg` (clockwise from north), w to its right,
     z up; all solids are closed. Textured materials named in `tile` get box-mapped UVs at tile[name]
@@ -320,6 +337,21 @@ class Shapes:
         wm = (w0 + w1) / 2
         return self.mesh(name, [(a0, w0, ze), (a0, w1, ze), (a0, wm, zr), (a1, w0, ze), (a1, w1, ze), (a1, wm, zr)],
                          [(0, 1, 2), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], mat)
+
+    def hip(self, name, a0, a1, w0, w1, ze, mat):
+        """Hip roof over a rectangle at eave height ze, ridge along the longer side; returns the ridge height."""
+        if a1 - a0 >= w1 - w0:
+            d, wm = (w1 - w0) / 2, (w0 + w1) / 2
+            zr = ze + d * self.pitch
+            verts = [(a0, w0, ze), (a1, w0, ze), (a1, w1, ze), (a0, w1, ze), (a0 + d, wm, zr), (a1 - d, wm, zr)]
+            uv = "aw"
+        else:
+            d, am = (a1 - a0) / 2, (a0 + a1) / 2
+            zr = ze + d * self.pitch
+            verts = [(a0, w0, ze), (a0, w1, ze), (a1, w1, ze), (a1, w0, ze), (am, w0 + d, zr), (am, w1 - d, zr)]
+            uv = "wa"
+        self.mesh(name, verts, [(0, 1, 2, 3), (0, 1, 5, 4), (3, 2, 5, 4), (0, 4, 3), (1, 2, 5)], mat, uv)
+        return zr
 
     def pyramid(self, name, ac, wc, half, z0, z1, mat):
         verts = [(ac - half, wc - half, z0), (ac + half, wc - half, z0), (ac + half, wc + half, z0), (ac - half, wc + half, z0), (ac, wc, z1)]

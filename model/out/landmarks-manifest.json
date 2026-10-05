@@ -25,6 +25,18 @@
       "sha256": "ad939b942b48dade5424eb539a7b464f8923bb57f403b64265664259fcfe12cc"
     },
     {
+      "slug": "camp-john-hay",
+      "lng": 120.617989,
+      "lat": 16.398924,
+      "url": "/models/landmarks/camp-john-hay.043a5fdb.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 5552,
+      "bytes": 104692,
+      "geometryBytes": 49792,
+      "sha256": "043a5fdb8bb8c9414c95af02eec97ef8c0da87666db38cae503cb889eecde5d1"
+    },
+    {
       "slug": "mines-view-park",
       "lng": 120.62745,
       "lat": 16.419638,

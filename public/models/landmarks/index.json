@@ -17,6 +17,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "camp-john-hay",
+      "lng": 120.617989,
+      "lat": 16.398924,
+      "url": "/models/landmarks/camp-john-hay.043a5fdb.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "mines-view-park",
       "lng": 120.62745,
       "lat": 16.419638,

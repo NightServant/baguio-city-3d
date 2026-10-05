@@ -21,23 +21,6 @@ ax, ay = fp["anchor_tm"]
 ring = fp["rings"][0]                       # [S2] park outline, local metres around its centroid, CCW
 
 
-def flagstones(rgb=(0.56, 0.53, 0.49)):    # [S3] grey irregular stone paving
-    """Crazy paving: 24 stones per 3 m tile (Voronoi cells, wrapped), dark grout, per-stone tint."""
-    Y, X, grain = lm._grid()
-    pts = np.random.default_rng(1950).uniform(0, 1, (24, 2))
-    d1, d2, idx = np.full(X.shape, 9.0), np.full(X.shape, 9.0), np.zeros(X.shape)
-    for k, (px, py) in enumerate(pts):
-        for ox in (-1, 0, 1):
-            for oy in (-1, 0, 1):
-                d = np.hypot(X - px - ox, Y - py - oy)
-                closer = d < d1
-                d2 = np.where(closer, d1, np.minimum(d2, d))
-                idx = np.where(closer, k, idx)
-                d1 = np.where(closer, d, d1)
-    shade = np.where(d2 - d1 < 0.02, 0.6, 1 + 0.08 * np.sin(idx * 12.9898))
-    return np.array(rgb) * (shade[..., None] * (1 + 0.03 * grain))
-
-
 def rock_face(rgb=(0.46, 0.42, 0.37)):     # [S3] grey-brown rock with moss
     """Layered rock (6 m tile): wavy strata, vertical cracks, mossy green patches; tiles seamlessly."""
     Y, X, grain = lm._grid()
@@ -48,7 +31,7 @@ def rock_face(rgb=(0.46, 0.42, 0.37)):     # [S3] grey-brown rock with moss
     return (base * (1 - 0.6 * moss[..., None]) + np.array((0.25, 0.33, 0.18)) * 0.6 * moss[..., None]) * (1 + 0.04 * grain)
 
 
-PAVING = lm.textured("MAT_mines_paving", lm.pattern_image("TEX_mines_paving", flagstones()), srgb(143, 135, 125), 0.9)
+PAVING = lm.textured("MAT_mines_paving", lm.pattern_image("TEX_mines_paving", lm.flagstones()), srgb(143, 135, 125), 0.9)
 ROCK = lm.textured("MAT_mines_rock", lm.pattern_image("TEX_mines_rock", rock_face()), srgb(112, 104, 90), 0.95)
 POLE = lm.material("MAT_mines_pole", srgb(196, 168, 128), 0.8)       # [S3] pale weathered timber poles
 SLAT = lm.material("MAT_mines_slat", srgb(150, 72, 52), 0.7)         # [S3] red-brown canopy slats
