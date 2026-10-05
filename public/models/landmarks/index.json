@@ -9,6 +9,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "baguio-city-hall",
+      "lng": 120.591335,
+      "lat": 16.413792,
+      "url": "/models/landmarks/baguio-city-hall.8751eb10.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
@@ -45,6 +53,14 @@
       "lng": 120.597329,
       "lat": 16.412624,
       "url": "/models/landmarks/session-road.afd63228.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "the-mansion",
+      "lng": 120.621522,
+      "lat": 16.412366,
+      "url": "/models/landmarks/the-mansion.9561fd10.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },

@@ -399,15 +399,19 @@ class Shapes:
         faces = [tuple(range(seg)), tuple(range(seg, 2 * seg))] + [(i, (i + 1) % seg, seg + (i + 1) % seg, seg + i) for i in range(seg)]
         return self.mesh(name, verts, faces, mat)
 
-    def arch_panel(self, name, axis, at, c, width, z0, z1, depth, mat):
-        """Pointed-arch opening as a thin pentagonal prism on a wall facing along `axis`."""
+    def arch_panel(self, name, axis, at, c, width, z0, z1, depth, mat, round_top=False):
+        """Arched opening as a thin prism on a wall facing along `axis`: pointed, or round (a semicircle)."""
         h = width / 2
-        pts = [(c - h, z0), (c + h, z0), (c + h, z1 - h), (c, z1), (c - h, z1 - h)]
+        if round_top:
+            pts = [(c - h, z0), (c + h, z0)] + [(c + h * math.cos(math.pi * i / 6), z1 - h + h * math.sin(math.pi * i / 6)) for i in range(7)]
+        else:
+            pts = [(c - h, z0), (c + h, z0), (c + h, z1 - h), (c, z1), (c - h, z1 - h)]
+        n = len(pts)
         if axis == "a":
             verts = [(at, x, z) for x, z in pts] + [(at - depth, x, z) for x, z in pts]
         else:
             verts = [(x, at, z) for x, z in pts] + [(x, at - depth, z) for x, z in pts]
-        return self.mesh(name, verts, [(0, 1, 2, 3, 4), (5, 6, 7, 8, 9)] + [(i, (i + 1) % 5, 5 + (i + 1) % 5, 5 + i) for i in range(5)], mat)
+        return self.mesh(name, verts, [tuple(range(n)), tuple(range(n, 2 * n))] + [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)], mat)
 
 
 # --- Ready-made CC0 assets (owner request 2026-10-05) -----------------------------------------------

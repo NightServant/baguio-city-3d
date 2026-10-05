@@ -13,6 +13,18 @@
       "sha256": "81939cd8a014a97ed8d7ba35e5d2eb81fdcfdd16ddb6c306ed96ffe52fb7e2f4"
     },
     {
+      "slug": "baguio-city-hall",
+      "lng": 120.591335,
+      "lat": 16.413792,
+      "url": "/models/landmarks/baguio-city-hall.8751eb10.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 742,
+      "bytes": 12724,
+      "geometryBytes": 11672,
+      "sha256": "8751eb104ff6f2a95cddfed5fdaec78a21552d58e6720b05e6d3e3a7ca5d5dbe"
+    },
+    {
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
@@ -71,6 +83,18 @@
       "bytes": 32316,
       "geometryBytes": 25640,
       "sha256": "afd63228a5108b84301cf9f134cc97673f1f606241c89742edc0175209592dc2"
+    },
+    {
+      "slug": "the-mansion",
+      "lng": 120.621522,
+      "lat": 16.412366,
+      "url": "/models/landmarks/the-mansion.9561fd10.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 2312,
+      "bytes": 19156,
+      "geometryBytes": 18038,
+      "sha256": "9561fd10b62d828d9e1f754fae4254ca061c81306067e3825e19cb88a2b4f10a"
     },
     {
       "slug": "wright-park",
