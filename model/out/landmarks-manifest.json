@@ -4,49 +4,49 @@
       "slug": "baguio-cathedral",
       "lng": 120.598528,
       "lat": 16.412729,
-      "url": "/models/landmarks/baguio-cathedral.1a6af15c.glb",
+      "url": "/models/landmarks/baguio-cathedral.81939cd8.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 2827,
       "bytes": 34356,
       "geometryBytes": 26916,
-      "sha256": "1a6af15c0d07a8d8e58b301291f12c67ff2612ed2b38c33a610a0080b7b13f31"
+      "sha256": "81939cd8a014a97ed8d7ba35e5d2eb81fdcfdd16ddb6c306ed96ffe52fb7e2f4"
     },
     {
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
-      "url": "/models/landmarks/burnham-park.440e9cdc.glb",
+      "url": "/models/landmarks/burnham-park.ad939b94.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 3400,
-      "bytes": 33960,
-      "geometryBytes": 29710,
-      "sha256": "440e9cdc7f35ac3b54e88b39992a39f4caee16db200b0baf8ebc289a9f1a3972"
+      "bytes": 34044,
+      "geometryBytes": 29794,
+      "sha256": "ad939b942b48dade5424eb539a7b464f8923bb57f403b64265664259fcfe12cc"
     },
     {
       "slug": "mines-view-park",
       "lng": 120.62745,
       "lat": 16.419638,
-      "url": "/models/landmarks/mines-view-park.4ee6c9b6.glb",
+      "url": "/models/landmarks/mines-view-park.00da6e23.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 3636,
-      "bytes": 49884,
-      "geometryBytes": 30272,
-      "sha256": "4ee6c9b67c666793727cb685cafb78fd65081b8ef308f00ecd63daec93f6e82d"
+      "bytes": 49900,
+      "geometryBytes": 30288,
+      "sha256": "00da6e238d3d0a23bb56ecffe81d2036636bfd1035d517681541f57a014d3068"
     },
     {
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,
-      "url": "/models/landmarks/session-road.461fe017.glb",
+      "url": "/models/landmarks/session-road.024eeb67.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 3762,
-      "bytes": 32360,
-      "geometryBytes": 25684,
-      "sha256": "461fe0174e696002e9ed5b6b2491ff490052c4f38a5945c989af0e27759248fd"
+      "bytes": 32356,
+      "geometryBytes": 25680,
+      "sha256": "024eeb67a2e089a121612992145dff261cebc09158b698795e531c94fc261fd6"
     }
   ]
 }

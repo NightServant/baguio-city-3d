@@ -4,11 +4,13 @@ A landmark lives in collection LM_<slug> under 40_LANDMARKS, authored around the
 (0, 0, 0) is the footprint centroid on the ground, +Y is north, 1 unit = 1 m. A collection
 instance placed at the anchor in 00_REFERENCE shows it in context for renders."""
 import json
+import math
 import sys
 from pathlib import Path
 
 import bmesh
 import bpy
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -60,13 +62,55 @@ def prism(coll, name, ring, z0, z1, mat):
     return ob
 
 
-def foundation(coll, fp, mat):
-    """Contract C2: geometry below Z=0 reaches the lowest terrain under the footprint plus 1 m."""
+TERRARIUM = ROOT / "model" / "data" / "terrarium" / "14"   # model/scripts/fetch_terrarium.py
+_tiles = {}
+
+
+def map_ground(fp, pts):
+    """Elevation (m) of the terrain the app draws (AWS Terrarium z14, lib/map/sources.ts) under local points
+    (x east, y north, metres from fp's anchor), sampled as MapLibre does: bilinear, pixel i at coordinate i.
+    Local metres -> degrees is linear about the anchor (WGS84 radii): within a few hundred metres the
+    tmerc frame's scale and convergence error is centimetres."""
+    alng, alat = fp["anchor_lnglat"]
+    s2 = 0.00669437999014 * math.sin(math.radians(alat)) ** 2      # WGS84 e^2 sin^2(lat)
+    m_lat = math.radians(6378137.0 * (1 - 0.00669437999014) / (1 - s2) ** 1.5)
+    m_lng = math.radians(6378137.0 / math.sqrt(1 - s2) * math.cos(math.radians(alat)))
+    n = 2 ** 14 * 256
+
+    def px(i, j):
+        key = (i // 256, j // 256)
+        if key not in _tiles:
+            _tiles[key] = np.load(TERRARIUM / str(key[0]) / f"{key[1]}.npy")
+        return float(_tiles[key][j % 256, i % 256])
+
+    out = []
+    for x, y in pts:
+        lng, lat = alng + x / m_lng, alat + y / m_lat
+        u = (lng + 180) / 360 * n
+        v = (1 - math.log(math.tan(math.radians(lat)) + 1 / math.cos(math.radians(lat))) / math.pi) / 2 * n
+        i, j = math.floor(u), math.floor(v)
+        fu, fv = u - i, v - j
+        top = px(i, j) * (1 - fu) + px(i + 1, j) * fu
+        bot = px(i, j + 1) * (1 - fu) + px(i + 1, j + 1) * fu
+        out.append(top * (1 - fv) + bot * fv)
+    return out
+
+
+def rel_ground(fp, pts, low=False):
+    """Ground under local points relative to the anchor's ground, from both DEMs: Copernicus (authoring and
+    Blender renders) and the map's own terrain (the app sets each model on it at the anchor). The higher of
+    the two keeps ground-hugging parts above both; low=True gives the lower, for depths and tree bases."""
     ax, ay = fp["anchor_tm"]
-    pts = [(ax + x, ay + y) for ring in fp["rings"] for x, y in ring]
-    zs = [z for z in terrain_z(pts + [(ax, ay)]) if z is not None]
-    ground, lowest = zs[-1], min(zs)
-    depth = (ground - lowest) + 1.0
+    cop = terrain_z([(ax + x, ay + y) for x, y in pts] + [(ax, ay)])
+    mp = map_ground(fp, list(pts) + [(0.0, 0.0)])
+    pick = min if low else max
+    return [pick(m - mp[-1], c - cop[-1]) if c is not None else m - mp[-1] for c, m in zip(cop[:-1], mp[:-1])]
+
+
+def foundation(coll, fp, mat):
+    """Contract C2: geometry below Z=0 reaches the lowest terrain under the footprint plus 1 m (either DEM)."""
+    lowest = min(rel_ground(fp, [(x, y) for ring in fp["rings"] for x, y in ring] + [(0.0, 0.0)], low=True))
+    depth = -lowest + 1.0
     for i, ring in enumerate(fp["rings"]):
         prism(coll, f"{coll.name}_foundation_{i}", ring, -depth, 0.0, mat)
     return depth
@@ -117,9 +161,6 @@ def context_instance(slug, fp):
 
 # --- Shared shape and pattern helpers (moved from the cathedral script, M4) --------------------------
 
-import math  # noqa: E402
-
-import numpy as np  # noqa: E402
 
 
 def srgb(r, g, b):

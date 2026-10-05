@@ -13,7 +13,6 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import lm_common as lm  # noqa: E402
-from terrain_sample import terrain_z  # noqa: E402
 
 SLUG = "mines-view-park"
 coll, fp = lm.begin(SLUG)
@@ -68,18 +67,13 @@ def q(x, y, z):
     return (y, x, z)                        # local (x east, y north, z) -> Shapes (a, w, z)
 
 
-ground = terrain_z([(ax, ay)])[0]
-
-
 def ztop(pts):
-    """Highest terrain over the given local points, relative to the anchor's ground."""
-    zs = [z for z in terrain_z([(ax + x, ay + y) for x, y in pts]) if z is not None]
-    return max(zs) - ground
+    """Highest ground over the given local points, relative to the anchor's, on either DEM (lm.rel_ground)."""
+    return max(lm.rel_ground(fp, pts))
 
 
 def zlow(pts):
-    zs = [z for z in terrain_z([(ax + x, ay + y) for x, y in pts]) if z is not None]
-    return min(zs) - ground
+    return min(lm.rel_ground(fp, pts, low=True))
 
 
 def beam(name, p0, p1, half, mat):

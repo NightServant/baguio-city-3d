@@ -12,7 +12,6 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import lm_common as lm  # noqa: E402
-from terrain_sample import terrain_z  # noqa: E402
 
 SLUG = "burnham-park"
 coll, fp = lm.begin(SLUG)
@@ -58,9 +57,7 @@ def inside(px, py):
 # Water level: above every terrain sample on the shore AND on a 5 m grid inside the lake. The 30 m DEM
 # bulges above the water in the lake's middle (2026-10-02 render); S5 shows open water there.
 grid = [(x, y) for x in np.arange(-100, 101, 5.0) for y in np.arange(-100, 101, 5.0) if inside(x, y)]
-zs = terrain_z([(ax + x, ay + y) for x, y in ring + grid] + [(ax, ay)])
-ground = zs[-1]
-water = max(z for z in zs[:-1] if z is not None) - ground + 0.3   # ESTIMATE offset
+water = max(lm.rel_ground(fp, ring + grid)) + 0.3      # both DEMs (the app draws its own); ESTIMATE offset
 depth = lm.foundation(coll, fp, BED)
 
 S.prism("lake_water", [(y, x) for x, y in ring], water - 0.2, water, WATER, tessellate=True)
@@ -154,8 +151,7 @@ for n in range(int(total // 11)):
     tx, ty = x0 + dx * d + dy * 7.0, y0 + dy * d - dx * 7.0
     if inside(tx, ty):                  # concave corners: keep trees out of the water
         continue
-    gz = terrain_z([(ax + tx, ay + ty)])[0]
-    gz = (gz - ground) if gz is not None else water
+    gz = lm.rel_ground(fp, [(tx, ty)], low=True)[0]
     mesh = BROADLEAF if n % 3 == 0 else PINES[n % 2]   # two pines to one broadleaf (S5)
     lm.place(coll, f"tree_{n:02d}", mesh, tx, ty, gz - 0.3, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
 

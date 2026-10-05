@@ -75,5 +75,30 @@
     "retrieved": "2026-10-05",
     "licence": "Creative Commons CC0 1.0 (public domain dedication), https://creativecommons.org/publicdomain/zero/1.0/",
     "attribution": "Kenney (www.kenney.nl), CC0; credit appreciated, not required"
+  },
+  "aws-terrarium-z14": {
+    "tiles": {
+      "14/13678/7435": "457cbd4d1fc00cfc379749e10a90f6b0bf74f615cb783103a16f4aa3dabc3a3b",
+      "14/13678/7436": "d555ddcd0eed853b2cf799326cc666212df95e20180f085eec741469b96fec6f",
+      "14/13679/7432": "0b202c3892da3e7c97dad3aa421137cb7e284c44952fa0b2de38557066cda568",
+      "14/13679/7433": "034cc58f14a006f57f8ffd4eaf112df3c7e167e614cab72af547b4df57615a03",
+      "14/13679/7434": "dd4d0f7a7f248065f5c752a784115f30bd1c6782ecb26cf08fdb25a157978e94",
+      "14/13680/7432": "fbd5b562061ad8752214f1aaf34c2373d05a90712bd778f6a19a1d6e019f588c",
+      "14/13680/7434": "9f4ed4c17ff75bdd2e926f23bb9b6a35be99c28852e7682121360d01ec60afde",
+      "14/13680/7435": "7445310daabcf14f22b03be05b0ef797b814c9e6209db2da5ec37b12239c063a",
+      "14/13680/7437": "63bd101081d6bfe4afabc63d658d63e5617aded91c94386086a688d878f4955d",
+      "14/13680/7438": "399ed4edf6e94f3c254f11583eeaa988d281ea7c0987c2aac04582f6183ce5fa",
+      "14/13681/7434": "598a3bff90d1b9706fa3bd929413f97a2528a50b88104d89af843300c28be098",
+      "14/13681/7435": "9c2c08dad3345c0847cdafa268d9dfa5a1a4daad40249b4ab417bc5bc92c4188",
+      "14/13681/7436": "0fabc567da3b8e1c3143b08d61d036d9c9636511e2b8242d74b1a9ef8e58459f",
+      "14/13681/7437": "23678c5ebf989a1b58626f6d8add16f3248b083be65a55761e7573e64a8cc4e5",
+      "14/13681/7438": "cd56bdce76f5bfe82400402650a15ecdf98749d5c74fe5fa45a4f8889c8c0be7",
+      "14/13682/7434": "378642e2a3335cd32a14b2844f76fbd102cfe15082eb0db503f5f6897f181c5c"
+    },
+    "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+    "zoom": 14,
+    "retrieved": "2026-10-05",
+    "use": "landmark ground fitting only (lm_common.rel_ground); not shipped",
+    "attribution": "Terrain Tiles: Mapzen / Tilezen, AWS Open Data (https://github.com/tilezen/joerd/blob/master/docs/attribution.md)"
   }
 }

@@ -43,7 +43,7 @@ OSM: `way/109351462` (`leisure=park`, `name=Mines View Park`), 3,574 m². Exclus
 Every height is an ESTIMATE, since none is published (S1). Method: scaled from the people in S3, taking 1.6 to 1.7 m as head height. Confidence: medium (±25%).
 - **Tepee:** 12 poles from a 2.8 m base radius to a crossing 7 m up, running 32% past it. The canopy is 36 slats out to 5.4 m, at 3 m. The eagle has a 3.4 m wingspan and sits about 9.5 m up.
 - **Deck size:** the S2 loop grown by 20%, so the railing stands outside the walking loop.
-- **Deck level:** 0.3 m above the highest terrain sample under it, so it is never buried.
+- **Deck level:** 0.3 m above the highest ground under it on either DEM (Copernicus, or the map's own terrain), so it is never buried.
 - **Rock base:** the Copernicus DEM (30 m) smooths the cliff into a slope (S2 puts the cliff here). The rock base therefore tapers 35% outward down to the lowest ground, so the slope reads as rock.
 - **Railings:** posts every 2 m, rails at 0.7 and 1.1 m. The curb is 0.4 m.
 - **Walkway:** 3 m wide, in 1 m treads, each level with the highest ground under it, so steps form where the ground drops.
@@ -57,6 +57,10 @@ The destination pin (120.628, 16.4201) sits at the road's turnaround, about 56 m
 Renders: `model/data/renders/landmarks/mines-view-park-{front,aerial,side,close}.png`.
 - Triangles: 5,964 in the scene, 3,636 in the exported file. The 16 pines share one mesh per kind.
 - Packed: 49.9 KB, of which geometry is 30.3 KB.
+- Ground fit (owner report, 2026-10-05: the stairs weren't fully rendered in the map).
+  - The map's terrain sits 1.1 to 2.4 m above Copernicus along the walkway, which buried the treads.
+  - The model is now fitted to the higher of the two DEMs (contract C2, ground fitting), which raises the deck to 10.1 m below the centroid.
+  - Checked in the live map: the full walkway shows from the park to the deck.
 
 Compared with S3, these match:
 - the tepee's crossing and fanned tips;

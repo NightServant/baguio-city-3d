@@ -12,7 +12,6 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import lm_common as lm  # noqa: E402
-from terrain_sample import terrain_z  # noqa: E402
 
 SLUG = "session-road"
 coll, fp = lm.begin(SLUG)
@@ -45,7 +44,6 @@ AWNINGS = [lm.material("MAT_session_awning_blue", srgb(52, 86, 132), 0.5),    # 
            lm.material("MAT_session_awning_steel", srgb(170, 172, 176), 0.4)]
 S = lm.Shapes(coll, 0.0, {PAVER.name: 1.0})   # bearing 0: a = north (y), w = east (x)
 ax, ay = fp["anchor_tm"]
-ground = terrain_z([(ax, ay)])[0]
 rng = np.random.default_rng(1909)             # seeded; Baguio's charter year (spec addendum, Burnham note)
 lowest = 0.0
 
@@ -100,8 +98,7 @@ for k, ln in enumerate(fp["lines"]):
         a, b = pts[max(i - 1, 0)], pts[min(i + 1, len(pts) - 1)]
         patch = [(a[0] + (b[0] - a[0]) * t + nrm[i][0] * o, a[1] + (b[1] - a[1]) * t + nrm[i][1] * o)
                  for t in np.linspace(0, 1, 11) for o in (-h - 2.0, -h, 0.0, h, h + 1.0)]
-        zs = [z for z in terrain_z([(ax + x, ay + y) for x, y in patch]) if z is not None]
-        rel.append(max(zs) - ground + 0.15 if zs else 0.15)
+        rel.append(max(lm.rel_ground(fp, patch)) + 0.15)        # both DEMs: the app draws its own terrain
     lowest = min(lowest, min(rel) - 1.5)
     # Median: reach the midline to the opposite carriageway, so the gap between them always fills
     med = []

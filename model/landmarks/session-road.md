@@ -32,3 +32,6 @@ Renders: `model/data/renders/landmarks/session-road-{front,aerial,side,preset-se
 Fix (owner report, 2026-10-05: "Asphalt is not fully rendered"):
 - The terrain showed through the road. Cross-sections sat on the centreline height, while the 30 m terrain between them rose higher. Each cross-section now takes the highest terrain over a patch spanning its neighbouring segments and the full width, plus 0.15 m.
 - Each carriageway's median now reaches the midline to the opposite carriageway, so no bare strip is left where the OSM centrelines are more than 7 m apart.
+
+## Ground fit (2026-10-05)
+The cross-sections now sit 0.15 m above the higher of Copernicus and the map's own terrain (contract C2, ground fitting); the two differ by up to about 2 m along the road. Checked in the live map: the road is continuous.
