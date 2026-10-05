@@ -25,6 +25,18 @@
       "sha256": "440e9cdc7f35ac3b54e88b39992a39f4caee16db200b0baf8ebc289a9f1a3972"
     },
     {
+      "slug": "mines-view-park",
+      "lng": 120.62745,
+      "lat": 16.419638,
+      "url": "/models/landmarks/mines-view-park.4ee6c9b6.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 3636,
+      "bytes": 49884,
+      "geometryBytes": 30272,
+      "sha256": "4ee6c9b67c666793727cb685cafb78fd65081b8ef308f00ecd63daec93f6e82d"
+    },
+    {
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,

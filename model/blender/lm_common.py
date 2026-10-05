@@ -321,6 +321,7 @@ ASSETS = {
     "rowboat_large": "watercraft-kit/Models/GLB format/boat-row-large.glb",
     "street_light": "city-kit-roads/Models/GLB format/light-curved.glb",
     "traffic_light": "city-kit-roads/Models/GLB format/traffic-light.glb",
+    "bush": "nature-kit/Models/GLTF format/plant_bushDetailed.glb",
 }
 
 
