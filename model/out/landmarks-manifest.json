@@ -73,6 +73,18 @@
       "sha256": "c3a7bde84e9b44b529c6e1c57f5bc8aa37e10ea3ea000044fd3bb5b9ffacc94a"
     },
     {
+      "slug": "diplomat-hotel-ruins",
+      "lng": 120.586669,
+      "lat": 16.403891,
+      "url": "/models/landmarks/diplomat-hotel-ruins.f8e6257c.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 8811,
+      "bytes": 76136,
+      "geometryBytes": 73712,
+      "sha256": "f8e6257c44cc0fdb01a540fe37f9f4e75f4366a9acba9e2ff11fcb026b028151"
+    },
+    {
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,

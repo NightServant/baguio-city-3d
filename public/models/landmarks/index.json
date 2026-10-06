@@ -49,6 +49,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "diplomat-hotel-ruins",
+      "lng": 120.586669,
+      "lat": 16.403891,
+      "url": "/models/landmarks/diplomat-hotel-ruins.f8e6257c.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,

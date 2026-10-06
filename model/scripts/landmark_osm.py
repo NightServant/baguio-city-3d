@@ -7,6 +7,7 @@
   uv run model/scripts/landmark_osm.py candidates <slug>       # OSM features within 250 m of the destination
   uv run model/scripts/landmark_osm.py footprint <slug> <id>…  # ids like way/123 or relation/456
   uv run model/scripts/landmark_osm.py footprint-line <slug> <radius_m> <half_width_m> <id>…   # streets
+  uv run model/scripts/landmark_osm.py parts <slug>            # OSM Simple 3D Buildings parts round the footprint
 
 Overpass needs a non-personal user agent (curl's default gets HTTP 406). Responses are cached in
 model/data/landmarks/<slug>/osm.json, so re-runs don't hit the API."""
@@ -125,10 +126,50 @@ def footprint_line(slug, radius, half_width, ids):
     print(f"{slug}: {len(lines)} centreline part(s), {sum(ln.length for _, _, ln in lines):,.0f} m, corridor {corridor.area:,.0f} m2")
 
 
+def parts(slug, radius=150):
+    """Simple 3D Buildings: every building:part within `radius` m of the anchor, with its min_height/height (m above
+    the ground) and colours, as local-metre rings (outer first, then holes) in model/data/landmarks/<slug>/parts.json.
+    Some landmarks are mapped in 3D in OSM (the Diplomat Hotel: 90+ parts), so the model can follow them."""
+    fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
+    fp = json.loads((LM_DATA / slug / "footprint.json").read_text())
+    (alng, alat), (ax, ay) = fp["anchor_lnglat"], fp["anchor_tm"]
+    cache = LM_DATA / slug / "parts-osm.json"
+    if not cache.exists():
+        q = f'[out:json][timeout:90];nwr(around:{radius},{alat},{alng})["building:part"];out geom;'
+        cache.write_text(subprocess.run(["curl", "-fsS", "--retry", "4", "--retry-all-errors", "--retry-delay", "30", "-A", UA,
+                                         "--data-urlencode", f"data={q}", "https://overpass-api.de/api/interpreter"],
+                                        check=True, capture_output=True, text=True).stdout)
+    out = []
+    num = lambda v: float(str(v).split()[0].rstrip("m")) if v not in (None, "") else None
+    for el in json.loads(cache.read_text())["elements"]:
+        t = el.get("tags", {})
+        if el["type"] == "way":
+            shapes = polygons(el, fwd)
+        else:
+            line = lambda role: [LineString([fwd.transform(p["lon"], p["lat"]) for p in m["geometry"]])
+                                 for m in el.get("members", []) if m.get("role") == role and len(m.get("geometry", [])) >= 2]
+            outer, inner = line("outer"), line("inner")
+            holes = unary_union(list(polygonize(linemerge(inner)))) if inner else None
+            shapes = [o.difference(holes) if holes is not None else o for o in polygonize(linemerge(outer))] if outer else []
+        for shp in shapes:
+            for poly in getattr(shp, "geoms", [shp]):
+                if poly.area < 0.05:
+                    continue
+                poly = orient(poly.simplify(0.02), 1.0)   # 2 cm: drops the collinear points member-way splits leave
+                rings = [[[round(x - ax, 3), round(y - ay, 3)] for x, y in r.coords[:-1]] for r in [poly.exterior, *poly.interiors]]
+                out.append({"id": f"{el['type']}/{el['id']}", "desc": t.get("description") or t.get("building:part"),
+                            "min": num(t.get("min_height")) or 0.0, "max": num(t.get("height")), "roof": t.get("roof:shape"),
+                            "colour": t.get("building:colour"), "roof_colour": t.get("roof:colour"), "rings": rings})
+    (LM_DATA / slug / "parts.json").write_text(json.dumps(out, indent=1) + "\n")
+    print(f"{slug}: {len(out)} part polygon(s) from {cache.name}")
+
+
 if __name__ == "__main__":
     cmd, slug, *rest = sys.argv[1:]
     if cmd == "candidates":
         candidates(slug)
+    elif cmd == "parts":
+        parts(slug)
     elif cmd == "footprint-line":
         footprint_line(slug, float(rest[0]), float(rest[1]), rest[2:])
     else:
