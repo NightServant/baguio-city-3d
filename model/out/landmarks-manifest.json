@@ -256,13 +256,13 @@
       "slug": "wright-park",
       "lng": 120.619604,
       "lat": 16.414443,
-      "url": "/models/landmarks/wright-park.e0ec67af.glb",
+      "url": "/models/landmarks/wright-park.be936ebc.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 3378,
-      "bytes": 40164,
-      "geometryBytes": 34068,
-      "sha256": "e0ec67af10089ca3c2f4548a5ba8539474a793f50a09898db880da42530bcfd8"
+      "triangles": 3226,
+      "bytes": 31204,
+      "geometryBytes": 25108,
+      "sha256": "be936ebcaac26ecda5670bd9b2597b25e251464fb87168ac252f97d19f27b3af"
     }
   ]
 }

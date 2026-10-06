@@ -2,7 +2,7 @@
 
 ## Scope
 The Pool of Pines:
-- the long reflecting pool, stepping down toward The Mansion in basins with low weirs;
+- the long reflecting pool, one unbroken sheet running down toward The Mansion;
 - its concrete rim;
 - the red-brick promenades and grass verges either side;
 - potted shrubs along the water;
@@ -32,8 +32,9 @@ Location: the destination pin (120.6215, 16.409) is about 750 m from the park. T
 
 ## Estimates
 Every number beyond S2's outline is an ESTIMATE, scaled from the people in S3 (1.6 to 1.7 m). Confidence: medium (±25%).
-- **Basins:** eight. Each is level 0.05 m above the highest map terrain under it (contract C2, ground fitting).
-- **Rim and weirs:** 0.45 m wide, 0.3 m above the water.
+- **Water:** 0.05 m above the highest map terrain across the pool at each station (contract C2, ground fitting).
+- **Rim and end walls:** 0.45 m wide, 0.3 m above the water.
+- **Slope (owner report 2026-10-06):** the pool, rims, promenades and verges are continuous strips with a station every 3 m, each level across its width at the highest ground there; the earlier eight level basins and 6 m slabs stepped jaggedly in the map.
 - **Promenades and verges:** 4 m of brick each side, then a 3 m grass verge, draped on the ground in 6 m pieces.
 - **Potted shrubs:** one every 6 m along both edges of the water.
 - **Pines:** one row each side, 14 m from the axis and 10 m apart. One tree in six is broadleaf. S3 shows more rows behind them; one row keeps tier 2's 10,000-triangle budget.
@@ -43,6 +44,6 @@ Renders: `model/data/renders/landmarks/wright-park-{m6,close}.png`, on the map's
 - Triangles: 8,328 in the scene, 3,378 in the exported file.
 - Packed: 35.8 KB, of which geometry is 30.6 KB. There is one texture, the brick paving.
 
-Compared with S3, these match: the long stepped pool, the brick promenades, the potted shrubs and the pine rows.
+Compared with S3, these match: the long unbroken pool, the brick promenades, the potted shrubs and the pine rows.
 
 The first pass had two pine rows and Kenney bushes in the pots, which came to 19,364 triangles. That was cut to one row of pines and simple shrub cones.

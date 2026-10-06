@@ -1,5 +1,5 @@
-"""wright-park: the Pool of Pines: the long reflecting pool stepping down toward The Mansion in eight basins,
-its concrete rim and weirs, the red-brick promenades and grass verges either side, potted plants along the
+"""wright-park: the Pool of Pines: the long reflecting pool running down toward The Mansion in one unbroken sheet,
+its concrete rim and end walls, the red-brick promenades and grass verges either side, potted plants along the
 water, and the double rows of tall pines (ready-made CC0 Kenney pines and bushes).
 Dimensions: model/landmarks/wright-park.md ([S2] OSM pool outline; the rest are ESTIMATEs from [S3]).
 Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/landmarks/wright_park.py"""
@@ -58,51 +58,58 @@ def P(a, w):
     return (x, y)
 
 
-def top(pts_aw):
-    return max(lm.rel_ground(fp, [P(a, w) for a, w in pts_aw]))
-
-
 def low(pts_aw):
     return min(lm.rel_ground(fp, [P(a, w) for a, w in pts_aw], low=True))
 
 
-def slab(name, a0, a1, w0, w1, z1, mat, z0=None):
-    global lowest
-    corners = [(a0, w0), (a1, w0), (a1, w1), (a0, w1)]
-    z0 = low(corners) - 1.0 if z0 is None else z0
-    lowest = min(lowest, z0)
-    S.box(name, a0, a1, w0, w1, z0, z1, mat)
-
-
-# Basins: eight, each level at its own ground (the pool steps down the slope with low weirs, as in S3)
-BASINS = 8
-edges = np.linspace(A0, A1, BASINS + 1)
+# The pool and its walks are continuous strips that follow the slope along their length and stay level across it
+# ([S3]: one unbroken pool between unbroken promenades; owner report 2026-10-06, level slabs stepped jaggedly).
+STA = np.arange(A0 - 6.0, A1 + 6.0 + 1e-6, 3.0)            # stations every 3 m, past each end of the pool
+POOL = STA[(STA > A0) & (STA < A1)]
+POOL = np.concatenate(([A0], POOL, [A1]))
 RIM_W = 0.45
-for i in range(BASINS):
-    a0, a1 = edges[i], edges[i + 1]
-    patch = [(a, w) for a in np.linspace(a0, a1, 4) for w in (-HW - RIM_W, 0.0, HW + RIM_W)]
-    zw = top(patch) + 0.05                    # water just above the ground, rim 0.3 m above the water
-    slab(f"water_{i}", a0, a1, -HW, HW, zw, WATER)
-    for side in (-1, 1):
-        slab(f"rim_{i}_{side}", a0 - 0.2, a1 + 0.2, *sorted((side * HW, side * (HW + RIM_W))), zw + 0.3, RIM)
-    slab(f"weir_{i}", a0 - 0.2, a0 + 0.25, -HW, HW, zw + 0.3, RIM)
-slab("weir_end", A1 - 0.25, A1 + 0.2, -HW, HW, top([(A1, 0.0)]) + 0.35, RIM)
 
-# Promenades: 4 m of red brick each side, then a 3 m grass verge; draped in 6 m pieces on the ground
-STEP = 6.0
-pieces = np.arange(A0 - 6.0, A1 + 6.0, STEP)
-for i, a0 in enumerate(pieces):
-    a1 = a0 + STEP + 0.05
-    for side in (-1, 1):
-        w0, w1 = sorted((side * (HW + RIM_W), side * (HW + RIM_W + 4.0)))
-        slab(f"walk_{i:02d}_{side}", a0, a1, w0, w1, top([(a0, w0), (a1, w0), (a1, w1), (a0, w1)]) + 0.15, BRICK)
-        g0, g1 = sorted((side * (HW + RIM_W + 4.0), side * (HW + RIM_W + 7.0)))
-        slab(f"verge_{i:02d}_{side}", a0, a1, g0, g1, top([(a0, g0), (a1, g0), (a1, g1), (a0, g1)]) + 0.1, GRASS)
-        if A0 < a0 < A1:                      # [S3] potted plants along the water's edge, about every 6 m
-            pw = side * (HW + RIM_W + 0.5)
-            ph = top([(a0, pw)]) + 0.15
-            S.box(f"pot_{i:02d}_{side}", a0 - 0.25, a0 + 0.25, pw - 0.25, pw + 0.25, ph - 0.1, ph + 0.5, POT)
-            S.pyramid(f"plant_{i:02d}_{side}", a0, pw, 0.35, ph + 0.5, ph + 1.3, LEAF)   # a clipped shrub (tier 2: no asset)
+
+def profile(a_s, w0, w1):
+    """The highest ground across [w0, w1] at each station."""
+    g = lm.rel_ground(fp, [P(a, w) for a in a_s for w in (w0, (w0 + w1) / 2, w1)])
+    return np.array(g).reshape(len(a_s), 3).max(axis=1)
+
+
+def ribbon(name, a_s, w0, w1, zt, mat):
+    """A closed strip from w0 to w1: its top at zt[i] over station a_s[i], a flat bottom 1 m under the lowest ground."""
+    global lowest
+    zb = low([(a, w) for a in a_s for w in (w0, w1)]) - 1.0
+    lowest = min(lowest, zb)
+    n = len(a_s)
+    verts = [(a, w0, z) for a, z in zip(a_s, zt)] + [(a, w1, z) for a, z in zip(a_s, zt)]
+    verts += [(a_s[0], w0, zb), (a_s[-1], w0, zb), (a_s[0], w1, zb), (a_s[-1], w1, zb)]
+    bl0, bl1, br0, br1 = 2 * n, 2 * n + 1, 2 * n + 2, 2 * n + 3
+    faces = [(i, i + 1, n + i + 1, n + i) for i in range(n - 1)]
+    faces += [(bl0, bl1, *range(n - 1, -1, -1)), (br0, *range(n, 2 * n), br1), (bl0, br0, br1, bl1),
+              (bl0, 0, n, br0), (bl1, br1, 2 * n - 1, n - 1)]
+    S.mesh(name, verts, faces, mat)
+
+
+pool = profile(POOL, -HW - RIM_W, HW + RIM_W)
+ribbon("water", POOL, -HW, HW, pool + 0.05, WATER)        # water just above the ground, rim 0.3 m above the water
+for side in (-1, 1):
+    ribbon(f"rim_{side}", POOL, *sorted((side * HW, side * (HW + RIM_W))), pool + 0.35, RIM)
+for a, z in ((A0, pool[0]), (A1, pool[-1])):              # the end walls
+    S.box(f"end_{a:.0f}", a - 0.2, a + 0.2, -HW - RIM_W, HW + RIM_W, z - 1.0, z + 0.35, RIM)
+
+# Promenades: 4 m of red brick each side, then a 3 m grass verge
+walk = {}
+for side in (-1, 1):
+    w0, w1 = sorted((side * (HW + RIM_W), side * (HW + RIM_W + 4.0)))
+    walk[side] = profile(STA, w0, w1) + 0.15
+    ribbon(f"walk_{side}", STA, w0, w1, walk[side], BRICK)
+    g0, g1 = sorted((side * (HW + RIM_W + 4.0), side * (HW + RIM_W + 7.0)))
+    ribbon(f"verge_{side}", STA, g0, g1, profile(STA, g0, g1) + 0.1, GRASS)
+    for i, a0 in enumerate(np.arange(A0 + 3.0, A1, 6.0)):  # [S3] potted plants along the water's edge, about every 6 m
+        pw, ph = side * (HW + RIM_W + 0.5), float(np.interp(a0, STA, walk[side]))
+        S.box(f"pot_{i:02d}_{side}", a0 - 0.25, a0 + 0.25, pw - 0.25, pw + 0.25, ph - 0.1, ph + 0.5, POT)
+        S.pyramid(f"plant_{i:02d}_{side}", a0, pw, 0.35, ph + 0.5, ph + 1.3, LEAF)   # a clipped shrub (tier 2: no asset)
 
 # Pines in a row on each side [S3, the "Pool of Pines"]: 10 m apart, one broadleaf in six (one row keeps tier 2's
 # 10k triangles; S3 shows more behind)
