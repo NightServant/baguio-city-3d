@@ -208,13 +208,13 @@
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,
-      "url": "/models/landmarks/session-road.53cf8d5e.glb",
+      "url": "/models/landmarks/session-road.71d10c33.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 3762,
-      "bytes": 43184,
-      "geometryBytes": 30286,
-      "sha256": "53cf8d5e857de2ec70a800df4b8d3371ff19b079ba6b9fd912243e9717d355bb"
+      "triangles": 5677,
+      "bytes": 72660,
+      "geometryBytes": 60596,
+      "sha256": "71d10c331c4861f0bf7d828742e22c902854e605a6675dad5399d9de026e667f"
     },
     {
       "slug": "tam-awan-village",

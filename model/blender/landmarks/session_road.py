@@ -1,12 +1,16 @@
-"""session-road: the Session Road corridor near the destination: both one-way carriageways with lane
-markings, the planted median with trees and street lights (ready-made
-CC0 Kenney assets), sidewalks, and runs of awnings over them.
-Dimensions: model/landmarks/session-road.md ([S1] OSM centrelines and lanes; widths and furniture ESTIMATE).
+"""session-road: the Session Road corridor at 1:1 (owner 2026-10-06: real size, with its junctions): both one-way
+carriageways and the planted median between them, the four cross streets at their junctions (Mabini, Assumption,
+Felipe Calderon, Father Carlu) with kerb radii, zebra crossings and lane dashes, sidewalks out to the building
+fronts, awnings along them, and median trees (ready-made CC0 Kenney) and twin-arm lamp posts.
+Every surface lies on the map's terrain, vertex by vertex on a 4 m grid, from model/data/landmarks/session-road/
+streets.json (landmark_osm.py streets: widths measured from OSM). Dimensions: model/landmarks/session-road.md.
 Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/landmarks/session_road.py"""
+import json
 import math
 import sys
 from pathlib import Path
 
+import bmesh
 import bpy
 import numpy as np
 
@@ -16,135 +20,108 @@ import lm_common as lm  # noqa: E402
 SLUG = "session-road"
 coll, fp = lm.begin(SLUG)
 srgb = lm.srgb
-LANE_M, STEP_M, DASH_M = 3.0, 15.0, 12.0     # ESTIMATE lane width; sample spacing; marking repeat
+ST = json.loads((lm.ROOT / "model" / "data" / "landmarks" / SLUG / "streets.json").read_text())
+rng = np.random.default_rng(1909)             # seeded; Baguio's charter year
 
 
 def asphalt():
-    """Carriageway, u across (0..1 = full width), v along (one tile = DASH_M): asphalt grain, solid edge
-    lines, a dashed centre line between the two lanes [S1 lanes=2]."""
+    """Asphalt grain with darker patches (4 m tile); the markings are geometry, so junctions stay clean."""
     Y, X, grain = lm._grid()
-    base = np.array([0.24, 0.24, 0.25]) * (1 + 0.06 * grain)
-    edge = (np.abs(X - 0.035) < 0.012) | (np.abs(X - 0.965) < 0.012)
-    dash = (np.abs(X - 0.5) < 0.010) & (Y < 0.5)
-    return np.where((edge | dash)[..., None], np.array([0.86, 0.86, 0.84]), base)
+    patch = 1 + 0.05 * np.sin(X * 6.3 + 1.7) * np.sin(Y * 4.1 + 0.4)
+    return np.array([0.25, 0.25, 0.26]) * (patch[..., None] * (1 + 0.07 * grain))
 
 
 ROAD = lm.textured("MAT_session_road", lm.pattern_image("TEX_session_road", asphalt()), srgb(62, 62, 64), 0.9)
 PAVER = lm.textured("MAT_session_paver", lm.pattern_image("TEX_session_paver", lm.wall_blocks((0.66, 0.64, 0.60))), srgb(168, 163, 153), 0.9)
-CURB = lm.material("MAT_session_curb", srgb(200, 200, 194), 0.8)
+PAINT = lm.material("MAT_session_paint", srgb(232, 232, 226), 0.6)
 SHRUB = lm.material("MAT_session_shrub", srgb(70, 110, 58), 0.9)          # [S3] planted median
 LAMP = lm.material("MAT_session_lamp", srgb(70, 74, 78), 0.6)
-# Ready-made CC0 assets (Kenney kits, model/sources.json): rounded median trees [S3] and curved street lights
-TREES = [lm.asset_mesh("broadleaf", 6.5, {"leafs": (70, 112, 58), "woodBark": (100, 78, 58)}),
-         lm.asset_mesh("oak", 6.0, {"leafs": (78, 118, 60), "woodBark": (100, 78, 58)})]
-LIGHT = lm.asset_mesh("street_light", 7.5)
-_top = [v.co.y for v in LIGHT.vertices if v.co.z > 6.0]
-ARM_SIGN = 1.0 if sum(_top) / max(len(_top), 1) > 0 else -1.0   # which way the asset's arm points (+y or -y)
+GLOW = lm.material("MAT_session_glow", srgb(250, 236, 196), 0.4)
 AWNINGS = [lm.material("MAT_session_awning_blue", srgb(52, 86, 132), 0.5),    # [S2] blue and galvanized
            lm.material("MAT_session_awning_steel", srgb(170, 172, 176), 0.4)]
-S = lm.Shapes(coll, 0.0, {PAVER.name: 1.0})   # bearing 0: a = north (y), w = east (x)
-ax, ay = fp["anchor_tm"]
-rng = np.random.default_rng(1909)             # seeded; Baguio's charter year (spec addendum, Burnham note)
+TREES = [lm.asset_mesh("broadleaf", 4.5, {"leafs": (70, 112, 58), "woodBark": (100, 78, 58)}),   # [S3] small rounded trees
+         lm.asset_mesh("oak", 4.2, {"leafs": (78, 118, 60), "woodBark": (100, 78, 58)})]
 lowest = 0.0
 
 
-def resample(points, step):
-    out, carry = [points[0]], 0.0
-    for (x0, y0), (x1, y1) in zip(points, points[1:]):
-        L = math.hypot(x1 - x0, y1 - y0)
-        d = step - carry
-        while d <= L:
-            out.append((x0 + (x1 - x0) * d / L, y0 + (y1 - y0) * d / L))
-            d += step
-        carry = L - (d - step)
-    if math.dist(out[-1], points[-1]) > step * 0.3:
-        out.append(points[-1])
-    return out
+def surface(name, m, lift, mat, sheet=False, tile=None):
+    """A triangle mesh {"v": [[x, y]], "f": [[i, j, k]]} laid on the map's terrain, each vertex `lift` m above it.
+    Its border gets a skirt down to 1 m under the lowest ground; a `sheet` (awnings) gets none (the material is
+    double-sided, so it reads from the street too)."""
+    global lowest
+    if not m["f"]:
+        return None
+    xy = [tuple(v) for v in m["v"]]
+    g = lm.rel_ground(fp, xy)
+    bm = bmesh.new()
+    top = [bm.verts.new((x, y, z + lift)) for (x, y), z in zip(xy, g)]
+    for f in m["f"]:
+        try:
+            bm.faces.new([top[i] for i in f])
+        except ValueError:                    # a duplicate triangle from two grid cells
+            pass
+    bm.edges.ensure_lookup_table()
+    border = [e for e in bm.edges if len(e.link_faces) == 1]
+    if sheet:
+        border = []
+    else:
+        zb = min(lm.rel_ground(fp, xy, low=True)) - 1.0
+        lowest = min(lowest, zb)
+        low = {}
+        for e in border:
+            for v in e.verts:
+                low.setdefault(v, bm.verts.new((v.co.x, v.co.y, zb)))
+    for e in border:
+        lp = e.link_loops[0]
+        a, b = lp.vert, lp.link_loop_next.vert
+        bm.faces.new((b, a, low[a], low[b]))  # outward: to the right of the face's own edge direction
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(name, me)
+    coll.objects.link(ob)
+    if tile:
+        lm._face_uvs(ob, tile)
+    return ob
 
 
-DENSE = [np.array(resample(ln["points"], 2.0)) for ln in fp["lines"]]
+def marks(name, rects, lift):
+    """Painted bars (4 corners each) on the asphalt: each corner `lift` m above its own ground."""
+    pts = [tuple(p) for r in rects for p in r]
+    g = lm.rel_ground(fp, pts)
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([(x, y, z + lift) for (x, y), z in zip(pts, g)], [], [tuple(range(4 * i + 3, 4 * i - 1, -1)) for i in range(len(rects))])   # CCW from above
+    me.materials.append(PAINT)
+    coll.objects.link(bpy.data.objects.new(name, me))
 
 
-def partner(k, x, y, nx, ny):
-    """Nearest other centreline on this carriageway's median side (its left) within 15 m: (index, distance)."""
-    best = (None, 15.0)
-    for j, d in enumerate(DENSE):
-        if j == k:
-            continue
-        v = d - np.array([x, y])
-        dist = np.hypot(v[:, 0], v[:, 1])
-        m = int(dist.argmin())
-        if dist[m] < best[1] and v[m, 0] * nx + v[m, 1] * ny > 0:
-            best = (j, float(dist[m]))
-    return best
+# Ground surfaces: asphalt on the terrain, kerbs 0.15 m up to the sidewalks, the median's planter 0.45 m (ESTIMATEs)
+surface("asphalt", ST["asphalt"], 0.12, ROAD, tile=4.0)
+surface("sidewalk", ST["sidewalk"], 0.27, PAVER, tile=1.0)
+surface("median", ST["median"], 0.55, SHRUB)
+marks("crossings", ST["crossings"], 0.17)     # [S1] OSM footway=crossing: 0.5 m bars, 3 m long, 0.5 m apart
+marks("dashes", ST["dashes"], 0.17)           # lane dividers, 3 m dash per 8 m (ESTIMATE)
+for k, a in enumerate(ST["awnings"]):         # [S2] corrugated awnings 3.0 m over the sidewalk on the building fronts
+    surface(f"awning_{k:02d}", a, 3.0, AWNINGS[a["colour"]], sheet=True)
 
-
-for k, ln in enumerate(fp["lines"]):
-    width = int(ln["lanes"] or 2) * LANE_M
-    pts = resample(ln["points"], STEP_M)
-    if len(pts) < 2:
+# Median: rounded trees and twin-arm lamp posts [S3], alternating every 12 m
+for k, site in enumerate(ST["median_points"]):
+    x, y = site["xy"]
+    z = lm.rel_ground(fp, [(x, y)])[0] + 0.55
+    if site["kind"] == "tree":
+        lm.place(coll, f"tree_{k:02d}", TREES[(k // 2) % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.9, 1.1))
         continue
-    h = width / 2
-    nrm = []
-    for i in range(len(pts)):
-        (x0, y0), (x1, y1) = pts[max(i - 1, 0)], pts[min(i + 1, len(pts) - 1)]
-        L = math.hypot(x1 - x0, y1 - y0)
-        nrm.append((-(y1 - y0) / L, (x1 - x0) / L))       # left of the direction of travel
-    # Height of each cross-section: the highest terrain over a dense patch spanning both neighbouring
-    # segments and the full width, so the straight slab between two cross-sections never dips under the
-    # terrain mesh. (First pass sampled the centreline only and the terrain showed through the asphalt.)
-    rel = []
-    for i in range(len(pts)):
-        a, b = pts[max(i - 1, 0)], pts[min(i + 1, len(pts) - 1)]
-        patch = [(a[0] + (b[0] - a[0]) * t + nrm[i][0] * o, a[1] + (b[1] - a[1]) * t + nrm[i][1] * o)
-                 for t in np.linspace(0, 1, 11) for o in (-h - 2.0, -h, 0.0, h, h + 1.0)]
-        rel.append(max(lm.rel_ground(fp, patch)) + 0.15)        # the map's terrain (lm.rel_ground)
-    lowest = min(lowest, min(rel) - 1.5)
-    # Median: reach the midline to the opposite carriageway, so the gap between them always fills
-    med = []
-    for i in range(len(pts)):
-        j, d = partner(k, pts[i][0], pts[i][1], *nrm[i])
-        med.append((j, max(0.6, d / 2 - h) if j is not None else 0.6))
+    ux, uy = site["u"]
+    L = lm.Shapes(coll, math.degrees(math.atan2(ux, uy)))   # a runs across the road, toward each carriageway
+    L.box(f"lamp_pole_{k:02d}", -0.08, 0.08, -0.08, 0.08, z - 0.6, z + 7.0, LAMP)     # 7 m pole (ESTIMATE, S3)
+    L.box(f"lamp_arm_{k:02d}", -1.7, 1.7, -0.04, 0.04, z + 6.75, z + 6.85, LAMP)       # an arm over each carriageway
+    for s in (-1, 1):
+        L.box(f"lamp_head_{k:02d}_{s}", s * 1.75 - 0.3, s * 1.75 + 0.3, -0.12, 0.12, z + 6.6, z + 6.78, GLOW)
 
-    def at(i, off, dz):
-        x, y = pts[i][0] + nrm[i][0] * off, pts[i][1] + nrm[i][1] * off
-        return (y, x, rel[i] + dz)                         # (a, w, z) for bearing 0
-
-    def strip(name, i, o0, o1, z0, z1, mat, uvs=None):
-        S.hexa(name, [at(i, o0, z0), at(i + 1, o0, z0), at(i + 1, o1, z0), at(i, o1, z0)],
-               [at(i, o0, z1), at(i + 1, o0, z1), at(i + 1, o1, z1), at(i, o1, z1)], mat, uvs=uvs)
-
-    along = 0.0
-    awning_run = AWNINGS[int(rng.integers(2))]
-    for i in range(len(pts) - 1):
-        seg = math.dist(pts[i], pts[i + 1])
-        v0, v1 = along / DASH_M, (along + seg) / DASH_M
-        along += seg
-        uv = [(0, v0), (0, v1), (1, v1), (1, v0)] * 2      # u across from the right edge, v along
-        strip(f"road_{k}_{i:02d}", i, -h, h, -1.5, 0.15, ROAD, uv)
-        mw = min(med[i][1], med[i + 1][1])
-        strip(f"median_{k}_{i:02d}", i, h, h + mw, -1.5, 0.4, SHRUB)   # [S3] planted median, out to the midline
-        strip(f"curb_{k}_{i:02d}", i, -h - 0.15, -h, -1.5, 0.3, CURB)
-        strip(f"sidewalk_{k}_{i:02d}", i, -h - 2.0, -h - 0.15, -1.5, 0.3, PAVER)         # [S2] 1.5-2 m walks
-        if i % 2 == 0:
-            awning_run = AWNINGS[int(rng.integers(2))]
-        if rng.uniform() < 0.65:                            # [S2] awnings along much, not all, of the frontage
-            strip(f"awning_{k}_{i:02d}", i, -h - 2.0, -h - 0.1, 3.2, 3.35, awning_run)
-            x, y = pts[i][0] + nrm[i][0] * (-h - 0.3), pts[i][1] + nrm[i][1] * (-h - 0.3)
-            S.box(f"awning_post_{k}_{i:02d}", y - 0.06, y + 0.06, x - 0.06, x + 0.06, rel[i] + 0.3, rel[i] + 3.2, LAMP)
-        owner = med[i][0] is None or k < med[i][0]          # one carriageway of a pair furnishes the shared median
-        mid = h + (med[i][1] if med[i][0] is not None else 0.4)
-        if owner and seg > 5 and i % 2 == 0:                # [S3] rounded trees in the median, about every 30 m
-            x, y = pts[i][0] + nrm[i][0] * mid, pts[i][1] + nrm[i][1] * mid
-            lm.place(coll, f"tree_{k}_{i:02d}", TREES[(i // 2) % 2], x, y, rel[i] + 0.4, rng.uniform(0, 360), rng.uniform(0.9, 1.1))
-        elif owner and seg > 5 and i % 2 == 1:              # street lights between them, arm over this carriageway
-            x, y = pts[i][0] + nrm[i][0] * mid, pts[i][1] + nrm[i][1] * mid
-            dx, dy = -nrm[i][0] * ARM_SIGN, -nrm[i][1] * ARM_SIGN
-            lm.place(coll, f"light_{k}_{i:02d}", LIGHT, x, y, rel[i] + 0.4, math.degrees(math.atan2(dx, dy)))
-
-depth = -lowest
-lm.human_reference(coll, fp["lines"][0]["points"][0][0], fp["lines"][0]["points"][0][1])
+lm.human_reference(coll, *ST["median_points"][0]["xy"])
 lm.detail(coll, fp, roofs=AWNINGS)   # shared sub-detail pass (lm_common.detail)
-lm.report(SLUG, coll, depth)
+print("STREETS", {k: ST[k] for k in ("lane_m", "median_m", "kerb_m", "sidewalk_band_m")})
+lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()
