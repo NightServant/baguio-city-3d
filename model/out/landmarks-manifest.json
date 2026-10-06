@@ -133,6 +133,18 @@
       "sha256": "ae56ce1757e38ab027c6628d0256055a901015664ffbbfcd6b9c50db04cbb87a"
     },
     {
+      "slug": "lions-head-kennon-road",
+      "lng": 120.606002,
+      "lat": 16.367607,
+      "url": "/models/landmarks/lions-head-kennon-road.85454223.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 876,
+      "bytes": 17876,
+      "geometryBytes": 12306,
+      "sha256": "85454223bccd967fa10391705967e4b09415da84c7349aeeaef12e49d5ef2dde"
+    },
+    {
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,

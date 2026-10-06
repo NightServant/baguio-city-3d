@@ -89,6 +89,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "lions-head-kennon-road",
+      "lng": 120.606002,
+      "lat": 16.367607,
+      "url": "/models/landmarks/lions-head-kennon-road.85454223.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,
