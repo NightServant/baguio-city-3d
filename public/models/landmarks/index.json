@@ -25,6 +25,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "baguio-public-market",
+      "lng": 120.595223,
+      "lat": 16.415533,
+      "url": "/models/landmarks/baguio-public-market.5fc34165.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "botanical-garden",
       "lng": 120.613788,
       "lat": 16.414261,

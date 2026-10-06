@@ -37,6 +37,18 @@
       "sha256": "4830633d58cca9d4ce77d8f13257a4bbcc0fe863ff12d1d465c1e8cc02ce6057"
     },
     {
+      "slug": "baguio-public-market",
+      "lng": 120.595223,
+      "lat": 16.415533,
+      "url": "/models/landmarks/baguio-public-market.5fc34165.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 2066,
+      "bytes": 17432,
+      "geometryBytes": 14286,
+      "sha256": "5fc3416584d1b1878057d0add1f46fc6dcac2dcaaa4404e544a54033223483d6"
+    },
+    {
       "slug": "botanical-garden",
       "lng": 120.613788,
       "lat": 16.414261,

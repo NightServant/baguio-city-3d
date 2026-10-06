@@ -8,6 +8,7 @@
   uv run model/scripts/landmark_osm.py footprint <slug> <id>…  # ids like way/123 or relation/456
   uv run model/scripts/landmark_osm.py footprint-line <slug> <radius_m> <half_width_m> <id>…   # streets
   uv run model/scripts/landmark_osm.py parts <slug>            # OSM Simple 3D Buildings parts round the footprint
+  uv run model/scripts/landmark_osm.py buildings <slug>        # every OSM building inside the footprint (complexes)
 
 Overpass needs a non-personal user agent (curl's default gets HTTP 406). Responses are cached in
 model/data/landmarks/<slug>/osm.json, so re-runs don't hit the API."""
@@ -164,12 +165,39 @@ def parts(slug, radius=150):
     print(f"{slug}: {len(out)} part polygon(s) from {cache.name}")
 
 
+def buildings(slug):
+    """Every OSM building whose centre lies inside the footprint, with its levels/height and names, as local-metre
+    rings in model/data/landmarks/<slug>/buildings.json. For landmarks that are a complex of buildings (a market,
+    a campus): the exclusion ring removes them from the massing, so the landmark model must carry them."""
+    fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
+    fp = json.loads((LM_DATA / slug / "footprint.json").read_text())
+    ax, ay = fp["anchor_tm"]
+    area = unary_union([Polygon([(ax + x, ay + y) for x, y in r]) for r in fp["rings"]])
+    num = lambda v: float(str(v).split()[0].rstrip("m")) if v not in (None, "") else None
+    out = []
+    for el in osm(slug)["elements"]:
+        t = el.get("tags", {})
+        if "building" not in t:
+            continue
+        for poly in polygons(el, fwd):
+            if poly.area < 4 or not area.contains(poly.representative_point()):
+                continue
+            poly = orient(poly.simplify(0.05), 1.0)
+            out.append({"id": f"{el['type']}/{el['id']}", "name": t.get("name"), "building": t["building"],
+                        "levels": num(t.get("building:levels")), "height": num(t.get("height")), "roof": t.get("roof:shape"),
+                        "ring": [[round(x - ax, 2), round(y - ay, 2)] for x, y in poly.exterior.coords[:-1]]})
+    (LM_DATA / slug / "buildings.json").write_text(json.dumps(out, indent=1) + "\n")
+    print(f"{slug}: {len(out)} building(s) inside the footprint, {sum(Polygon(b['ring']).area for b in out):,.0f} m2")
+
+
 if __name__ == "__main__":
     cmd, slug, *rest = sys.argv[1:]
     if cmd == "candidates":
         candidates(slug)
     elif cmd == "parts":
         parts(slug)
+    elif cmd == "buildings":
+        buildings(slug)
     elif cmd == "footprint-line":
         footprint_line(slug, float(rest[0]), float(rest[1]), rest[2:])
     else:
