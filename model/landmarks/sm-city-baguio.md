@@ -39,31 +39,54 @@ Not a destination yet: the model shows on the map by view (zoom 15 and up). Addi
   - white tensile-membrane tents with peaked caps on steel columns over the roof terrace;
   - roof lawns and planters;
   - a covered walkway with railings and shopfronts on the Sunset Terraces.
+- [S4] The owner's aerial photos (supplied 2026-10-06 in chat; not stored in the repo). They show:
+  - **Walls:** bright lime-green panels.
+  - **Terraces:** about five curved terraces stepping back down the long west side. Each has a white canopy over its walkway, glazed shopfronts and a lime slab edge, on a grey parking podium with columns.
+  - **Roof (the sky garden):**
+    - a cluster of large white membrane tents and medium ones;
+    - round lawn beds with trees;
+    - white umbrellas.
+  - **North end:** a white block whose roof carries a large SM logo in a blue oval, with blue plant on it.
+  - **East:** a lime hall with a pale flat roof.
 - [Assets] Kenney CC0 pines and bushes (`model/sources.json`). The sign is drawn by `model/scripts/sm_sign.py`.
 
 ## Estimates
-Every height is an ESTIMATE (none is published), scaled from people and doors in S3. Confidence: medium.
+Every height is an ESTIMATE (none is published), scaled from people and doors in S3 and S4. Confidence: medium.
 - **Hill (the map's terrain, stretched ×1.35):** it falls from +2 m at the entrance drive to −31 m on the west side and −18 m on the north.
-- **Levels:** entrance floor on the drive's ground (+0.3 m); three 4.5 m storeys to the roof (S3: ground floor plus two bands).
-- **Terraces (S1):**
-  - The tiers step back 10 m and 20 m on the downhill side only: the outline is intersected with itself shifted uphill, uphill direction (0.975, −0.22) from the relief, via `landmark_osm.py insets ... dir=`.
-  - The tier tops are one storey below the entrance and then two more.
-  - So the west and north faces show the terraces, and the entrance face rises straight.
-- **Entrance:**
-  - glazed bay radius 9 m, with bands 10.6 m out at each floor;
+- **Levels:** entrance floor on the drive's ground (+0.3 m); three 4.5 m storeys to the roof.
+- **Terraces (S1, S4):**
+  - Five terrace floors, one storey apart below the roof. Each tier steps back 7 m on the downhill side only: the outline is intersected with itself shifted uphill, uphill direction (0.975, −0.22) from the relief (`landmark_osm.py insets ... dir= tol=1.0`).
+  - Below the lowest terrace is the parking podium.
+  - Bands go only along edges where a tier steps back, so the entrance face rises straight in lime.
+  - Each terrace has a lime slab edge 0.9 m deep, a 0.9 m hedge, shopfronts 3.2 m tall, and a white canopy 3.3 m deep at 3.5 m.
+- **Entrance (S3):**
+  - glazed bay radius 9 m, with grey bands 10.6 m out at each floor;
   - canopy 22 × 9 m at 4 m;
   - sign 21 × 4.4 m under the roof edge.
-- **Roof:**
-  - eight membrane tents, 15 m square, eaves at 5 m and peaks at 11 m, on the west half;
-  - ten 16 × 10 m lawns with bushes;
-  - a 12 × 10 × 6 m stair core with the sign.
+- **Roof (S4):**
+  - **North block:** the roof's last 48 m to the north, 9 m tall, white, with a 44 × 22 m logo and six blue units.
+  - **East hall:** the roof east of its centre plus 14 m, 8 m tall, lime, with a pale roof.
+  - **Sky garden:**
+    - four 18 m tents (peaks at 15 m) in a cluster;
+    - four 12 m tents;
+    - twelve round lawn beds (radius 6.5 m), each with a 5 m tree;
+    - white umbrellas;
+    - a hedge inside the lime parapet.
 - **Sky Ranch:**
   - The Baguio Eye's hub is 27.5 m up (S1: 45 m wheel, 50 m tall), with 24 gondolas. It stands along the lot's long side.
   - Drop tower 32 m. Carousel radius 7 m. Viking frame 12 m.
 - **Pines:** a jittered 13 m grid, 6 to 30 m from the outline on the slopes, not on the entrance side.
 
 ## Review (2026-10-06)
-Renders: `model/data/renders/landmarks/sm-city-baguio-{front,aerial,side}.png`. 19,084 triangles in the scene; packed 61.8 KB, geometry 46.9 KB (tier 1).
+Renders: `model/data/renders/landmarks/sm-city-baguio-{front,aerial,side}.png`, from the west. 15,738 triangles in the scene; packed 80.6 KB, geometry 55.7 KB (tier 1).
+- **Owner feedback 1:** "SM must have green accents especially the sky garden". Hedges went onto every terrace edge and the parapet, plus round lawn beds with trees on the roof.
+- **Owner feedback 2:** the aerial photos (S4). The model was reworked:
+  - from pale sage to lime green;
+  - from two terraces to five, with white canopies;
+  - the parking podium added;
+  - the north logo block and the east hall added;
+  - the sky garden laid out as S4 shows.
+- **Owner feedback 3:** the city massing collided with the model. The massing tiles were rebuilt with SM's exclusion ring.
 - **First pass:** the bands, parapet and railings were solid prisms, and their tops capped the roof and terraces in dark grey. They are now open rings (`band()`).
 - **Compared with S3:**
   - the green tiled walls, the dark bands and the glazed bay at the entrance;

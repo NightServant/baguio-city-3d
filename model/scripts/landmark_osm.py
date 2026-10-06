@@ -10,7 +10,7 @@
   uv run model/scripts/landmark_osm.py parts <slug>            # OSM Simple 3D Buildings parts round the footprint
   uv run model/scripts/landmark_osm.py buildings <slug>        # every OSM building inside the footprint (complexes)
   uv run model/scripts/landmark_osm.py streets <slug>          # a street at 1:1: carriageways, junctions, sidewalks, crossings
-  uv run model/scripts/landmark_osm.py insets <slug> [dir=ux,uy] <m>…   # terrace tiers: the largest ring shrunk by each
+  uv run model/scripts/landmark_osm.py insets <slug> [dir=ux,uy] [tol=m] <m>…   # terrace tiers: the largest ring shrunk by each
                                                                # distance, or (dir=) cut back that far on the downhill side
 
 Overpass needs a non-personal user agent (curl's default gets HTTP 406). Responses are cached in
@@ -358,15 +358,16 @@ def insets(slug, args):
     """Terrace tiers that step back up a building, as local-metre rings in model/data/landmarks/<slug>/insets.json: the
     footprint's largest ring shrunk by each distance (mitred), or, given dir=ux,uy (the uphill direction), cut back by
     that distance on the downhill side only (the ring intersected with itself shifted uphill), so the uphill facade
-    stays whole. Simplified at 0.3 m; the largest piece."""
+    stays whole. Simplified at tol= m (default 0.3); the largest piece."""
     from shapely.affinity import translate
     fp = json.loads((LM_DATA / slug / "footprint.json").read_text())
     base = max((Polygon(r) for r in fp["rings"]), key=lambda q: q.area)
-    u = [float(v) for v in args[0][4:].split(",")] if args and args[0].startswith("dir=") else None
+    u = next(([float(v) for v in a[4:].split(",")] for a in args if a.startswith("dir=")), None)
+    tol = next((float(a[4:]) for a in args if a.startswith("tol=")), 0.3)
     out = {}
-    for d in (a for a in args if not a.startswith("dir=")):
+    for d in (a for a in args if "=" not in a):
         g = base.intersection(translate(base, u[0] * float(d), u[1] * float(d))) if u else base.buffer(-float(d), join_style="mitre")
-        g = max(getattr(g.simplify(0.3), "geoms", [g.simplify(0.3)]), key=lambda q: q.area)
+        g = max(getattr(g.simplify(tol), "geoms", [g.simplify(tol)]), key=lambda q: q.area)
         out[d] = [[round(x, 2), round(y, 2)] for x, y in orient(g, 1.0).exterior.coords[:-1]]
         print(f"{slug}: tier {d} m -> {g.area:,.0f} m2, {len(out[d])} points")
     (LM_DATA / slug / "insets.json").write_text(json.dumps(out) + "\n")

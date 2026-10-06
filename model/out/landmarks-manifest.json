@@ -220,13 +220,13 @@
       "slug": "sm-city-baguio",
       "lng": 120.599314,
       "lat": 16.408506,
-      "url": "/models/landmarks/sm-city-baguio.e76c23f8.glb",
+      "url": "/models/landmarks/sm-city-baguio.16451044.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 9156,
-      "bytes": 61796,
-      "geometryBytes": 46916,
-      "sha256": "e76c23f887319dd91eeae9fc7760f6686d72133c711442188f367c5bf3f7f92c"
+      "triangles": 8436,
+      "bytes": 80612,
+      "geometryBytes": 55720,
+      "sha256": "164510448e13e0300b1246e696acabe5404f3541bcc5a227ef267276ba7e5ee4"
     },
     {
       "slug": "tam-awan-village",

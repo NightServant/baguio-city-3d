@@ -8683,12 +8683,12 @@
     120.596786,
     16.404314,
     120.602567,
-    16.410111
+    16.409833
    ],
-   "url": "/models/buildings/near-16-54722-29739.5466751c.glb",
-   "bytes": 20136,
-   "triangles": 3776,
-   "buildings": 240
+   "url": "/models/buildings/near-16-54722-29739.0a853e2c.glb",
+   "bytes": 19096,
+   "triangles": 3472,
+   "buildings": 234
   },
   {
    "id": "16-54722-29740",
@@ -13498,10 +13498,10 @@
     120.607992,
     16.415116
    ],
-   "url": "/models/buildings/far-15-27361-14869.781cc64f.glb",
-   "bytes": 39424,
-   "triangles": 6358,
-   "buildings": 1249
+   "url": "/models/buildings/far-15-27361-14869.cd3c04a3.glb",
+   "bytes": 39276,
+   "triangles": 6316,
+   "buildings": 1244
   },
   {
    "id": "15-27361-14870",
