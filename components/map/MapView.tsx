@@ -37,8 +37,6 @@ export function MapView() {
   // Basemap/DEM tile failures surface a single dismissible notice over the
   // canvas. Once the user dismisses it we stay quiet for the session.
   const [tileError, setTileError] = useState(false);
-  // Test hook: true after the map's first idle; the 3D layer loads nothing before it (contract C5).
-  const [idle, setIdle] = useState(false);
   const errorDismissed = useRef(false);
   const basemap = useMapStore((s) => s.ui.basemap);
   const styleGeneration = useMapStore((s) => s.ui.styleGeneration);
@@ -184,7 +182,9 @@ export function MapView() {
       }
     };
     map.on("load", onLoad);
-    map.once("idle", () => setIdle(true));
+    // data-map-idle: set on the map's first idle, synchronously, before any other idle listener runs. The 3D layer
+    // waits for it (contract C5, ModelLayer whenFirstIdle) and the lazy-load e2e test reads it.
+    map.once("idle", () => map.getContainer().setAttribute("data-map-idle", "true"));
 
     // Fare-picking: any click while picking places the origin/destination point.
     const onMapClick = (e: MapMouseEvent) => {
@@ -279,7 +279,7 @@ export function MapView() {
   if (unavailable) return <MapFallback />;
   return (
     <div className="absolute inset-0">
-      <div ref={containerRef} className="size-full" aria-label="Baguio City 3D map" data-map-idle={idle ? "true" : undefined} />
+      <div ref={containerRef} className="size-full" aria-label="Baguio City 3D map" />
       {ready && appliedBasemap === basemap && mapRef.current && (
         <MapLayers key={styleGeneration} map={mapRef.current} />
       )}

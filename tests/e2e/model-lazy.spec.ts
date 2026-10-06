@@ -14,7 +14,7 @@ test("nothing 3D is requested before the map's first idle (or the 10 s fallback,
     if (!path.endsWith(".js")) return;
     const idle = await page.locator("[data-map-idle='true']").count().catch(() => 0);
     const body = await r.body().catch(() => null);
-    if (!idle && body && /WebGLRenderer|GLTFLoader/.test(body.toString("latin1"))) early.push(path);
+    if (!idle && body && /class WebGLRenderer\b|class GLTFLoader\b|WebGLRenderer\(\w+ ?= ?\{\}\)/.test(body.toString("latin1"))) early.push(path); // three's own code, not a mention of it
   });
   await page.goto("/map");
   await expect(page.locator("[data-map-idle='true']")).toHaveCount(1, { timeout: 30_000 });

@@ -28,16 +28,12 @@ interface TileIndex { near: TileEntry[]; far: TileEntry[] }
 // above sea level on the stretched ground (build_massing.py), so its anchor sits at altitude 0.
 interface Shown { lng: number; lat: number; altitudeM: number; rotationDeg: number; onGround: boolean; scene: Scene }
 
-type Kit = { THREE: typeof import("three"); loader: GLTFLoader };
+type Kit = { THREE: typeof import("@/lib/map/threeKit"); loader: GLTFLoader };
 let kit: Promise<Kit> | null = null;
 const loadKit = () =>
-  (kit ??= Promise.all([
-    import("three"),
-    import("three/examples/jsm/loaders/GLTFLoader.js"),
-    import("three/examples/jsm/libs/meshopt_decoder.module.js"),
-  ]).then(([THREE, { GLTFLoader }, { MeshoptDecoder }]) => {
-    const loader = new GLTFLoader();
-    loader.setMeshoptDecoder(MeshoptDecoder);
+  (kit ??= import("@/lib/map/threeKit").then((THREE) => {
+    const loader = new THREE.GLTFLoader();
+    loader.setMeshoptDecoder(THREE.MeshoptDecoder);
     return { THREE, loader };
   }));
 
@@ -115,7 +111,8 @@ const firstIdle = new WeakMap<MapLibreMap, Promise<void>>();
 function whenFirstIdle(map: MapLibreMap) {
   let p = firstIdle.get(map);
   if (!p) {
-    p = map.loaded()
+    // MapView marks the container on the map's first idle; a layer remounted after a style swap finds it set.
+    p = map.getContainer().getAttribute("data-map-idle") === "true"
       ? Promise.resolve()
       : new Promise<void>((resolve) => {
           map.once("idle", () => resolve());
@@ -253,16 +250,19 @@ export function useModelLayer(map: MapLibreMap) {
 
     // MapLibre rebuilds its own GL state on restore; ours belongs to a dead context. Re-adding the
     // layer runs onAdd again with the new context, and three re-uploads the cached geometry.
-    const onRestored = () => {
-      if (!kitLoaded || cancelled || isTornDown(map)) return;
-      if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID);
-      try {
-        map.addLayer(createLayer(map, kitLoaded, shown));
-      } catch {
-        layerAdded = false; // style mid-swap; the next show() re-adds it
-      }
-      map.triggerRepaint();
-    };
+    // Deferred a frame: inside the restore event MapLibre hasn't rebuilt its painter yet (re-adding there threw
+    // "reading 'shaderPreludeCode'", e2e model-context-loss).
+    const onRestored = () =>
+      requestAnimationFrame(() => {
+        if (!kitLoaded || cancelled || isTornDown(map)) return;
+        if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID);
+        try {
+          map.addLayer(createLayer(map, kitLoaded, shown));
+        } catch {
+          layerAdded = false; // style mid-swap; the next show() re-adds it
+        }
+        map.triggerRepaint();
+      });
     map.on("webglcontextrestored", onRestored);
 
     whenFirstIdle(map).then(() => {
