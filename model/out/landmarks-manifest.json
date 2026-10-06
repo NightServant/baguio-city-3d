@@ -25,6 +25,18 @@
       "sha256": "8751eb104ff6f2a95cddfed5fdaec78a21552d58e6720b05e6d3e3a7ca5d5dbe"
     },
     {
+      "slug": "baguio-museum",
+      "lng": 120.598426,
+      "lat": 16.407027,
+      "url": "/models/landmarks/baguio-museum.4830633d.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 464,
+      "bytes": 12472,
+      "geometryBytes": 10354,
+      "sha256": "4830633d58cca9d4ce77d8f13257a4bbcc0fe863ff12d1d465c1e8cc02ce6057"
+    },
+    {
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,

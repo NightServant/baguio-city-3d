@@ -16,7 +16,7 @@ import sys
 
 from pyproj import Transformer
 from shapely.geometry import LineString, Point, Polygon, mapping
-from shapely.ops import orient, unary_union
+from shapely.ops import linemerge, orient, polygonize, unary_union
 
 from common import LANDMARKS, LM_DATA, LOCAL_TM, ROOT
 
@@ -53,14 +53,12 @@ def osm(slug):
 def polygons(el, fwd):
     """Closed rings of a way or a multipolygon relation's outer members, in model-frame metres."""
     if el["type"] == "way":
-        rings = [el.get("geometry", [])]
-    else:
-        rings = [m.get("geometry", []) for m in el.get("members", []) if m.get("role") == "outer"]
-    out = []
-    for ring in rings:
-        if len(ring) >= 4 and ring[0] == ring[-1]:
-            out.append(Polygon([fwd.transform(p["lon"], p["lat"]) for p in ring]))
-    return out
+        ring = el.get("geometry", [])
+        return [Polygon([fwd.transform(p["lon"], p["lat"]) for p in ring])] if len(ring) >= 4 and ring[0] == ring[-1] else []
+    # outer rings are often split across several open member ways (Baguio Botanical Garden: six), so stitch them
+    lines = [LineString([fwd.transform(p["lon"], p["lat"]) for p in m["geometry"]])
+             for m in el.get("members", []) if m.get("role") == "outer" and len(m.get("geometry", [])) >= 2]
+    return list(polygonize(linemerge(lines))) if lines else []
 
 
 def candidates(slug):

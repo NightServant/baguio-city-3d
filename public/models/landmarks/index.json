@@ -17,6 +17,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "baguio-museum",
+      "lng": 120.598426,
+      "lat": 16.407027,
+      "url": "/models/landmarks/baguio-museum.4830633d.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
