@@ -97,6 +97,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "teachers-camp",
+      "lng": 120.608367,
+      "lat": 16.412158,
+      "url": "/models/landmarks/teachers-camp.417135c9.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "the-mansion",
       "lng": 120.621522,
       "lat": 16.412366,

@@ -145,6 +145,18 @@
       "sha256": "afd63228a5108b84301cf9f134cc97673f1f606241c89742edc0175209592dc2"
     },
     {
+      "slug": "teachers-camp",
+      "lng": 120.608367,
+      "lat": 16.412158,
+      "url": "/models/landmarks/teachers-camp.417135c9.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 4296,
+      "bytes": 31144,
+      "geometryBytes": 30668,
+      "sha256": "417135c935e6d49fc5ea2a5f1b8d3c05a7c6d6e0f1efa135c3b5553a56d560a0"
+    },
+    {
       "slug": "the-mansion",
       "lng": 120.621522,
       "lat": 16.412366,
