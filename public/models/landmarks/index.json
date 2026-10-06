@@ -33,6 +33,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "bencab-museum",
+      "lng": 120.550342,
+      "lat": 16.410587,
+      "url": "/models/landmarks/bencab-museum.1db077cb.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "botanical-garden",
       "lng": 120.613788,
       "lat": 16.414261,

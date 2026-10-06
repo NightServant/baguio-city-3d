@@ -49,6 +49,18 @@
       "sha256": "5fc3416584d1b1878057d0add1f46fc6dcac2dcaaa4404e544a54033223483d6"
     },
     {
+      "slug": "bencab-museum",
+      "lng": 120.550342,
+      "lat": 16.410587,
+      "url": "/models/landmarks/bencab-museum.1db077cb.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 564,
+      "bytes": 13040,
+      "geometryBytes": 10422,
+      "sha256": "1db077cb699921e2e4a92ce112f8c3e99a29503345733363dfb56b0d35b83b61"
+    },
+    {
       "slug": "botanical-garden",
       "lng": 120.613788,
       "lat": 16.414261,
