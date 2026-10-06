@@ -133,6 +133,18 @@
       "sha256": "ae56ce1757e38ab027c6628d0256055a901015664ffbbfcd6b9c50db04cbb87a"
     },
     {
+      "slug": "la-trinidad-strawberry-farms",
+      "lng": 120.58881,
+      "lat": 16.459853,
+      "url": "/models/landmarks/la-trinidad-strawberry-farms.7d6fa21b.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 4632,
+      "bytes": 24348,
+      "geometryBytes": 19780,
+      "sha256": "7d6fa21ba67b65e36ce5a738a4942711d42fa1e65aa7151711aead6c320b48c1"
+    },
+    {
       "slug": "lions-head-kennon-road",
       "lng": 120.606002,
       "lat": 16.367607,
