@@ -81,6 +81,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "igorot-stone-kingdom",
+      "lng": 120.575043,
+      "lat": 16.432082,
+      "url": "/models/landmarks/igorot-stone-kingdom.ae56ce17.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,

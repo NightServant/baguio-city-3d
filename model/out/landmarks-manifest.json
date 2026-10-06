@@ -121,6 +121,18 @@
       "sha256": "1135752b0907de3794e7bbd7b9b8a089c85173705b5222ed37c822ace298053b"
     },
     {
+      "slug": "igorot-stone-kingdom",
+      "lng": 120.575043,
+      "lat": 16.432082,
+      "url": "/models/landmarks/igorot-stone-kingdom.ae56ce17.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 5740,
+      "bytes": 70552,
+      "geometryBytes": 58934,
+      "sha256": "ae56ce1757e38ab027c6628d0256055a901015664ffbbfcd6b9c50db04cbb87a"
+    },
+    {
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,
