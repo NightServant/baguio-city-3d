@@ -125,6 +125,23 @@ npx prisma studio   # inspect the database
 
 Content is curated from public sources, and every one is listed on `/about`. Fares state their source and date; unverified fares say so. Jeepney lines follow the roads between stops, but the jeepney's exact path can differ. Terrain: Mapzen / Tilezen via AWS Open Data. Basemap: OpenFreeMap, © OpenStreetMap contributors.
 
-## Roadmap
+## 3D model
 
-A Blender-authored 3D model of Baguio is planned. It covers photoreal landmark meshes rendered through a MapLibre custom layer, georeferenced on the live terrain; see [`docs/baguio-3d-model-plan.md`](docs/baguio-3d-model-plan.md).
+The map draws 22 landmark models and the city's building massing with three.js inside MapLibre (`components/map/layers/ModelLayer.ts`).
+
+How it is built:
+- **Heights:** models keep their true heights; only the ground is drawn 1.35 times taller (`TERRAIN_EXAGGERATION`). The models bake that stretch into their ground fit, so changing the constant means rebuilding them.
+- **Landmarks:** authored in Blender from cited sources (`model/landmarks/<slug>.md`, `model/blender/landmarks/`) and shipped as content-hashed GLBs in `public/models/landmarks/`.
+- **Massing:** 128k OpenStreetMap footprints with estimated heights, streamed as near and far tiles from `public/models/buildings/`. A shader draws their windows and roof ribs.
+
+The plans live in `docs/superpowers/plans/`: the contract `2026-10-01-baguio-3d-model-contract.md` and one plan per milestone, M1 to M8, with progress in `2026-09-24-ledger.md`.
+
+To rebuild from scratch, in order (`model/data/` is regenerable and gitignored):
+1. `uv run model/scripts/check_m1.py`: the DEM and OSM fetches. Then `uv run model/scripts/fetch_terrarium.py` and `uv run model/scripts/terrain_grid.py`.
+2. `model/blender/build_terrain.py`, run headless: `/Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python <script>`.
+3. Each `model/blender/landmarks/<slug>.py`, then `export_landmark.py -- <slug>` and `uv run model/scripts/pack_landmark.py <slug>`.
+4. `uv run model/scripts/build_massing.py build`.
+5. `uv run model/scripts/landmarks_sql.py`, which writes a migration; apply it with `supabase db push --linked`.
+6. `node model/scripts/validate_glbs.mjs`: every GLB must be valid.
+
+Render-only Blender context (never shipped): `context_data.py`, `context_roads.py`, `context_pines.py`, `cameras.py -- m5`.

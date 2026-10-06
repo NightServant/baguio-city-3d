@@ -214,7 +214,7 @@ def grid_mesh(geom, cell=CELL_M):
 
     if geom.is_empty:
         return {"v": [], "f": []}
-    geom = areas(geom.simplify(0.2))                  # 0.2 m: below what the map can show, and far fewer vertices
+    geom = areas(geom.simplify(0.3))                  # 0.3 m: below what the map can show, and far fewer vertices
     x0, y0, x1, y1 = geom.bounds
     for gx in np.arange(math.floor(x0 / cell) * cell, x1, cell):
         for gy in np.arange(math.floor(y0 / cell) * cell, y1, cell):

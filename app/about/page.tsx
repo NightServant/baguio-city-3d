@@ -35,6 +35,17 @@ export default function AboutPage() {
           OpenStreetMap has {OSM_BUILDINGS.count.toLocaleString("en-PH")} building footprints inside the map
           area, counted on {formatLongDate(OSM_BUILDINGS.countedOn)}.
         </p>
+        <p>
+          The 3D buildings stand on those footprints. Their heights are estimated from each building’s type,
+          size and distance from the city centre: plausible massing, not measured heights. Buildings and
+          landmarks keep their real size; only the ground is drawn taller. The landmark models are built from
+          the sources listed in each landmark’s{" "}
+          <a href="https://github.com/NightServant/baguio-city-3d/tree/main/model/landmarks">research sheet</a>.
+          Their foundations were sized partly on the Copernicus terrain model, produced using Copernicus
+          WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under
+          COPERNICUS by the European Union and ESA; all rights reserved. Copernicus Digital Elevation Model
+          (DEM) was accessed on 2026-10-02 from https://registry.opendata.aws/copernicus-dem.
+        </p>
 
         <h2>How it was checked</h2>
         <p>

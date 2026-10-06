@@ -22,3 +22,13 @@ it("every landmark in the index exists, fits its budget, and nothing else is shi
   const files = readdirSync(DIR).filter((f) => f.endsWith(".glb"));
   expect(files.filter((f) => !listed.has(f)), "orphan GLBs").toEqual([]);
 });
+
+it("every building tile in the index exists, fits 100 KiB, and nothing else is shipped", () => {
+  const D = "public/models/buildings";
+  if (!existsSync(`${D}/index.json`)) return;
+  const { near, far } = JSON.parse(readFileSync(`${D}/index.json`, "utf8")) as Record<"near" | "far", { url: string }[]>;
+  const urls = [...near, ...far].map((t) => t.url);
+  for (const url of urls) expect(readFileSync(`public${url}`).length, url).toBeLessThanOrEqual(100 * KiB);
+  const listed = new Set(urls.map((u) => u.split("/").pop()));
+  expect(readdirSync(D).filter((f) => f !== "index.json" && !listed.has(f)), "orphan files").toEqual([]);
+});

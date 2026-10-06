@@ -39,6 +39,8 @@ def begin(slug):
 def material(name, rgb, roughness=0.8):
     mat = bpy.data.materials.get(name) or bpy.data.materials.new(name)
     mat.use_nodes = True
+    for n in [n for n in mat.node_tree.nodes if n.type == "TEX_IMAGE"]:   # a texture from an earlier build: start flat
+        mat.node_tree.nodes.remove(n)                                      # (textured() and detail() add theirs back)
     bsdf = next(n for n in mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
     bsdf.inputs["Base Color"].default_value = (*rgb, 1.0)
     bsdf.inputs["Roughness"].default_value = roughness
@@ -165,6 +167,8 @@ def report(slug, coll, depth):
     for ob in coll.all_objects:
         if ob.type != "MESH":
             continue
+        if not ob.data.uv_layers and any(m and any(n.type == "TEX_IMAGE" for n in m.node_tree.nodes) for m in ob.data.materials):
+            _face_uvs(ob, 2.0)   # a textured part built without UVs (glTF: TEXCOORD_0 is required, M7 validator)
         me = ob.evaluated_get(dg).to_mesh()
         me.calc_loop_triangles()
         tris += len(me.loop_triangles)
@@ -541,12 +545,11 @@ def _face_uvs(ob, tile):
 def _pattern(coll, mat, make, tile):
     """Texture an untextured material with make(its own sRGB colour), and UV every object of `coll` that uses it."""
     nt = mat.node_tree
-    if any(n.type == "TEX_IMAGE" for n in nt.nodes):
-        return
-    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
-    lin = tuple(bsdf.inputs["Base Color"].default_value)[:3]
-    s = [12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055 for c in lin]
-    textured(mat.name, pattern_image("TEX_" + mat.name[4:], make(s)), lin, bsdf.inputs["Roughness"].default_value)
+    if not any(n.type == "TEX_IMAGE" for n in nt.nodes):
+        bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+        lin = tuple(bsdf.inputs["Base Color"].default_value)[:3]
+        s = [12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055 for c in lin]
+        textured(mat.name, pattern_image("TEX_" + mat.name[4:], make(s)), lin, bsdf.inputs["Roughness"].default_value)
     for ob in coll.all_objects:
         if ob.type == "MESH" and mat.name in [m.name for m in ob.data.materials if m]:
             _face_uvs(ob, tile)

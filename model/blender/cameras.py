@@ -1,6 +1,6 @@
 """M2: one Blender camera per app view (DEFAULT_CAMERA + CAMERA_PRESETS), placed like MapLibre 5.24's
 camera (research §9b), and a Workbench render of each for owner review.
-Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/cameras.py
+Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/cameras.py [-- m5]
 The render is unexaggerated; the app shows terrain at 1.35x, so expect flatter relief than on screen."""
 import json
 import math
@@ -15,7 +15,7 @@ from terrain_sample import terrain_z  # noqa: E402
 
 FOV = 0.6435011087932844      # MapLibre default vertical FOV
 W, H = 1440, 900              # placeholder viewport; position scales linearly with H
-OUT = ROOT / "model" / "data" / "renders" / "m2"
+OUT = ROOT / "model" / "data" / "renders" / (sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else "m2")   # e.g. -- m5
 
 
 def main():

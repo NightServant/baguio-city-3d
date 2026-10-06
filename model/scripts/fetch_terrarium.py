@@ -6,7 +6,8 @@
 lib/map/sources.ts gives MapLibre. Landmarks lay ground-hugging parts on this terrain
 (lm_common.rel_ground): the app sets each model on it, and Copernicus, a surface model that reads tree
 canopy, differs by metres (owner reports 2026-10-05: Mines View's walkway sank, Camp John Hay's stairs floated).
-Fetches the z14 tiles within 400 m of every landmark destination and registry osm_center, decodes each to metres
+Fetches the z14 tiles within 400 m of every landmark destination and registry osm_center, and every tile over
+the padded city box (the building massing, M5), decodes each to metres
 (model/data/terrarium/14/<x>/<y>.npy, float32 256 x 256, rows from the north) and records provenance.
 Run: uv run model/scripts/fetch_terrarium.py"""
 import datetime
@@ -18,7 +19,7 @@ import subprocess
 import numpy as np
 from PIL import Image
 
-from common import DATA, ROOT, file_hash, load_sources, save_sources
+from common import DATA, PADDED, ROOT, file_hash, load_sources, save_sources
 
 Z = 14
 URL = "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
@@ -41,6 +42,8 @@ def main():
         dlng, dlat = PAD_M / (111_320 * math.cos(math.radians(lat))), PAD_M / 110_574
         (x0, y0), (x1, y1) = tile(lng - dlng, lat + dlat), tile(lng + dlng, lat - dlat)
         need |= {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
+    (x0, y0), (x1, y1) = tile(PADDED[0], PADDED[3]), tile(PADDED[2], PADDED[1])
+    need |= {(x, y) for x in range(x0, x1 + 1) for y in range(y0, y1 + 1)}
     sources = load_sources()
     rec = sources.get("aws-terrarium-z14", {"tiles": {}})
     for x, y in sorted(need):

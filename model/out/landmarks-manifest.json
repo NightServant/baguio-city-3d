@@ -40,13 +40,13 @@
       "slug": "baguio-public-market",
       "lng": 120.595223,
       "lat": 16.415533,
-      "url": "/models/landmarks/baguio-public-market.052c7214.glb",
+      "url": "/models/landmarks/baguio-public-market.eb4f7fe5.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 9466,
-      "bytes": 91604,
-      "geometryBytes": 74698,
-      "sha256": "052c72142e99ef865e0eb9eb0d51006e1569b6d6323f2fe4fe3b9b15ea419845"
+      "bytes": 111140,
+      "geometryBytes": 94234,
+      "sha256": "eb4f7fe559481b787c5be8c86b5c61c183a419bb5dce95a26f8a37f5d3c2fbfb"
     },
     {
       "slug": "bencab-museum",
@@ -160,13 +160,13 @@
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,
-      "url": "/models/landmarks/lourdes-grotto.2a2b7e4a.glb",
+      "url": "/models/landmarks/lourdes-grotto.7ed4148c.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 3960,
-      "bytes": 64132,
-      "geometryBytes": 49470,
-      "sha256": "2a2b7e4a602bad2fdbe1fb9604e336514d7b3f12bdb2f8a9eacde74e11ad12c3"
+      "bytes": 63976,
+      "geometryBytes": 49314,
+      "sha256": "7ed4148c881724abb4fc980fb3ff6014717b2b8adeec598b62109884d1938758"
     },
     {
       "slug": "mile-hi-cjh-viewdeck",
@@ -208,13 +208,13 @@
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,
-      "url": "/models/landmarks/session-road.71d10c33.glb",
+      "url": "/models/landmarks/session-road.44c6b1a0.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 5677,
-      "bytes": 72660,
-      "geometryBytes": 60596,
-      "sha256": "71d10c331c4861f0bf7d828742e22c902854e605a6675dad5399d9de026e667f"
+      "triangles": 5448,
+      "bytes": 71488,
+      "geometryBytes": 59424,
+      "sha256": "44c6b1a0f228073952a5e6ab5fbfc9bd8ed96b2f7923ba10e6304f9d4e190438"
     },
     {
       "slug": "tam-awan-village",
@@ -256,13 +256,13 @@
       "slug": "wright-park",
       "lng": 120.619604,
       "lat": 16.414443,
-      "url": "/models/landmarks/wright-park.be936ebc.glb",
+      "url": "/models/landmarks/wright-park.d2e3a563.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
       "triangles": 3226,
-      "bytes": 31204,
-      "geometryBytes": 25108,
-      "sha256": "be936ebcaac26ecda5670bd9b2597b25e251464fb87168ac252f97d19f27b3af"
+      "bytes": 34120,
+      "geometryBytes": 28024,
+      "sha256": "d2e3a5631275c89695eee0a2815b655863b4d4cafcd56ac102042ef35c86dfb0"
     }
   ]
 }
