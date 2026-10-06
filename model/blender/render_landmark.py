@@ -55,6 +55,7 @@ me.from_pydata([(ax + x, ay + y, az + (zs[j * n + i] - zs[-1]) * lm.EXAG) for j,
 ground = bpy.data.objects.new("MAP_GROUND", me)
 bpy.data.collections["00_REFERENCE"].objects.link(ground)
 terrain = [o for o in bpy.data.objects if o.name.startswith("TERRAIN_")]
+terrain += [o for c in ("20_ROADS", "50_VEGETATION") if c in bpy.data.collections for o in bpy.data.collections[c].objects]   # city context
 for o in terrain:
     o.hide_render = True
 shots = [shoot("front", front, 70, 95 * scale), shoot("aerial", front + 35, 50, 140 * scale), shoot("side", front + 95, 72, 110 * scale)]

@@ -145,6 +145,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "sm-city-baguio",
+      "lng": 120.599314,
+      "lat": 16.408506,
+      "url": "/models/landmarks/sm-city-baguio.e76c23f8.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "tam-awan-village",
       "lng": 120.576681,
       "lat": 16.430071,
