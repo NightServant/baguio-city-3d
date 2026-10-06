@@ -85,6 +85,18 @@
       "sha256": "f8e6257c44cc0fdb01a540fe37f9f4e75f4366a9acba9e2ff11fcb026b028151"
     },
     {
+      "slug": "good-shepherd-convent",
+      "lng": 120.626208,
+      "lat": 16.422401,
+      "url": "/models/landmarks/good-shepherd-convent.1135752b.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 930,
+      "bytes": 14700,
+      "geometryBytes": 13432,
+      "sha256": "1135752b0907de3794e7bbd7b9b8a089c85173705b5222ed37c822ace298053b"
+    },
+    {
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,
