@@ -10,6 +10,7 @@
   uv run model/scripts/landmark_osm.py parts <slug>            # OSM Simple 3D Buildings parts round the footprint
   uv run model/scripts/landmark_osm.py buildings <slug>        # every OSM building inside the footprint (complexes)
   uv run model/scripts/landmark_osm.py streets <slug>          # a street at 1:1: carriageways, junctions, sidewalks, crossings
+  uv run model/scripts/landmark_osm.py park <slug> <way/id> <S:N,W:E> [stand=<id>]   # one box of a park, at 1:1
   uv run model/scripts/landmark_osm.py insets <slug> [dir=ux,uy] [tol=m] <m>…   # terrace tiers: the largest ring shrunk by each
                                                                # distance, or (dir=) cut back that far on the downhill side
 
@@ -372,6 +373,186 @@ def insets(slug, args):
         print(f"{slug}: tier {d} m -> {g.area:,.0f} m2, {len(out[d])} points")
     (LM_DATA / slug / "insets.json").write_text(json.dumps(out) + "\n")
 
+PARK_CLASSES = {   # ground cover, highest priority first: each class is cut out of every class after it
+    "pool": lambda t: t.get("leisure") == "swimming_pool" and "building" not in t,
+    "track": lambda t: t.get("leisure") == "track",
+    "pitch": lambda t: t.get("leisure") == "pitch" and "building" not in t,
+    "playground": lambda t: t.get("leisure") == "playground",
+    "plaza": lambda t: t.get("amenity") in ("parking", "marketplace") or t.get("highway") == "pedestrian" or t.get("place") == "square",
+    "garden": lambda t: t.get("leisure") == "garden" or t.get("landuse") == "flowerbed",
+    "wood": lambda t: t.get("natural") == "wood" or t.get("landuse") == "forest",
+}
+PATH_HALF = {"footway": 1.6, "path": 1.2, "cycleway": 1.6, "steps": 1.4, "pedestrian": 3.0, "service": 2.8, "unclassified": 3.2,
+             "residential": 3.0, "living_street": 2.8}   # ESTIMATE half-widths: Burnham's walks are about 3 m wide
+
+
+def park(slug, pid, split, *opts):
+    """One part of a whole park at 1:1 from OSM (owner 2026-10-06: "the complete 3d-model of Burnham Park"), in the
+    slug's frame, to model/data/landmarks/<slug>/park.json. The park polygon is cut to a box of latitudes and longitudes
+    ("S:N,W:E", blank = open); a slug with a footprint keeps its anchor (a destination's pin), a new one is anchored at
+    its box's centroid. stand=<id>: an open football field (100 x 64 m, ESTIMATE) in front of that grandstand, on the
+    side with more open lawn (Burnham's Melvin Jones field, which OSM leaves unmapped).
+    Walkways shorter than 40 m are left out (the basemap draws them), drives are cut from the lawn but left to the
+    basemap, and every class is simplified at 0.4 m, to fit the tier-1 geometry budget.
+    - ground: disjoint meshes per class (PARK_CLASSES, then walkways/drives buffered by PATH_HALF as "paved"/"road",
+      then lawn for the rest), cut on a grid (10 m lawn and wood, 6 m otherwise);
+    - buildings (with holes: the skating rink is a ring), pitches and tracks (for markings), hedges, fences and walls,
+      points (rentals, memorials, fountains, toilets, stalls, the rink), and the lake;
+    - trees: wood on a jittered 18 m grid, lawn trees lining the walkways every 22 m (seeded)."""
+    from shapely.affinity import translate
+    fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
+    inv = Transformer.from_crs(LOCAL_TM, "EPSG:4326", always_xy=True)
+    src = LM_DATA / "burnham-park" / "area-osm.json" if not (LM_DATA / slug / "area-osm.json").exists() else LM_DATA / slug / "area-osm.json"
+    els = json.loads(src.read_text())["elements"]
+    kind, num = pid.split("/")
+    P = polygons(next(e for e in els if e["type"] == kind and e["id"] == int(num)), fwd)[0]
+    x0, y0, x1, y1 = P.bounds
+    mid = inv.transform((x0 + x1) / 2, (y0 + y1) / 2)
+    (s_, n_), (w_, e_) = (tuple(v.split(":")) for v in split.split(","))     # "S:N,W:E" in degrees; blank = open
+    ya = fwd.transform(mid[0], float(s_))[1] if s_ else y0 - 1
+    yb = fwd.transform(mid[0], float(n_))[1] if n_ else y1 + 1
+    xa = fwd.transform(float(w_), mid[1])[0] if w_ else x0 - 1
+    xb = fwd.transform(float(e_), mid[1])[0] if e_ else x1 + 1
+    half = box(xa, ya, xb, yb)
+    stand = next((o[6:] for o in opts if o.startswith("stand=")), None)
+    region = max(getattr(P.intersection(half), "geoms", [P.intersection(half)]), key=lambda g: g.area)
+    fpp = LM_DATA / slug / "footprint.json"
+    reg = json.loads(LANDMARKS.read_text())
+    if fpp.exists():
+        fp = json.loads(fpp.read_text())
+        ax, ay = fp["anchor_tm"]
+    else:
+        c = region.centroid
+        ax, ay = c.x, c.y
+        fp = {"slug": slug, "anchor_lnglat": list(inv.transform(ax, ay)), "anchor_tm": [ax, ay]}
+        reg[slug]["anchor"] = [round(v, 6) for v in inv.transform(ax, ay)]
+    loc = lambda g: translate(g, -ax, -ay)
+    R = loc(region)
+
+    def polys(el):
+        if el["type"] == "way":
+            return polygons(el, fwd)
+        outer = unary_union(polygons(el, fwd))
+        inner = [LineString([fwd.transform(p["lon"], p["lat"]) for p in m["geometry"]]) for m in el.get("members", [])
+                 if m.get("role") == "inner" and len(m.get("geometry", [])) >= 2]
+        holes = unary_union(list(polygonize(linemerge(inner)))) if inner else Polygon()
+        g = outer.difference(holes)
+        return list(getattr(g, "geoms", [g]))
+
+    ground = {k: [] for k in PARK_CLASSES}
+    paths, roads, buildings, pitches, tracks, lines, points, lake = [], [], [], [], [], [], [], None
+    for el in els:
+        t = el.get("tags", {})
+        if not t or (el["type"] == kind and el["id"] == int(num)):
+            continue
+        if el["type"] == "node":
+            k = (t.get("amenity") if t.get("amenity") in ("bicycle_rental", "fountain", "toilets", "fast_food", "restaurant", "bench") else
+                 "memorial" if t.get("historic") in ("memorial", "monument") else "rink" if t.get("leisure") == "pitch" else
+                 "lamp" if t.get("highway") == "street_lamp" else "tree" if t.get("natural") == "tree" else None)
+            q = Point(np.subtract(fwd.transform(el["lon"], el["lat"]), (ax, ay)))
+            if k and R.contains(q):
+                points.append({"kind": k, "name": t.get("name"), "xy": [round(q.x, 2), round(q.y, 2)]})
+            continue
+        if el["type"] == "way" and t.get("highway") in PATH_HALF and t.get("area") != "yes":
+            ln = loc(LineString([fwd.transform(p["lon"], p["lat"]) for p in el["geometry"]]))
+            if ln.intersects(R) and (ln.length >= 40 or t["highway"] not in ("footway", "path", "steps", "cycleway")):
+                (roads if t["highway"] in ("service", "unclassified", "residential", "living_street") else paths).append(ln.buffer(PATH_HALF[t["highway"]], cap_style="flat"))
+            continue
+        if el["type"] == "way" and t.get("barrier") in ("hedge", "fence", "wall", "handrail"):
+            ln = loc(LineString([fwd.transform(p["lon"], p["lat"]) for p in el["geometry"]])).intersection(R)
+            for part_ in getattr(ln, "geoms", [ln]):
+                if part_.geom_type == "LineString" and part_.length > 1:
+                    lines.append({"kind": t["barrier"], "pts": [[round(x, 2), round(y, 2)] for x, y in part_.coords]})
+            continue
+        for g in polys(el):
+            g = loc(g)
+            if not g.is_valid or g.is_empty or not g.intersects(R):
+                continue
+            g = g.intersection(R)
+            if g.area < 1:
+                continue
+            if t.get("natural") == "water" and (lake is None or g.area > lake.area):
+                lake = g
+                continue
+            if "building" in t:
+                for b in getattr(g, "geoms", [g]):
+                    if b.geom_type == "Polygon":
+                        num_ = lambda v: float(str(v).split()[0].rstrip("m")) if v not in (None, "") else None
+                        buildings.append({"id": f"{el['type']}/{el['id']}", "kind": t["building"], "name": t.get("name"), "levels": num_(t.get("building:levels")),
+                                          "height": num_(t.get("height")), "leisure": t.get("leisure"),
+                                          "ring": [[round(x, 2), round(y, 2)] for x, y in orient(b.simplify(0.2), 1.0).exterior.coords[:-1]],
+                                          "holes": [[[round(x, 2), round(y, 2)] for x, y in h.coords[:-1]] for h in orient(b.simplify(0.2), 1.0).interiors]})
+                if t.get("leisure") != "pitch":
+                    continue
+            for k, test in PARK_CLASSES.items():
+                if test(t):
+                    ground[k].append(g)
+                    if k == "pitch":
+                        pitches.append({"sport": t.get("sport"), "ring": [[round(x, 2), round(y, 2)] for x, y in g.minimum_rotated_rectangle.exterior.coords[:-1]]})
+                    if k == "track":
+                        tracks.append({"sport": t.get("sport"), "ring": [[round(x, 2), round(y, 2)] for x, y in orient(g.simplify(0.3), 1.0).exterior.coords[:-1]]}
+                                      if g.geom_type == "Polygon" else {"sport": t.get("sport"), "ring": []})
+                    break
+    if stand:                                     # the open field in front of the grandstand (Wikipedia: "the open field
+        sb = next(b for b in buildings if b["id"] == stand)            # often used for football and the Melvin Jones Grandstand")
+        sp = Polygon(sb["ring"])
+        rr = list(sp.minimum_rotated_rectangle.exterior.coords)[:4]
+        e = max(((np.subtract(rr[i + 1], rr[i]), i) for i in range(3)), key=lambda q: np.linalg.norm(q[0]))[0]
+        u = e / np.linalg.norm(e)
+        n = np.array((-u[1], u[0]))
+        c = np.array(sp.centroid.coords[0])
+        depth = sp.area / np.linalg.norm(e)
+        busy = unary_union([Polygon(b["ring"]) for b in buildings] + paths + roads + [lake or Polygon()])
+        best = None
+        for sgn in (1, -1):
+            fc = c + n * sgn * (depth / 2 + 6 + 32)
+            q = Polygon([tuple(fc + u * a + n * b) for a, b in ((-50, -32), (50, -32), (50, 32), (-50, 32))])
+            free = q.intersection(R).difference(busy).area
+            if best is None or free > best[0]:
+                best = (free, q)
+        ground["pitch"].append(best[1].intersection(R))
+        pitches.append({"sport": "soccer", "ring": [[round(x, 2), round(y, 2)] for x, y in best[1].exterior.coords[:-1]]})
+    taken = areas((lake or Polygon()).union(unary_union([Polygon(b["ring"]) for b in buildings if b["leisure"] != "pitch"])))
+    out = {"region": [[round(x, 2), round(y, 2)] for x, y in orient(R.simplify(0.3), 1.0).exterior.coords[:-1]]}
+    meshes = {}
+    for k in PARK_CLASSES:
+        g = areas(areas(unary_union(ground[k]).simplify(0.6).intersection(R)).difference(taken, grid_size=0.01))
+        meshes[k] = grid_mesh(g, 12.0 if k == "wood" else 8.0)
+        taken = areas(taken.union(g, grid_size=0.01))
+    for k, gs in (("road", roads), ("paved", paths)):
+        g = areas(areas(unary_union(gs).simplify(0.6).intersection(R)).difference(taken, grid_size=0.01))
+        meshes[k] = grid_mesh(g, 8.0) if k == "paved" else {"v": [], "f": []}   # drives: the basemap draws them
+        taken = areas(taken.union(g, grid_size=0.01))
+    lawn = areas(R.difference(taken, grid_size=0.01).simplify(0.4))
+    meshes["lawn"] = grid_mesh(lawn, 12.0)
+    rng, trees = random.Random(1925), []
+    wood = unary_union(ground["wood"]).intersection(R)
+    gx, gy = np.meshgrid(np.arange(R.bounds[0], R.bounds[2], 18.0), np.arange(R.bounds[1], R.bounds[3], 18.0))
+    for x, y in zip(gx.ravel(), gy.ravel()):
+        q = Point(x + rng.uniform(-5, 5), y + rng.uniform(-5, 5))
+        if wood.contains(q) and not taken.difference(wood).contains(q):
+            trees.append({"xy": [round(q.x, 2), round(q.y, 2)], "kind": "pine" if rng.random() < 0.8 else "broad"})
+    walks = unary_union(paths)
+    edge = walks.buffer(3.5).difference(walks.buffer(2.0))
+    for ln in getattr(walks.boundary, "geoms", [walks.boundary]):
+        for d in np.arange(0, ln.length, 22.0):
+            q = ln.interpolate(d)
+            if edge.contains(q) and lawn.contains(q):
+                trees.append({"xy": [round(q.x, 2), round(q.y, 2)], "kind": "pine" if rng.random() < 0.55 else "broad"})
+    out.update({"lake": [[round(x, 2), round(y, 2)] for x, y in orient(lake.simplify(0.2), 1.0).exterior.coords[:-1]] if lake else None,
+                "ground": meshes, "buildings": buildings, "pitches": pitches, "tracks": tracks, "lines": lines, "points": points, "trees": trees})
+    (LM_DATA / slug).mkdir(parents=True, exist_ok=True)
+    (LM_DATA / slug / "park.json").write_text(json.dumps(out) + "\n")
+    fp["rings"] = [out["region"]]
+    fp["area_m2"] = R.area
+    fpp.write_text(json.dumps(fp, indent=2) + "\n")
+    ring = [[round(v, 5) for v in inv.transform(x + ax, y + ay)] for x, y in orient(R.buffer(5.0).simplify(1.0), 1.0).exterior.coords]
+    reg[slug]["exclusion"] = ring
+    LANDMARKS.write_text(json.dumps(reg, indent=2) + "\n")
+    tri = {k: len(m["f"]) for k, m in meshes.items()}
+    print(f"{slug} ({split} of {pid}): {R.area:,.0f} m2; ground triangles {tri}; {len(buildings)} buildings, "
+          f"{len(pitches)} pitches, {len(tracks)} tracks, {len(lines)} lines, {len(points)} points, {len(trees)} trees; lake {'yes' if lake else 'no'}")
+
 if __name__ == "__main__":
     cmd, slug, *rest = sys.argv[1:]
     if cmd == "candidates":
@@ -384,6 +565,8 @@ if __name__ == "__main__":
         streets(slug)
     elif cmd == "insets":
         insets(slug, rest)
+    elif cmd == "park":
+        park(slug, *rest)
     elif cmd == "footprint-line":
         footprint_line(slug, float(rest[0]), float(rest[1]), rest[2:])
     else:

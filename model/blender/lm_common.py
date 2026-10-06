@@ -5,6 +5,7 @@ A landmark lives in collection LM_<slug> under 40_LANDMARKS, authored around the
 instance placed at the anchor in 00_REFERENCE shows it in context for renders."""
 import json
 import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -176,6 +177,8 @@ def report(slug, coll, depth):
         ob.evaluated_get(dg).to_mesh_clear()
     out = {"slug": slug, "tier": tier, "triangles": tris, "budget": TIER_TRIANGLES[tier], "depth": depth, "z_min": zmin}
     print("REPORT", json.dumps(out))
+    if os.environ.get("LM_PROBE"):            # measuring an over-budget scene: report, save, don't fail
+        return out
     assert tris <= TIER_TRIANGLES[tier], f"{slug}: {tris} triangles > {TIER_TRIANGLES[tier]}"
     assert zmin <= -depth + 1e-3, f"{slug}: lowest point {zmin:.2f} doesn't reach the foundation depth {-depth:.2f}"
     return out
@@ -459,6 +462,8 @@ ASSETS = {
     "street_light": "city-kit-roads/Models/GLB format/light-curved.glb",
     "traffic_light": "city-kit-roads/Models/GLB format/traffic-light.glb",
     "bush": "nature-kit/Models/GLTF format/plant_bushDetailed.glb",
+    "pine_simple_a": "nature-kit/Models/GLTF format/tree_pineTallA.glb",     # 78 triangles: for whole woods
+    "pine_simple_c": "nature-kit/Models/GLTF format/tree_pineTallC.glb",
 }
 
 
@@ -652,3 +657,230 @@ def detail(coll, fp, roofs=(), walls=(), blocks=(), storey=3.2, bay=3.4, frame_r
         poly.material_index = slot
     coll.objects.link(bpy.data.objects.new(f"{key}_openings", me))
     print("DETAIL", key, "windows+doors", sum(1 for _, s in quads if s), "quads", len(quads))
+
+
+# --- Ground surfaces and whole parks (owner 2026-10-06: Session Road at 1:1; "the complete 3d-model of Burnham Park") ----
+
+def surface(coll, fp, name, m, lift, mat, sheet=False, tile=None, outer=None):
+    """A triangle mesh {"v": [[x, y]], "f": [[i, j, k]]} laid on the map's terrain, each vertex `lift` m above it, with a
+    skirt from its border to 1 m under the lowest ground (none for a `sheet`, e.g. an awning). `outer`: skirt only the
+    border edges lying on that ring (a park's outline): inside it the ground classes meet within centimetres of each
+    other, and their skirts would only cost bytes. Returns the skirt's bottom (0 for a sheet)."""
+    if not m["f"]:
+        return 0.0
+    xy = [tuple(v) for v in m["v"]]
+    g = rel_ground(fp, xy)
+    bm = bmesh.new()
+    top = [bm.verts.new((x, y, z + lift)) for (x, y), z in zip(xy, g)]
+    for f in m["f"]:
+        try:
+            bm.faces.new([top[i] for i in f])
+        except ValueError:                    # a duplicate triangle from two grid cells
+            pass
+    bm.edges.ensure_lookup_table()
+    zb = 0.0
+    if not sheet:
+        zb = min(rel_ground(fp, xy, low=True)) - 1.0
+        low = {}
+        border = [e for e in bm.edges if len(e.link_faces) == 1]
+        if outer is not None:
+            a = np.asarray(outer, float)
+            ab = np.roll(a, -1, axis=0) - a
+
+            def on_outer(q):
+                t = np.clip(((q - a) * ab).sum(1) / np.maximum((ab * ab).sum(1), 1e-9), 0, 1)
+                return np.min(np.linalg.norm(a + ab * t[:, None] - q, axis=1)) < 0.6
+
+            border = [e for e in border if on_outer((np.array(e.verts[0].co.xy) + np.array(e.verts[1].co.xy)) / 2)]
+        for e in border:
+            for v in e.verts:
+                low.setdefault(v, bm.verts.new((v.co.x, v.co.y, zb)))
+            lp = e.link_loops[0]
+            a, b = lp.vert, lp.link_loop_next.vert
+            bm.faces.new((b, a, low[a], low[b]))  # outward: to the right of the face's own edge direction
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    ob = bpy.data.objects.new(name, me)
+    coll.objects.link(ob)
+    if tile:
+        _face_uvs(ob, tile)
+    return zb
+
+
+PARK_COLOURS = {"lawn": (104, 150, 72), "wood": (80, 120, 62), "garden": (126, 150, 84), "paved": (168, 166, 162),
+                "plaza": (156, 154, 150), "playground": (128, 158, 84), "track": (84, 88, 96), "pitch": (90, 152, 66),
+                "pool": (64, 156, 196)}     # paving in concrete grey: the basemap's park fill is beige, and owner 2026-10-06
+# saw beige paving as holes. Lifts clear the map's terrain mesh, which departs from the bilinear DEM by up to ~0.3 m
+# between its vertices on the park's slopes (owner 2026-10-06: the terrain showed through the lawns at 0.12 m).
+PARK_LIFT = {"lawn": 0.3, "wood": 0.3, "garden": 0.34, "paved": 0.4, "plaza": 0.4, "playground": 0.36, "track": 0.44,
+             "pitch": 0.4, "pool": 0.45}
+
+
+def park(coll, fp, pk, key, seed=1925, bay=8.0):
+    """A park part from landmark_osm.py park (park.json) at 1:1: ground surfaces per class on the map's terrain; football
+    and tennis markings; buildings (grandstands as stepped seating under a roof facing the nearest pitch, greenhouses in
+    glass, roof-only shelters on posts, a ring building (the skating rink) as a roofed ring round an open floor, the rest
+    as blocks with windows and hip or flat roofs); hedges and walls; bicycle-rental kiosks, memorials, fountains and
+    lamps; and the trees (Kenney pines and broadleaves). Heights are ESTIMATEs (see the landmark's sheet). Returns the
+    lowest z. `key` prefixes the material names."""
+    rng = np.random.default_rng(seed)
+    S = Shapes(coll, 0.0, {})
+    lowest = 0.0
+    running = any(t["sport"] == "running" for t in pk["tracks"])
+    colours = dict(PARK_COLOURS, track=(170, 76, 60) if running else PARK_COLOURS["track"])   # a running track is red
+    mats = {k: material(f"MAT_{key}_{k}", srgb(*c), 0.9) for k, c in colours.items()}
+    for k, m in pk["ground"].items():
+        if k in mats:
+            lowest = min(lowest, surface(coll, fp, f"{key}_ground_{k}", m, PARK_LIFT[k], mats[k], outer=pk["region"]))
+    paint = material(f"MAT_{key}_paint", srgb(236, 236, 230), 0.6)
+    play = [material(f"MAT_{key}_play_{i}", srgb(*c), 0.6) for i, c in enumerate(((214, 64, 52), (240, 190, 50), (52, 120, 196)))]
+    pg, sites = pk["ground"].get("playground", {"v": [], "f": []}), []
+    for f in pg["f"]:                                 # play equipment on the playground, at least 22 m apart (ESTIMATE)
+        c = np.mean([pg["v"][i] for i in f], axis=0)
+        if all(math.dist(c, q) > 22 for q in sites):
+            sites.append(c)
+    for j, (x, y) in enumerate(sites[:10]):
+        z = rel_ground(fp, [(x, y)])[0] + 0.2
+        if j % 2 == 0:                                # a slide tower: deck, roof, chute
+            S.box(f"{key}_play_{j}_deck", y - 1.2, y + 1.2, x - 1.2, x + 1.2, z + 1.4, z + 1.6, play[0])
+            S.pyramid(f"{key}_play_{j}_roof", y, x, 1.4, z + 3.0, z + 4.0, play[1])
+            for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                S.box(f"{key}_play_{j}_post_{dx}{dy}", y + dy * 1.1 - 0.06, y + dy * 1.1 + 0.06, x + dx * 1.1 - 0.06, x + dx * 1.1 + 0.06, z, z + 3.0, play[2])
+            S.beam(f"{key}_play_{j}_chute", (x + 1.2, y, z + 1.5), (x + 4.2, y, z + 0.2), 0.35, play[1])
+        else:                                         # a swing frame
+            for dy in (-2.0, 2.0):
+                S.beam(f"{key}_play_{j}_leg_{dy:+.0f}a", (x - 1.0, y + dy, z), (x, y + dy, z + 2.6), 0.06, play[2])
+                S.beam(f"{key}_play_{j}_leg_{dy:+.0f}b", (x + 1.0, y + dy, z), (x, y + dy, z + 2.6), 0.06, play[2])
+            S.beam(f"{key}_play_{j}_bar", (x, y - 2.0, z + 2.6), (x, y + 2.0, z + 2.6), 0.07, play[0])
+    gz = lambda pts: rel_ground(fp, pts)
+
+    def line(name, p0, p1, half, lift):
+        (x0, y0), (x1, y1) = p0, p1
+        z0, z1 = gz([p0, p1])
+        S.beam(name, (x0, y0, z0 + lift), (x1, y1, z1 + lift), half, paint)
+
+    for j, pt in enumerate(pk["pitches"]):            # markings on the pitch's rectangle (FIFA/ITF proportions)
+        r = [np.array(p, float) for p in pt["ring"]]
+        if np.linalg.norm(r[1] - r[0]) < np.linalg.norm(r[2] - r[1]):
+            r = r[1:] + r[:1]
+        L, W = np.linalg.norm(r[1] - r[0]), np.linalg.norm(r[2] - r[1])
+        u, v = (r[1] - r[0]) / L, (r[3] - r[0]) / W
+        P = lambda a, b: tuple(r[0] + u * a + v * b)
+        lift = PARK_LIFT["pitch"] + 0.03
+        segs = [((1, 1), (L - 1, 1)), ((L - 1, 1), (L - 1, W - 1)), ((L - 1, W - 1), (1, W - 1)), ((1, W - 1), (1, 1))]
+        if pt["sport"] == "soccer":
+            segs += [((L / 2, 1), (L / 2, W - 1))]
+            for e in (1, L - 1):                      # penalty boxes, 16.5 x 40.3 m scaled to the field
+                d = 16.5 * L / 105 * (1 if e == 1 else -1)
+                h = 20.15 * W / 68
+                segs += [((e, W / 2 - h), (e + d, W / 2 - h)), ((e + d, W / 2 - h), (e + d, W / 2 + h)), ((e + d, W / 2 + h), (e, W / 2 + h))]
+            rc = 9.15 * W / 68
+            circ = [(L / 2 + rc * math.cos(2 * math.pi * i / 16), W / 2 + rc * math.sin(2 * math.pi * i / 16)) for i in range(16)]
+            segs += list(zip(circ, circ[1:] + circ[:1]))
+        else:
+            segs += [((L / 2, 1), (L / 2, W - 1))]    # the net line
+        for i, (a, b) in enumerate(segs):
+            line(f"{key}_mark_{j}_{i:02d}", P(*a), P(*b), 0.06, lift)
+    pitch_c = [np.mean(np.array(p["ring"], float), axis=0) for p in pk["pitches"]]
+    wall = material(f"MAT_{key}_wall", srgb(232, 226, 210), 0.8)
+    roofs = [material(f"MAT_{key}_roof_{i}", srgb(*c), 0.6) for i, c in enumerate(((150, 58, 42), (58, 108, 74), (52, 86, 132)))]
+    glass = material(f"MAT_{key}_glass", srgb(170, 200, 196), 0.15)
+    steel = material(f"MAT_{key}_steel", srgb(150, 154, 160), 0.4)
+    seat = material(f"MAT_{key}_seat", srgb(186, 182, 172), 0.8)
+    for j, b in enumerate(pk["buildings"]):
+        ring = b["ring"]
+        z0 = max(gz(ring)) + 0.2
+        zb = min(rel_ground(fp, ring, low=True)) - 1.0
+        lowest = min(lowest, zb)
+        h = b["height"] or (b["levels"] or 0) * 3.2 or {"guardhouse": 3.0, "toilets": 3.5, "greenhouse": 4.0, "roof": 4.2,
+                                                         "grandstand": 9.0, "cleanroom": 3.0}.get(b["kind"], 6.4)
+        aw = [(y, x) for x, y in ring]
+        if b["holes"]:                                # the skating rink: a roofed ring round the open floor
+            hole = b["holes"][0]
+            S.prism(f"{key}_b{j}_floor", [(y, x) for x, y in hole], zb, z0 + 0.1, seat, tessellate=True)
+            out = max(math.dist(p, np.mean(hole, axis=0)) for p in ring)
+            hc = np.mean(np.array(hole, float), axis=0)
+            rin = np.mean([math.dist(p, hc) for p in hole])
+            n = 24
+            pts = [(hc[0] + r * math.cos(2 * math.pi * i / n), hc[1] + r * math.sin(2 * math.pi * i / n)) for r in (rin, rin + (out - rin) * 0.8) for i in range(n)]
+            verts = [(y, x, z0 + 5.0) for x, y in pts] + [(y, x, z0 + 5.4) for x, y in pts]
+            faces = [(i, (i + 1) % n, n + (i + 1) % n, n + i) for i in range(n)]
+            faces = [tuple(reversed(f)) for f in faces] + [tuple(c + 2 * n for c in f) for f in faces]
+            faces += [(i, (i + 1) % n, 2 * n + (i + 1) % n, 2 * n + i) for i in range(n)] + [(n + (i + 1) % n, n + i, 3 * n + i, 3 * n + (i + 1) % n) for i in range(n)]
+            S.mesh(f"{key}_b{j}_roof", verts, faces, roofs[1])
+            for i in range(0, n, 2):
+                x, y = pts[i]
+                S.box(f"{key}_b{j}_post_{i}", y - 0.15, y + 0.15, x - 0.15, x + 0.15, z0, z0 + 5.0, steel)
+            continue
+        if b["kind"] == "roof":                       # a shelter: roof on posts
+            S.prism(f"{key}_b{j}_roof", aw, z0 + h - 0.3, z0 + h, roofs[1], tessellate=True)
+            for i, (x, y) in enumerate(ring[::max(1, len(ring) // 4)]):
+                S.box(f"{key}_b{j}_post_{i}", y - 0.15, y + 0.15, x - 0.15, x + 0.15, z0, z0 + h - 0.3, steel)
+            continue
+        if b["kind"] == "grandstand":                 # stepped seating rising away from the nearest pitch, a roof over it
+            c = np.mean(np.array(ring, float), axis=0)
+            toward = (min(pitch_c, key=lambda q: np.linalg.norm(q - c)) - c) if pitch_c else np.array((0.0, 1.0))
+            toward = toward / max(np.linalg.norm(toward), 1e-9)
+            G = Shapes(coll, math.degrees(math.atan2(-toward[0], -toward[1])), {})   # a: back, away from the field
+            pa = [G.xy(x, y, 0)[:2] for x, y in ring]
+            a0, a1 = min(p[0] for p in pa), max(p[0] for p in pa)
+            w0, w1 = min(p[1] for p in pa), max(p[1] for p in pa)
+            steps = 8
+            for k in range(steps):
+                s0 = a0 + (a1 - a0) * k / steps
+                G.box(f"{key}_b{j}_step_{k}", s0, a1, w0, w1, zb if k == 0 else z0, z0 + 0.5 + 0.55 * k, seat)
+            G.box(f"{key}_b{j}_back", a1 - 0.4, a1, w0, w1, z0, z0 + h, wall)
+            G.mesh(f"{key}_b{j}_canopy", [(a0 + (a1 - a0) * 0.2, w0 - 0.5, z0 + h - 0.5), (a1 + 0.5, w0 - 0.5, z0 + h + 0.6),
+                                          (a1 + 0.5, w1 + 0.5, z0 + h + 0.6), (a0 + (a1 - a0) * 0.2, w1 + 0.5, z0 + h - 0.5)], [(0, 1, 2, 3)], roofs[1])
+            for w in np.linspace(w0 + 1, w1 - 1, max(2, int((w1 - w0) / 12) + 1)):
+                G.box(f"{key}_b{j}_col_{w:.0f}", a1 - 1.0, a1 - 0.5, w - 0.25, w + 0.25, z0, z0 + h, steel)
+            continue
+        mat = glass if b["kind"] == "greenhouse" else wall
+        S.prism(f"{key}_b{j}", aw, zb, z0 + h, mat, tessellate=True)
+        S.prism(f"{key}_b{j}_roof", [(y, x) for x, y in ring], z0 + h, z0 + h + 0.4, glass if b["kind"] == "greenhouse" else roofs[j % 3], tessellate=True)
+        if len(ring) == 4 and b["kind"] != "greenhouse":   # a hip roof over a four-sided block
+            e0 = np.array(ring[1]) - np.array(ring[0])
+            H = Shapes(coll, math.degrees(math.atan2(e0[0], e0[1])), {})
+            pa = [H.xy(x, y, 0)[:2] for x, y in ring]
+            H.hip(f"{key}_b{j}_hip", min(p[0] for p in pa), max(p[0] for p in pa), min(p[1] for p in pa), max(p[1] for p in pa), z0 + h + 0.4, roofs[j % 3])
+    hedge = material(f"MAT_{key}_hedge", srgb(64, 110, 52), 0.95)
+    stone = material(f"MAT_{key}_stone", srgb(170, 166, 156), 0.9)
+    for j, ln in enumerate(pk["lines"]):
+        if ln["kind"] not in ("hedge", "wall"):
+            continue
+        pts = ln["pts"]
+        zs = gz(pts)
+        for i in range(len(pts) - 1):
+            half, lift, mat = (0.45, 0.45, hedge) if ln["kind"] == "hedge" else (0.15, 0.6, stone)
+            S.beam(f"{key}_{ln['kind']}_{j}_{i}", (*pts[i], zs[i] + lift), (*pts[i + 1], zs[i + 1] + lift), half, mat)
+    kiosk = material(f"MAT_{key}_kiosk", srgb(52, 120, 176), 0.6)
+    bronze = material(f"MAT_{key}_bronze", srgb(96, 78, 52), 0.5)
+    water = material(f"MAT_{key}_water", srgb(70, 140, 170), 0.15)
+    for j, p in enumerate(pk["points"]):
+        x, y = p["xy"]
+        z = gz([(x, y)])[0] + 0.15
+        if p["kind"] == "bicycle_rental":             # a rental stall: counter and a blue roof
+            S.box(f"{key}_rent_{j}", y - 1.0, y + 1.0, x - 1.5, x + 1.5, z, z + 1.1, wall)
+            S.box(f"{key}_rent_{j}_roof", y - 1.4, y + 1.4, x - 1.9, x + 1.9, z + 2.4, z + 2.6, kiosk)
+            for dx in (-1.6, 1.6):
+                S.box(f"{key}_rent_{j}_post_{dx:+.0f}", y - 0.05, y + 0.05, x + dx - 0.05, x + dx + 0.05, z, z + 2.4, steel)
+        elif p["kind"] == "memorial":                 # a plinth and its bust or marker
+            S.box(f"{key}_memo_{j}", y - 1.0, y + 1.0, x - 1.0, x + 1.0, z, z + 1.6, stone)
+            S.box(f"{key}_memo_{j}_bust", y - 0.35, y + 0.35, x - 0.3, x + 0.3, z + 1.6, z + 2.4, bronze)
+        elif p["kind"] == "fountain":
+            S.cone(f"{key}_fount_{j}", y, x, 3.0, z, z + 0.6, stone, seg=12)
+            S.cone(f"{key}_fount_{j}_water", y, x, 2.6, z + 0.55, z + 0.62, water, seg=12)
+        elif p["kind"] == "lamp":
+            S.box(f"{key}_lamp_{j}", y - 0.06, y + 0.06, x - 0.06, x + 0.06, z, z + 4.0, steel)
+    trees = {"pine": [asset_mesh("pine_simple_c", 16.0, {"leafs": (60, 96, 56), "woodBark": (92, 70, 54)}),
+                      asset_mesh("pine_simple_a", 13.0, {"leafs": (54, 88, 52), "woodBark": (92, 70, 54)})],
+             "broad": [asset_mesh("broadleaf", 9.0, {"leafs": (88, 124, 60), "woodBark": (110, 84, 60)})]}
+    for j, t in enumerate(pk["trees"]):
+        x, y = t["xy"]
+        z = rel_ground(fp, [(x, y)], low=True)[0] - 0.3
+        lowest = min(lowest, z)
+        place(coll, f"{key}_tree_{j:03d}", trees[t["kind"]][j % len(trees[t["kind"]])], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    detail(coll, fp, roofs=roofs, walls=[wall], bay=bay)
+    return lowest

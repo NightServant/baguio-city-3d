@@ -1,6 +1,18 @@
 {
   "landmarks": [
     {
+      "slug": "baguio-athletic-bowl",
+      "lng": 120.595959,
+      "lat": 16.406676,
+      "url": "/models/landmarks/baguio-athletic-bowl.9fbacfd0.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 6520,
+      "bytes": 58836,
+      "geometryBytes": 54994,
+      "sha256": "9fbacfd005be05a3285cd1ad8e44a48f9f685d671abeb29aaf3570c35405c0bb"
+    },
+    {
       "slug": "baguio-cathedral",
       "lng": 120.598528,
       "lat": 16.412729,
@@ -76,13 +88,49 @@
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
-      "url": "/models/landmarks/burnham-park.afb85f57.glb",
+      "url": "/models/landmarks/burnham-park.e6c8a006.glb",
       "rotationDeg": 0,
       "altitudeM": 0,
-      "triangles": 3400,
-      "bytes": 38376,
-      "geometryBytes": 31574,
-      "sha256": "afb85f57c11967e9c29c84a723001cce8ae9cb39707808fbc2ba951ffc0f5b1b"
+      "triangles": 6193,
+      "bytes": 64388,
+      "geometryBytes": 56042,
+      "sha256": "e6c8a006c9d0a6bee0b1de341c58af117e70fecaceab0a821b7e1c69a379ee44"
+    },
+    {
+      "slug": "burnham-park-east",
+      "lng": 120.596272,
+      "lat": 16.410822,
+      "url": "/models/landmarks/burnham-park-east.c1e50240.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 3178,
+      "bytes": 36732,
+      "geometryBytes": 32890,
+      "sha256": "c1e502401abce144e31406d26c1cbe655a22506a8dc8263666c218693363386c"
+    },
+    {
+      "slug": "burnham-park-fields",
+      "lng": 120.595245,
+      "lat": 16.409355,
+      "url": "/models/landmarks/burnham-park-fields.91b462db.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 4299,
+      "bytes": 35940,
+      "geometryBytes": 32938,
+      "sha256": "91b462db72c75f6d1ac9347ee238a23ac247c11be8e864cc57e7b3a747a4028b"
+    },
+    {
+      "slug": "burnham-park-west",
+      "lng": 120.593118,
+      "lat": 16.411111,
+      "url": "/models/landmarks/burnham-park-west.171c9f8f.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 4665,
+      "bytes": 48756,
+      "geometryBytes": 44914,
+      "sha256": "171c9f8f887198eb1b4263d07e83e89e2158b7f045f335a438d98a4502993706"
     },
     {
       "slug": "camp-john-hay",

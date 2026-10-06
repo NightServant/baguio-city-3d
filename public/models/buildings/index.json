@@ -8447,10 +8447,10 @@
     120.597067,
     16.415146
    ],
-   "url": "/models/buildings/near-16-54721-29738.716d6125.glb",
-   "bytes": 17648,
-   "triangles": 3611,
-   "buildings": 251
+   "url": "/models/buildings/near-16-54721-29738.8547d081.glb",
+   "bytes": 15792,
+   "triangles": 3154,
+   "buildings": 229
   },
   {
    "id": "16-54721-29739",
@@ -8461,13 +8461,13 @@
    "bbox": [
     120.591323,
     16.404445,
-    120.597138,
-    16.409829
+    120.597055,
+    16.409767
    ],
-   "url": "/models/buildings/near-16-54721-29739.ba9f5b88.glb",
-   "bytes": 21388,
-   "triangles": 3883,
-   "buildings": 238
+   "url": "/models/buildings/near-16-54721-29739.95463560.glb",
+   "bytes": 19484,
+   "triangles": 3379,
+   "buildings": 222
   },
   {
    "id": "16-54721-29740",
@@ -8479,12 +8479,12 @@
     120.591354,
     16.399169,
     120.597115,
-    16.404838
+    16.404653
    ],
-   "url": "/models/buildings/near-16-54721-29740.25649ee3.glb",
-   "bytes": 45028,
-   "triangles": 8441,
-   "buildings": 507
+   "url": "/models/buildings/near-16-54721-29740.552d7b66.glb",
+   "bytes": 44924,
+   "triangles": 8388,
+   "buildings": 505
   },
   {
    "id": "16-54721-29743",
@@ -8668,10 +8668,10 @@
     120.60252,
     16.415116
    ],
-   "url": "/models/buildings/near-16-54722-29738.ebcde323.glb",
-   "bytes": 35152,
-   "triangles": 7859,
-   "buildings": 473
+   "url": "/models/buildings/near-16-54722-29738.614d5d04.glb",
+   "bytes": 35028,
+   "triangles": 7819,
+   "buildings": 472
   },
   {
    "id": "16-54722-29739",
@@ -8685,10 +8685,10 @@
     120.602567,
     16.409833
    ],
-   "url": "/models/buildings/near-16-54722-29739.0a853e2c.glb",
-   "bytes": 19096,
-   "triangles": 3472,
-   "buildings": 234
+   "url": "/models/buildings/near-16-54722-29739.c655bab6.glb",
+   "bytes": 19040,
+   "triangles": 3462,
+   "buildings": 233
   },
   {
    "id": "16-54722-29740",
@@ -13393,13 +13393,13 @@
    "bbox": [
     120.585817,
     16.404375,
-    120.597138,
+    120.597067,
     16.415146
    ],
-   "url": "/models/buildings/far-15-27360-14869.50db5003.glb",
-   "bytes": 61660,
-   "triangles": 8716,
-   "buildings": 2094
+   "url": "/models/buildings/far-15-27360-14869.61db6824.glb",
+   "bytes": 60212,
+   "triangles": 8416,
+   "buildings": 2060
   },
   {
    "id": "15-27360-14870",
@@ -13411,12 +13411,12 @@
     120.585868,
     16.393863,
     120.597132,
-    16.404838
+    16.404653
    ],
-   "url": "/models/buildings/far-15-27360-14870.62148a73.glb",
-   "bytes": 40496,
-   "triangles": 4952,
-   "buildings": 1396
+   "url": "/models/buildings/far-15-27360-14870.f20f43be.glb",
+   "bytes": 40416,
+   "triangles": 4932,
+   "buildings": 1394
   },
   {
    "id": "15-27360-14871",
@@ -13498,10 +13498,10 @@
     120.607992,
     16.415116
    ],
-   "url": "/models/buildings/far-15-27361-14869.cd3c04a3.glb",
+   "url": "/models/buildings/far-15-27361-14869.f72c6735.glb",
    "bytes": 39276,
-   "triangles": 6316,
-   "buildings": 1244
+   "triangles": 6304,
+   "buildings": 1242
   },
   {
    "id": "15-27361-14870",

@@ -3,6 +3,7 @@ green-roofed rental stalls on the north shore, the blue-roofed pavilion, and the
 (ready-made CC0 Kenney pines, broadleaf trees and rowboats).
 Dimensions: model/landmarks/burnham-park.md ([S2] OSM outline; water level, rim and boats are ESTIMATEs).
 Run: /Applications/Blender.app/Contents/MacOS/Blender -b model/data/blend/baguio.blend --python model/blender/landmarks/burnham_park.py"""
+import json
 import math
 import sys
 from pathlib import Path
@@ -36,13 +37,14 @@ STALL_ROOF = lm.material("MAT_burnham_stall_roof", srgb(40, 150, 120), 0.6)   # 
 PAVILION_ROOF = lm.material("MAT_burnham_pavilion_roof", srgb(50, 90, 170), 0.6)  # [S5] blue-roofed pavilion
 POST = lm.material("MAT_burnham_post", srgb(200, 200, 194), 0.8)
 # Ready-made CC0 assets (Kenney kits, model/sources.json), recoloured toward S5's greens
-PINES = [lm.asset_mesh("pine_tall_c", 18.0, {"leafs": (58, 92, 56), "woodBark": (92, 70, 54)}),
-         lm.asset_mesh("pine_tall_a", 15.0, {"leafs": (52, 86, 52), "woodBark": (92, 70, 54)})]
+PINES = [lm.asset_mesh("pine_simple_c", 18.0, {"leafs": (58, 92, 56), "woodBark": (92, 70, 54)}),   # simple: the whole park's budget
+         lm.asset_mesh("pine_simple_a", 15.0, {"leafs": (52, 86, 52), "woodBark": (92, 70, 54)})]
 BROADLEAF = lm.asset_mesh("broadleaf", 11.0, {"leafs": (88, 122, 60), "woodBark": (110, 84, 60)})
 ROWBOAT = lm.asset_mesh("rowboat", 0.7)    # Kenney wooden rowboat, about 2.6 m long at this height
 S = lm.Shapes(coll, 0.0, {WATER.name: 4.0, RIM.name: 2.0})   # bearing 0: a = north (y), w = east (x)
 
-ring = fp["rings"][0]                       # local metres around the lake's centroid, CCW
+PK = json.loads((lm.ROOT / "model" / "data" / "landmarks" / SLUG / "park.json").read_text())   # landmark_osm.py park
+ring = PK["lake"]                           # local metres around the lake's centroid, CCW
 ax, ay = fp["anchor_tm"]
 
 
@@ -58,7 +60,7 @@ def inside(px, py):
 # bulges above the water in the lake's middle (2026-10-02 render); S5 shows open water there.
 grid = [(x, y) for x in np.arange(-100, 101, 5.0) for y in np.arange(-100, 101, 5.0) if inside(x, y)]
 water = max(lm.rel_ground(fp, ring + grid)) + 0.3      # the map's terrain (lm.rel_ground); ESTIMATE offset
-depth = lm.foundation(coll, fp, BED)
+depth = lm.foundation(coll, dict(fp, rings=[ring]), BED)
 
 S.prism("lake_water", [(y, x) for x, y in ring], water - 0.2, water, WATER, tessellate=True)
 
@@ -90,7 +92,7 @@ def slab(name, f, l0, l1, w0, w1, z0, z1, mat):
 
 
 boats = 0
-while boats < 40:                           # [S5] about 40 to 60 boats out on a busy day; ESTIMATE mix
+while boats < 16:                           # [S5] 40 to 60 out on a busy day; 16 for the whole park's budget
     bx, by = rng.uniform(min(xs) + 6, max(xs) - 6), rng.uniform(min(ys) + 6, max(ys) - 6)
     if not all(inside(bx + 4 * math.cos(t), by + 4 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 8, endpoint=False)):
         continue
@@ -101,10 +103,9 @@ while boats < 40:                           # [S5] about 40 to 60 boats out on a
         slab(f"boat_{boats:02d}_neck", f, 0.9, 1.25, -0.15, 0.15, water + 0.55, water + 1.75, SWAN)
         slab(f"boat_{boats:02d}_head", f, 0.95, 1.6, -0.17, 0.17, water + 1.55, water + 1.9, SWAN)
         slab(f"boat_{boats:02d}_beak", f, 1.6, 1.85, -0.08, 0.08, water + 1.62, water + 1.74, BEAK)
-    elif kind < 0.80:                       # pedal boat: yellow hull, red canopy on posts
+    elif kind < 0.80:                       # pedal boat: yellow hull, red canopy on a centre post (thin posts are sub-pixel)
         slab(f"boat_{boats:02d}_hull", f, -1.2, 1.2, -0.75, 0.75, water - 0.1, water + 0.5, PEDAL)
-        for i, (pl, pw) in enumerate(((-0.6, -0.55), (-0.6, 0.55), (0.5, -0.55), (0.5, 0.55))):
-            slab(f"boat_{boats:02d}_post_{i}", f, pl - 0.04, pl + 0.04, pw - 0.04, pw + 0.04, water + 0.5, water + 1.5, POST)
+        slab(f"boat_{boats:02d}_post", f, -0.1, 0.1, -0.1, 0.1, water + 0.5, water + 1.5, POST)
         slab(f"boat_{boats:02d}_canopy", f, -0.8, 0.7, -0.75, 0.75, water + 1.5, water + 1.6, CANOPY)
     else:                                   # wooden rowboat (ready-made asset)
         lm.place(coll, f"boat_{boats:02d}_rowboat", ROWBOAT, bx, by, water - 0.2, rng.uniform(0, 360))
@@ -138,8 +139,8 @@ S.pyramid("pavilion_roof", py, px, 4.6, water + 3.3, water + 5.8, PAVILION_ROOF)
 # Trees ringing the lake, 7 m out from the rim: pines and broadleaf (ESTIMATE spacing; S5 shows a dense ring)
 perim = [(ring[i], ring[(i + 1) % len(ring)]) for i in range(len(ring))]
 total = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in perim)
-for n in range(int(total // 11)):
-    d = n * 11.0 + rng.uniform(0, 4)
+for n in range(int(total // 18)):
+    d = n * 18.0 + rng.uniform(0, 4)
     for (x0, y0), (x1, y1) in perim:
         L = math.hypot(x1 - x0, y1 - y0)
         if d <= L:
@@ -157,6 +158,7 @@ for n in range(int(total // 11)):
 
 lm.human_reference(coll, ring[0][0] * 1.08, ring[0][1] * 1.08)
 print("WATER", round(water, 2), "m above the centroid's ground")
+depth = max(depth, -lm.park(coll, fp, PK, "burnham"))   # the rest of the park's north part (owner 2026-10-06)
 lm.detail(coll, fp, roofs=[STALL_ROOF, PAVILION_ROOF])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, depth)
 lm.context_instance(SLUG, fp)
