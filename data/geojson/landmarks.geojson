@@ -12,7 +12,7 @@
         "elevation_m": 1442,
         "era": "AMERICAN_COLONIAL",
         "hours": null,
-        "meshUrl": "/models/landmarks/burnham-park.440e9cdc.glb"
+        "meshUrl": "/models/landmarks/burnham-park.ad939b94.glb"
       }
     },
     {
@@ -26,7 +26,7 @@
         "elevation_m": 1449,
         "era": "AMERICAN_COLONIAL",
         "hours": null,
-        "meshUrl": "/models/landmarks/session-road.461fe017.glb"
+        "meshUrl": "/models/landmarks/session-road.afd63228.glb"
       }
     },
     {
@@ -40,7 +40,7 @@
         "elevation_m": 1523,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "06:00", "close": "20:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/mines-view-park.00da6e23.glb"
       }
     },
     {
@@ -54,7 +54,7 @@
         "elevation_m": 1503,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "07:00", "close": "22:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/camp-john-hay.c3a7bde8.glb"
       }
     },
     {
@@ -68,7 +68,7 @@
         "elevation_m": 1453,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "05:00", "close": "20:00" },
-        "meshUrl": "/models/landmarks/baguio-cathedral.1a6af15c.glb"
+        "meshUrl": "/models/landmarks/baguio-cathedral.81939cd8.glb"
       }
     },
     {
@@ -82,7 +82,7 @@
         "elevation_m": 1448,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "06:00", "close": "19:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/wright-park.0068c356.glb"
       }
     },
     {
@@ -96,7 +96,7 @@
         "elevation_m": 1466,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "08:00", "close": "17:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/the-mansion.9561fd10.glb"
       }
     },
     {
@@ -110,7 +110,7 @@
         "elevation_m": 1501,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "06:00", "close": "18:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/botanical-garden.3b7e23a1.glb"
       }
     },
     {
@@ -124,7 +124,7 @@
         "elevation_m": 1482,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "05:00", "close": "19:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/baguio-public-market.5fc34165.glb"
       }
     },
     {
@@ -138,7 +138,7 @@
         "elevation_m": 1476,
         "era": "MODERN",
         "hours": { "open": "08:00", "close": "18:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/tam-awan-village.f1a35434.glb"
       }
     },
     {
@@ -152,7 +152,7 @@
         "elevation_m": 979,
         "era": "MODERN",
         "hours": { "open": "09:00", "close": "18:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/bencab-museum.1db077cb.glb"
       }
     },
     {
@@ -166,7 +166,7 @@
         "elevation_m": 1359,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "08:00", "close": "17:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/philippine-military-academy.15be43e9.glb"
       }
     },
     {
@@ -180,7 +180,7 @@
         "elevation_m": 1332,
         "era": "MODERN",
         "hours": { "open": "06:00", "close": "18:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/la-trinidad-strawberry-farms.7d6fa21b.glb"
       }
     },
     {
@@ -194,7 +194,7 @@
         "elevation_m": 1430,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "05:00", "close": "20:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/lourdes-grotto.70593ef6.glb"
       }
     },
     {
@@ -208,7 +208,7 @@
         "elevation_m": 1523,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "07:00", "close": "18:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/diplomat-hotel-ruins.f8e6257c.glb"
       }
     },
     {
@@ -222,7 +222,7 @@
         "elevation_m": 1550,
         "era": "POST_WAR",
         "hours": { "open": "07:00", "close": "17:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/good-shepherd-convent.1135752b.glb"
       }
     },
     {
@@ -236,7 +236,7 @@
         "elevation_m": 1298,
         "era": "AMERICAN_COLONIAL",
         "hours": null,
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/lions-head-kennon-road.85454223.glb"
       }
     },
     {
@@ -250,7 +250,7 @@
         "elevation_m": 1521,
         "era": "MODERN",
         "hours": { "open": "07:00", "close": "18:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/igorot-stone-kingdom.ae56ce17.glb"
       }
     },
     {
@@ -264,7 +264,7 @@
         "elevation_m": 1487,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "08:00", "close": "17:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/baguio-city-hall.8751eb10.glb"
       }
     },
     {
@@ -278,7 +278,7 @@
         "elevation_m": 1464,
         "era": "AMERICAN_COLONIAL",
         "hours": { "open": "07:00", "close": "18:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/teachers-camp.417135c9.glb"
       }
     },
     {
@@ -292,7 +292,7 @@
         "elevation_m": 1473,
         "era": "POST_WAR",
         "hours": { "open": "09:00", "close": "17:00" },
-        "meshUrl": null
+        "meshUrl": "/models/landmarks/baguio-museum.4830633d.glb"
       }
     },
     {
