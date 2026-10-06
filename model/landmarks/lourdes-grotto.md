@@ -10,7 +10,7 @@
 
 OSM: `way/1153950697` (the chapel, `building=chapel`), 226 m², anchors the model. The grotto is OSM `node/384119717`, about 26 m west-north-west of the chapel.
 
-Location: the destination pin (120.585, 16.411) is about 490 m from the grotto. The registry's `osm_center` is that node, from the Overpass name search on 2026-10-05. Moving the pin is the owner's call.
+Location: the destination pin (120.585, 16.411) is about 490 m from the grotto. The registry's `osm_center` is that node, from the Overpass name search on 2026-10-05. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] City of Baguio and Tourism Promotions Board welcome sign at the grotto, photographed as [File:Lourdes Grotto Marker, Baguio City.jpg](https://commons.wikimedia.org/wiki/File:Lourdes_Grotto_Marker,_Baguio_City.jpg) (CC BY-SA 4.0, Ralffralff), read 2026-10-05.

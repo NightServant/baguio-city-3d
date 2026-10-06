@@ -73,6 +73,11 @@ BEGIN
   SELECT gen_random_uuid()::text, "id", '/models/landmarks/lourdes-grotto.70593ef6.glb', 1, 0, 0 FROM "destinations" WHERE "slug" = 'lourdes-grotto';
   GET DIAGNOSTICS n = ROW_COUNT;
   IF n <> 1 THEN RAISE EXCEPTION 'landmarks: lourdes-grotto expected 1 row, inserted %', n; END IF;
+  DELETE FROM "landmarks" WHERE "destination_id" = (SELECT "id" FROM "destinations" WHERE "slug" = 'mile-hi-cjh-viewdeck');
+  INSERT INTO "landmarks" ("id", "destination_id", "mesh_url", "mesh_scale", "rotation_deg", "altitude_m")
+  SELECT gen_random_uuid()::text, "id", '/models/landmarks/mile-hi-cjh-viewdeck.fd4b6286.glb', 1, 0, 0 FROM "destinations" WHERE "slug" = 'mile-hi-cjh-viewdeck';
+  GET DIAGNOSTICS n = ROW_COUNT;
+  IF n <> 1 THEN RAISE EXCEPTION 'landmarks: mile-hi-cjh-viewdeck expected 1 row, inserted %', n; END IF;
   DELETE FROM "landmarks" WHERE "destination_id" = (SELECT "id" FROM "destinations" WHERE "slug" = 'mines-view-park');
   INSERT INTO "landmarks" ("id", "destination_id", "mesh_url", "mesh_scale", "rotation_deg", "altitude_m")
   SELECT gen_random_uuid()::text, "id", '/models/landmarks/mines-view-park.00da6e23.glb', 1, 0, 0 FROM "destinations" WHERE "slug" = 'mines-view-park';

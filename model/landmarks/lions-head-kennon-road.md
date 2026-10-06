@@ -10,7 +10,7 @@ The Lion's Head on Kennon Road, a 12 m limestone lion's head facing the road on 
 
 OSM: `way/109582851` ("Lion's Head", `height=12`, `material=limestone`, `start_date=1972`), 110 m². Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.606, 16.341) is about 2.9 km south of the sculpture, further down Kennon Road. The registry's `osm_center` is the OSM way. Moving the pin is the owner's call.
+Location: the destination pin (120.606, 16.341) is about 2.9 km south of the sculpture, further down Kennon Road. The registry's `osm_center` is the OSM way. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] Wikipedia, "Lion's Head (Benguet)", read 2026-10-05: https://en.wikipedia.org/wiki/Lion%27s_Head_(Benguet).

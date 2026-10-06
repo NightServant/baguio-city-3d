@@ -10,7 +10,7 @@ The Igorot Stone Kingdom, a hillside of fieldstone terraces in a gully:
 
 OSM: `way/1034070960` ("Igorot Stone Kingdom", `tourism=theme_park`), 8,738 m². Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.621, 16.418) is about 5.1 km from the park, near Mines View. The registry's `osm_center` is the OSM way. Moving the pin is the owner's call, and the most urgent of the wrong pins.
+Location: the destination pin (120.621, 16.418) is about 5.1 km from the park, near Mines View. The registry's `osm_center` is the OSM way. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] City of Baguio and Tourism Promotions Board sign at the park, photographed as [File:Igorot Stone Kingdom Marker, Baguio City.jpg](https://commons.wikimedia.org/wiki/File:Igorot_Stone_Kingdom_Marker,_Baguio_City.jpg) (CC BY-SA 4.0, Ralff Nestor Nacor), read 2026-10-05.

@@ -12,7 +12,7 @@ The farm, garden, pond and eco-trail below are left to the basemap.
 
 OSM: `way/112289880` ("BenCab Museum", `tourism=museum`), 736 m². Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.549, 16.382) is about 3.2 km from the museum. S1's coordinates (16°24′37.9″N, 120°33′01.6″E) agree with OSM. The registry's `osm_center` is the OSM way. Moving the pin is the owner's call; this one matters, because the pin is in another barangay.
+Location: the destination pin (120.549, 16.382) is about 3.2 km from the museum. S1's coordinates (16°24′37.9″N, 120°33′01.6″E) agree with OSM. The registry's `osm_center` is the OSM way. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] Wikipedia, "BenCab Museum", read 2026-10-05: https://en.wikipedia.org/wiki/BenCab_Museum.

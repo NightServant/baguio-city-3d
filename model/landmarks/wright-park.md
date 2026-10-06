@@ -12,7 +12,7 @@ The riding circle at the park's upper end, about 200 m north-west, is left to th
 
 OSM: `way/331614609` (`natural=water`, `water=pond`), 1,166 m². Exclusion ring = that outline grown by 5 m (`model/landmarks.json`).
 
-Location: the destination pin (120.6215, 16.409) is about 750 m from the park. The registry's `osm_center` is OSM `relation/12714120` "Wright Park", from the Overpass name search on 2026-10-05. The model is anchored on the pool's outline. Moving the pin is the owner's call.
+Location: the destination pin (120.6215, 16.409) is about 750 m from the park. The registry's `osm_center` is OSM `relation/12714120` "Wright Park", from the Overpass name search on 2026-10-05. The model is anchored on the pool's outline. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] Wikipedia, "Wright Park (Baguio)", read 2026-10-05: https://en.wikipedia.org/wiki/Wright_Park_(Baguio).

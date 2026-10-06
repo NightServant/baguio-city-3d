@@ -54,7 +54,7 @@ Every height is an ESTIMATE, since none is published (S1). Method: scaled from t
   - hip roofs at 26°, overhanging the outline by 0.4 m;
   - window sills 0.9 m above each floor, one window per 3 m.
 
-## Open finding
+## Pin
 The destination pin (120.618, 16.401) stands for the whole estate. It is about 230 m north of the Bell House. The model is anchored on the OSM outlines, per contract C2, and doesn't move the pin.
 
 ## Review (2026-10-05)

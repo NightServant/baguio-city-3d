@@ -10,7 +10,7 @@ The camp's historic halls stand 150 to 230 m from the oval (Albert, Roxas, Romul
 
 OSM: `way/3495210` ("Teachers Camp Athletic Oval", `leisure=track`), 15,387 m². Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.6155, 16.4125) is about 770 m from the oval. The registry's `osm_center` is the OSM way. Moving the pin is the owner's call.
+Location: the destination pin (120.6155, 16.4125) is about 770 m from the oval. The registry's `osm_center` is the OSM way. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] National Historical Commission marker "Baguio Teachers' Camp" (Filipino), photographed as [File:Baguio Teacher's Camp - NHCP Marker.jpg](https://commons.wikimedia.org/wiki/File:Baguio_Teacher%27s_Camp_-_NHCP_Marker.jpg) (CC0, Bap Flores), read 2026-10-05:

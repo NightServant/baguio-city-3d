@@ -13,7 +13,7 @@ The garden's entrance quarter and its landmarks:
 
 OSM: `relation/14181288` ("Baguio Botanical Garden", `leisure=garden`), 33,843 m². Its outer ring is stitched from six member ways. Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.6178, 16.416) is about 470 m from the garden. The registry's `osm_center` is the OSM relation. Moving the pin is the owner's call.
+Location: the destination pin (120.6178, 16.416) is about 470 m from the garden. The registry's `osm_center` is the OSM relation. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 Description check: the destination text says the garden was "Once called the Igorot Village". S1 gives its former names as the Botanical & Zoological Garden and Imelda Park. Worth a look against a source.
 

@@ -169,6 +169,18 @@
       "sha256": "70593ef6c1cdca84cc90f5b05e16e2ca673325cdb995b7b7c09812c0f4342136"
     },
     {
+      "slug": "mile-hi-cjh-viewdeck",
+      "lng": 120.616588,
+      "lat": 16.401433,
+      "url": "/models/landmarks/mile-hi-cjh-viewdeck.fd4b6286.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 2368,
+      "bytes": 24440,
+      "geometryBytes": 19956,
+      "sha256": "fd4b6286231a7f17288408b0b636aacf08f0d9ff33bcef1440abde3c491bb221"
+    },
+    {
       "slug": "mines-view-park",
       "lng": 120.62745,
       "lat": 16.419638,

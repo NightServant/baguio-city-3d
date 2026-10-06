@@ -50,8 +50,8 @@ Every height is an ESTIMATE, since none is published (S1). Method: scaled from t
 - **Rock face:** 4 to 5.5 m above the deck.
 - **Pines:** a jittered 12 m grid, kept clear of the deck and walkway.
 
-## Open finding
-The destination pin (120.628, 16.4201) sits at the road's turnaround, about 56 m north of the deck. The model is anchored on the OSM park, per contract C2, and doesn't move the pin. Moving the pin is the owner's call.
+## Pin
+The destination pin (120.628, 16.4201) sits at the road's turnaround, about 56 m north of the deck. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Review (2026-10-05)
 Renders: `model/data/renders/landmarks/mines-view-park-{front,aerial,side,close}.png`.

@@ -10,7 +10,7 @@ City Hall Park and the forecourt are left to the basemap.
 
 OSM: `way/43615687` ("Baguio City Hall", `amenity=townhall`, `historic=heritage`), 3,766 m². Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.6005, 16.4095) is about 1.1 km from City Hall. The registry's `osm_center` is the OSM way. Moving the pin is the owner's call.
+Location: the destination pin (120.6005, 16.4095) is about 1.1 km from City Hall. The registry's `osm_center` is the OSM way. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] Wikipedia, "Baguio City Hall", read 2026-10-05: https://en.wikipedia.org/wiki/Baguio_City_Hall.

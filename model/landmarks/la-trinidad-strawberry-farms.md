@@ -11,7 +11,7 @@ La Trinidad is context only (owner answer 4), but this destination keeps its lan
 
 OSM: `way/376934388` (`landuse=farmland`), 13,734 m², 9 m from the "Strawberry Farm" node. Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.587, 16.464) is about 600 m from the field. The registry's `osm_center` is OSM `node/8932902319`, "Strawberry Farm", the visitor farm by its parking. It replaces the farm relation `relation/7917267`, whose centre lies over 700 m away. Moving the pin is the owner's call.
+Location: the destination pin (120.587, 16.464) is about 600 m from the field. The registry's `osm_center` is OSM `node/8932902319`, "Strawberry Farm", the visitor farm by its parking. It replaces the farm relation `relation/7917267`, whose centre lies over 700 m away. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] Wikipedia, "La Trinidad, Benguet", read 2026-10-05: https://en.wikipedia.org/wiki/La_Trinidad,_Benguet.

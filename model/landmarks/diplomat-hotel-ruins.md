@@ -15,7 +15,7 @@ OSM: `relation/18175733` ("main roof", `building:part`), 1,081 m², anchors the 
 
 The geometry is every `building:part` within 150 m: 715 polygons with `height` and `min_height`, exported by `uv run model/scripts/landmark_osm.py parts diplomat-hotel-ruins`. It is OpenStreetMap data (ODbL), credited with the site's existing "© OpenStreetMap contributors".
 
-Location: the destination pin (120.58, 16.409) is about 850 m from the building. The registry's `osm_center` is the NHCP marker, `node/12260358283`. Moving the pin is the owner's call.
+Location: the destination pin (120.58, 16.409) is about 850 m from the building. The registry's `osm_center` is the NHCP marker, `node/12260358283`. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] Wikipedia, "Diplomat Hotel", read 2026-10-05: https://en.wikipedia.org/wiki/Diplomat_Hotel.

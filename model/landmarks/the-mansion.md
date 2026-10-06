@@ -14,7 +14,7 @@ The guesthouse and the back gardens are left to the basemap.
 
 OSM: `way/43615594` ("Mansion House", `historic=manor`), 1,220 m². Exclusion ring = that outline grown by 5 m.
 
-Location: the destination pin (120.623, 16.4085) is about 455 m from the house. The registry's `osm_center` is the OSM way. Moving the pin is the owner's call.
+Location: the destination pin (120.623, 16.4085) is about 455 m from the house. The registry's `osm_center` is the OSM way. The pin was moved onto the model on 2026-10-06 (owner decision, `model/scripts/move_pins.py`).
 
 ## Sources
 - [S1] Wikipedia, "The Mansion (Baguio)", read 2026-10-05: https://en.wikipedia.org/wiki/The_Mansion_(Baguio).
