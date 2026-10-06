@@ -96,19 +96,20 @@ def marks(name, rects, lift):
     coll.objects.link(bpy.data.objects.new(name, me))
 
 
-# Ground surfaces: asphalt on the terrain, kerbs 0.15 m up to the sidewalks, the median's planter 0.45 m (ESTIMATEs)
-surface("asphalt", ST["asphalt"], 0.12, ROAD, tile=4.0)
-surface("sidewalk", ST["sidewalk"], 0.27, PAVER, tile=1.0)
-surface("median", ST["median"], 0.55, SHRUB)
-marks("crossings", ST["crossings"], 0.17)     # [S1] OSM footway=crossing: 0.5 m bars, 3 m long, 0.5 m apart
-marks("dashes", ST["dashes"], 0.17)           # lane dividers, 3 m dash per 8 m (ESTIMATE)
+# Ground surfaces: asphalt 0.3 m over the terrain (as the city's road tiles), kerbs 0.15 m up to the sidewalks, the planter
+# 0.43 m above the asphalt (ESTIMATEs)
+surface("asphalt", ST["asphalt"], 0.3, ROAD, tile=4.0)        # the city road tiles' lift (build_roads.py)
+surface("sidewalk", ST["sidewalk"], 0.45, PAVER, tile=1.0)
+surface("median", ST["median"], 0.73, SHRUB)
+marks("crossings", ST["crossings"], 0.35)     # [S1] OSM footway=crossing: 0.5 m bars, 3 m long, 0.5 m apart
+marks("dashes", ST["dashes"], 0.35)           # lane dividers, 3 m dash per 8 m (ESTIMATE)
 for k, a in enumerate(ST["awnings"]):         # [S2] corrugated awnings 3.0 m over the sidewalk on the building fronts
     surface(f"awning_{k:02d}", a, 3.0, AWNINGS[a["colour"]], sheet=True)
 
 # Median: rounded trees and twin-arm lamp posts [S3], alternating every 12 m
 for k, site in enumerate(ST["median_points"]):
     x, y = site["xy"]
-    z = lm.rel_ground(fp, [(x, y)])[0] + 0.55
+    z = lm.rel_ground(fp, [(x, y)])[0] + 0.73
     if site["kind"] == "tree":
         lm.place(coll, f"tree_{k:02d}", TREES[(k // 2) % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.9, 1.1))
         continue

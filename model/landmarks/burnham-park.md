@@ -1,11 +1,12 @@
 # burnham-park
 
 ## Scope (owner request 2026-10-06: "the complete 3d-model of Burnham Park including the other sections such as the football field, bike sections, grass landscapes, trees, walkways")
-The whole 27.8 ha park (OSM `way/330642136`), at 1:1 from OSM. It ships as five tier-1 models, so that each fits the per-file budget (contract C6). All five are built by `landmark_osm.py park <slug> way/330642136 <S:N,W:E>` and `lm_common.park`:
+The whole 27.8 ha park (OSM `way/330642136`), at 1:1 from OSM. It ships as six tier-1 models, so that each fits the per-file budget (contract C6). All six are built by `landmark_osm.py park <slug> way/330642136 <S:N,W:E>` and `lm_common.park`:
 
 | Model | Area | Box (degrees) |
 |---|---|---|
-| `burnham-park` (keeps the destination's pin) | the lake and the park north of it, between the west and east cuts | 16.40987:, 120.593728:120.595583 |
+| `burnham-park` (keeps the destination's pin) | the lake and its surrounds, between the west and east cuts | 16.40987:16.411644, 120.593728:120.595583 |
+| `burnham-park-north` | Igorot Garden, the Rose Garden, the lawns north of the lake | 16.411644:, 120.593728:120.595583 |
 | `burnham-park-west` | the Orchidarium and greenhouses, Ibaloi Park, the gardens | 16.40987:, :120.593728 |
 | `burnham-park-east` | the open football field and the Melvin Jones Grandstand | 16.40987:, 120.595583: (`stand=relation/17091613`) |
 | `burnham-park-fields` | the skating rink, the Children's Playground, the bike and pedal-kart areas, the woods | 16.40880:16.40987 |

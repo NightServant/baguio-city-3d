@@ -16,6 +16,7 @@ import { isTornDown } from "./teardown";
 const LAYER_ID = "model-3d";
 const INDEX_URL = "/models/landmarks/index.json";
 const TILE_INDEX_URL = "/models/buildings/index.json";
+const ROAD_INDEX_URL = "/models/roads/index.json"; // the city's roads (build_roads.py), near zoom only
 const NEAR_ZOOM = 15;
 const FAR_REACH_M = 1_700;
 // The basemap's own extruded buildings: hidden once the massing tiles draw, so no building is drawn twice.
@@ -50,6 +51,12 @@ const loadTileIndex = () =>
   (tileIndex ??= fetch(TILE_INDEX_URL)
     .then((r) => (r.ok ? r.json() : { near: [], far: [] }))
     .catch(() => ({ near: [], far: [] })));
+let roadIndex: Promise<TileEntry[]> | null = null;
+const loadRoadIndex = () =>
+  (roadIndex ??= fetch(ROAD_INDEX_URL)
+    .then((r) => (r.ok ? r.json() : { tiles: [] }))
+    .then((j: { tiles: TileEntry[] }) => j.tiles)
+    .catch(() => []));
 
 // Massing detail drawn per pixel (model/scripts/build_massing.py): a vertex's RGB is its building's roof colour, and
 // its alpha packs the wall colour (index x 64) and the floor's height modulo a storey (6 bits). Walls get a window per
@@ -202,16 +209,23 @@ export function useModelLayer(map: MapLibreMap) {
       await show(e.slug, e.url, { lng: e.lng, lat: e.lat, altitudeM: e.altitudeM, rotationDeg: e.rotationDeg, onGround: true }, k);
     }
 
-    async function wantTile(t: TileEntry) {
-      const key = `tile:${t.id}@${t.url}`;
+    // Massing tiles take the window shader; road tiles are plain vertex colours (flat shaded, no normals shipped).
+    async function wantTile(t: TileEntry, road = false) {
+      const key = `tile:${road ? "road:" : ""}${t.id}@${t.url}`;
       if (shown.has(key)) return;
       const k = await loadKit();
       if (cancelled || isTornDown(map)) return;
       const ok = await show(key, t.url, { lng: t.anchor[0], lat: t.anchor[1], altitudeM: 0, rotationDeg: 0, onGround: false }, k, async (o) => {
         o.traverse((m) => {
-          if ((m as Mesh).isMesh) massingMaterial(k, (m as Mesh).material as MeshStandardMaterial);
+          if (!(m as Mesh).isMesh) return;
+          const mat = (m as Mesh).material as MeshStandardMaterial;
+          if (road) {
+            mat.flatShading = true;
+            mat.needsUpdate = true;
+          } else massingMaterial(k, mat);
         });
       });
+      if (road) return;
       if (!ok) return;
       if (map.getLayer(BASEMAP_BUILDINGS)) map.setLayoutProperty(BASEMAP_BUILDINGS, "visibility", "none");
     }
@@ -242,6 +256,15 @@ export function useModelLayer(map: MapLibreMap) {
         visible.add(`tile:${t.id}@${t.url}`);
         void wantTile(t);
       }
+      if (near) {
+        for (const t of await loadRoadIndex()) {
+          const [w, s, e, n] = t.bbox;
+          if (e < b.getWest() || w > b.getEast() || n < b.getSouth() || s > b.getNorth()) continue;
+          visible.add(`tile:road:${t.id}@${t.url}`);
+          void wantTile(t, true);
+        }
+      }
+      if (cancelled || isTornDown(map)) return;
       // ponytail: tiles out of view are dropped from the draw list; their parsed meshes stay cached in `models`
       // (add an LRU if M7's device test shows memory pressure)
       for (const key of [...shown.keys()]) if (key.startsWith("tile:") && !visible.has(key)) shown.delete(key); // out of view, or the other LOD

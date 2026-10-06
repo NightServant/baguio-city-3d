@@ -218,6 +218,8 @@ def grid_mesh(geom, cell=CELL_M):
     if geom.is_empty:
         return {"v": [], "f": []}
     geom = areas(geom.simplify(0.3))                  # 0.3 m: below what the map can show, and far fewer vertices
+    if geom.is_empty:                                 # a sliver that simplified away
+        return {"v": [], "f": []}
     x0, y0, x1, y1 = geom.bounds
     for gx in np.arange(math.floor(x0 / cell) * cell, x1, cell):
         for gy in np.arange(math.floor(y0 / cell) * cell, y1, cell):
@@ -313,6 +315,11 @@ def streets(slug):
     raw = unary_union([road] + [w for _, w, *_ in ways])
     asphalt = areas(raw.buffer(2.0, quad_segs=3).buffer(-2.0, quad_segs=3).intersection(reach).difference(median))   # kerb radii
     sidewalk = areas(asphalt.buffer(band, join_style="mitre").difference(asphalt).difference(median).difference(buildings).intersection(reach))
+    # The cross streets belong to the city road tiles (build_roads.py): the model keeps Session Road's own carriageways
+    # and each junction mouth to 3 m past its kerb (the kerb radii), and the city roads run on from there between these
+    # sidewalks (owner 2026-10-06: the city roads' join to Session Road).
+    own = unary_union([road] + [w for i, w, *_ in ways if i in main_ids]).buffer(3.0)
+    asphalt = areas(asphalt.intersection(own))
     sites = []
     for k, t in enumerate(np.arange(6.0, axis.length - 6.0, 12.0)):
         c, c1 = axis.interpolate(t), axis.interpolate(t + 1.0)
@@ -349,6 +356,14 @@ def streets(slug):
            "dashes": dashes, "median_points": sites, "awnings": awnings,
            "ways": [{"id": i, "name": t.get("name"), "lanes": n, "oneway": t.get("oneway")} for i, _, t, _, _, n in ways]}
     (LM_DATA / slug / "streets.json").write_text(json.dumps(out) + "\n")
+    # The modelled street (asphalt, median, sidewalks) as the city road tiles' exclusion (build_roads.py), so they don't
+    # overlap it; the massing keeps the narrower `exclusion`, so the frontage buildings stay.
+    inv = Transformer.from_crs(LOCAL_TM, "EPSG:4326", always_xy=True)
+    street = unary_union([asphalt, median, sidewalk]).buffer(-0.2)   # 0.2 m under: the city roads tuck in, no gap
+    street = max(getattr(street, "geoms", [street]), key=lambda g: g.area)
+    reg = json.loads(LANDMARKS.read_text())
+    reg[slug]["road_exclusion"] = [[round(v, 6) for v in inv.transform(x + ax, y + ay)] for x, y in orient(street.simplify(0.3), 1.0).exterior.coords]
+    LANDMARKS.write_text(json.dumps(reg, indent=2) + "\n")
     print(f"{slug}: pair {sep:.2f} m apart -> lanes {lane} m, kerb {kerb:.2f} m from the axis, building line {np.median(hits):.2f} m "
           f"(n={len(hits)}) -> sidewalk {band} m; {len(ways)} other carriageway(s) {sorted({(w['name'], w['lanes']) for w in out['ways']})}; "
           f"asphalt {asphalt.area:,.0f} m2, sidewalk {sidewalk.area:,.0f} m2, median {median.area:,.0f} m2; {len(bars)} zebra bars, "
@@ -395,7 +410,7 @@ def park(slug, pid, split, *opts):
     Walkways shorter than 40 m are left out (the basemap draws them), drives are cut from the lawn but left to the
     basemap, and every class is simplified at 0.4 m, to fit the tier-1 geometry budget.
     - ground: disjoint meshes per class (PARK_CLASSES, then walkways/drives buffered by PATH_HALF as "paved"/"road",
-      then lawn for the rest), cut on a grid (10 m lawn and wood, 6 m otherwise);
+      then lawn for the rest), cut on an 8 m grid;
     - buildings (with holes: the skating rink is a ring), pitches and tracks (for markings), hedges, fences and walls,
       points (rentals, memorials, fountains, toilets, stalls, the rink), and the lake;
     - trees: wood on a jittered 18 m grid, lawn trees lining the walkways every 22 m (seeded)."""
@@ -510,21 +525,24 @@ def park(slug, pid, split, *opts):
             free = q.intersection(R).difference(busy).area
             if best is None or free > best[0]:
                 best = (free, q)
-        ground["pitch"].append(best[1].intersection(R))
+        field = best[1]                           # kept whole: it may cross into the next part, drawn 0.1 m over its lawn
         pitches.append({"sport": "soccer", "ring": [[round(x, 2), round(y, 2)] for x, y in best[1].exterior.coords[:-1]]})
+    field = field if stand else Polygon()
     taken = areas((lake or Polygon()).union(unary_union([Polygon(b["ring"]) for b in buildings if b["leisure"] != "pitch"])))
     out = {"region": [[round(x, 2), round(y, 2)] for x, y in orient(R.simplify(0.3), 1.0).exterior.coords[:-1]]}
     meshes = {}
     for k in PARK_CLASSES:
         g = areas(areas(unary_union(ground[k]).simplify(0.6).intersection(R)).difference(taken, grid_size=0.01))
-        meshes[k] = grid_mesh(g, 12.0 if k == "wood" else 8.0)
-        taken = areas(taken.union(g, grid_size=0.01))
+        if k == "pitch" and not field.is_empty:   # the stand's field, whole, with the part's own pitches
+            g = areas(g.union(areas(field.difference(taken, grid_size=0.01)), grid_size=0.01))
+        meshes[k] = grid_mesh(g, 8.0)
+        taken = areas(taken.union(g.intersection(R), grid_size=0.01))
     for k, gs in (("road", roads), ("paved", paths)):
         g = areas(areas(unary_union(gs).simplify(0.6).intersection(R)).difference(taken, grid_size=0.01))
         meshes[k] = grid_mesh(g, 8.0) if k == "paved" else {"v": [], "f": []}   # drives: the basemap draws them
         taken = areas(taken.union(g, grid_size=0.01))
     lawn = areas(R.difference(taken, grid_size=0.01).simplify(0.4))
-    meshes["lawn"] = grid_mesh(lawn, 12.0)
+    meshes["lawn"] = grid_mesh(lawn, 8.0)   # 8 m: a 12 m cell's 17 m diagonal sagged up to ~0.6 m under the map's terrain
     rng, trees = random.Random(1925), []
     wood = unary_union(ground["wood"]).intersection(R)
     gx, gy = np.meshgrid(np.arange(R.bounds[0], R.bounds[2], 18.0), np.arange(R.bounds[1], R.bounds[3], 18.0))

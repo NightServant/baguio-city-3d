@@ -32,3 +32,12 @@ it("every building tile in the index exists, fits 100 KiB, and nothing else is s
   const listed = new Set(urls.map((u) => u.split("/").pop()));
   expect(readdirSync(D).filter((f) => f !== "index.json" && !listed.has(f)), "orphan files").toEqual([]);
 });
+
+it("every road tile in the index exists, fits 100 KiB, and nothing else is shipped", () => {
+  const D = "public/models/roads";
+  if (!existsSync(`${D}/index.json`)) return;
+  const { tiles } = JSON.parse(readFileSync(`${D}/index.json`, "utf8")) as { tiles: { url: string }[] };
+  for (const { url } of tiles) expect(readFileSync(`public${url}`).length, url).toBeLessThanOrEqual(100 * KiB);
+  const listed = new Set(tiles.map((t) => t.url.split("/").pop()));
+  expect(readdirSync(D).filter((f) => f !== "index.json" && !listed.has(f)), "orphan files").toEqual([]);
+});
