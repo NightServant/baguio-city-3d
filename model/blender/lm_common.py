@@ -111,6 +111,30 @@ def rel_ground(fp, pts, low=False):
     return [min(m, c - cop[-1]) if c is not None else m for m, c in zip(rel, cop[:-1])]
 
 
+def drape(S, fp, name, ring, mat, step=8.0, lift=0.15):
+    """A surface laid on the map's terrain over a local ring [(x, y), ...]: the ring plus interior points every `step` m,
+    triangulated (constrained Delaunay), each vertex `lift` m above rel_ground, with a skirt to 1 m under the
+    lowest ground so its edge never floats. For fields and lawns too big to be level on the DEM. S: a Shapes in
+    bearing 0. Returns the skirt's bottom."""
+    from mathutils import Vector
+    from mathutils.geometry import delaunay_2d_cdt
+    xs, ys = [p[0] for p in ring], [p[1] for p in ring]
+    inner = [(x, y) for x in np.arange(min(xs) + step / 2, max(xs), step) for y in np.arange(min(ys) + step / 2, max(ys), step)
+             if inside(ring, x, y) and min(math.hypot(x - px, y - py) for px, py in ring) > step / 3]
+    n = len(ring)
+    pts = [Vector(p) for p in list(ring) + inner]
+    vco, _, faces, orig, *_ = delaunay_2d_cdt(pts, [(i, (i + 1) % n) for i in range(n)], [list(range(n))], 1, 1e-4)
+    out = {k: i for i, ks in enumerate(orig) for k in ks if k < n}          # ring index -> output vertex
+    zs = rel_ground(fp, [(v.x, v.y) for v in vco])
+    zb = min(rel_ground(fp, list(ring), low=True)) - 1.0
+    verts = [(v.y, v.x, z + lift) for v, z in zip(vco, zs)]
+    m = len(verts)
+    verts += [(y, x, zb) for x, y in ring]
+    sides = [(out[i], out[(i + 1) % n], m + (i + 1) % n, m + i) for i in range(n)]
+    S.mesh(name, verts, [tuple(f) for f in faces] + sides + [tuple(range(m + n - 1, m - 1, -1))], mat)
+    return zb
+
+
 def foundation(coll, fp, mat):
     """Contract C2: geometry below Z=0 reaches the lowest terrain under the footprint plus 1 m (either DEM)."""
     lowest = min(rel_ground(fp, [(x, y) for ring in fp["rings"] for x, y in ring] + [(0.0, 0.0)], low=True))

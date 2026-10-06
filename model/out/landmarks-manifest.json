@@ -133,6 +133,18 @@
       "sha256": "00da6e238d3d0a23bb56ecffe81d2036636bfd1035d517681541f57a014d3068"
     },
     {
+      "slug": "philippine-military-academy",
+      "lng": 120.620644,
+      "lat": 16.35909,
+      "url": "/models/landmarks/philippine-military-academy.15be43e9.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 3024,
+      "bytes": 22932,
+      "geometryBytes": 22440,
+      "sha256": "15be43e9d9452a45ce24d4e0531e9047697117d855145c1df7aa21072f6cd171"
+    },
+    {
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,
