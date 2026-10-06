@@ -120,6 +120,7 @@ for row_w in (14.0,):
 hx, hy = P(A0 + 4.0, HW + RIM_W + 2.0)
 lm.human_reference(coll, hx, hy)
 print("POOL", round(A1 - A0, 1), "m x", round(2 * HW, 1), "m; bearing", round(bearing, 1), "; trees", n)
+lm.detail(coll, fp, blocks=[RIM])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

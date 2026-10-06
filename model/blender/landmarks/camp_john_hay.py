@@ -265,6 +265,7 @@ for px, py in spots:
 
 lm.human_reference(coll, LX + 3.0, LY)
 print("GAZEBO", round(z0g, 2), "HOUSE FLOOR", round(hf, 2), "TREES", trees)
+lm.detail(coll, fp, blocks=[BRICK])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

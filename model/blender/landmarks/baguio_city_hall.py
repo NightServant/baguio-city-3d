@@ -94,6 +94,7 @@ for a, w in ((-30.0, -27.0), (-50.0, -27.0), (25.0, -18.0), (50.0, -27.0), (-10.
 hx, hy, _ = B.P(TA, PW - DEEP - 6.0, 0.0)
 lm.human_reference(coll, hx, hy)
 print("FLOOR", round(z0, 2), "EAVE", round(EAVE, 2), "terrain span", round(z_hi - z_lo, 2))
+lm.detail(coll, fp, roofs=[ROOF], blocks=[STEP])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -zl)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

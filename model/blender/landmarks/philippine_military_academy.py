@@ -90,6 +90,7 @@ for k in range(len(FIELD_RING)):
 
 lm.human_reference(coll, mid + 5.0, FY - 3.0)
 print("STAND FLOOR", round(z0, 2), "TREES", n)
+lm.detail(coll, fp, blocks=[GREY])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

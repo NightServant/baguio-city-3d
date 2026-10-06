@@ -128,6 +128,7 @@ for gx in np.arange(min(xs), max(xs), 26.0):
 hx, hy = huts[0]
 lm.human_reference(coll, hx + 3.5, hy)
 print("HOUSES", len(blds), "HUTS", len(huts), "TREES", n)
+lm.detail(coll, fp, blocks=[STONE])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

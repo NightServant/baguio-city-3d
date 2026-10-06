@@ -217,6 +217,7 @@ for gx in np.arange(-60, 70, 12.0):
 lm.human_reference(coll, cx + 3.5, cy - 3.5)
 print("DECK", round(zd, 2), "m vs the centroid's ground; rock base to", round(zbot, 2), "; trees", trees)
 depth = -lowest
+lm.detail(coll, fp, blocks=[CURB])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, depth)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

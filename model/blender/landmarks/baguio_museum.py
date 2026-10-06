@@ -82,6 +82,7 @@ for a, w in ((A0 - 6, W0 - 4), (A1 + 6, W0 - 2), (A1 + 5, W1 + 5), (A0 - 5, W1 +
 hx, hy, _ = M.P(cA + 3.5, BW0 - 3.0, 0.0)
 lm.human_reference(coll, hx, hy)
 print("BODY", round(A1 - A0, 1), "x", round(W1 - W0, 1), "FLOOR", round(z0, 2), "RIDGE", round(zr, 2))
+lm.detail(coll, fp, roofs=[ROOF], blocks=[STONE])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -zb)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

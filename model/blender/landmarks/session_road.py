@@ -144,6 +144,7 @@ for k, ln in enumerate(fp["lines"]):
 
 depth = -lowest
 lm.human_reference(coll, fp["lines"][0]["points"][0][0], fp["lines"][0]["points"][0][1])
+lm.detail(coll, fp, roofs=AWNINGS)   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, depth)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

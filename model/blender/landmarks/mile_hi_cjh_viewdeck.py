@@ -112,6 +112,7 @@ for x, y in ((-30.0, 60.0), (-40.0, 10.0), (-45.0, -30.0), (-30.0, -70.0), (10.0
 
 lm.human_reference(coll, 8.0, 0.0)
 print("SEGMENTS", seg_n)
+lm.detail(coll, fp, roofs=[ROOF])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -zl)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

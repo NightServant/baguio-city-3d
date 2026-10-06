@@ -80,6 +80,7 @@ for x, y in ((-14.0, -10.0), (-16.0, 4.0), (-12.0, 14.0), (-24.0, -2.0), (-22.0,
 
 lm.human_reference(coll, 9.0, -5.0)
 print("PLINTH", round(z0, 2))
+lm.detail(coll, fp, blocks=[PLINTH])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -zl)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

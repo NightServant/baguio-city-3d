@@ -157,6 +157,7 @@ for n in range(int(total // 11)):
 
 lm.human_reference(coll, ring[0][0] * 1.08, ring[0][1] * 1.08)
 print("WATER", round(water, 2), "m above the centroid's ground")
+lm.detail(coll, fp, roofs=[STALL_ROOF, PAVILION_ROOF])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, depth)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

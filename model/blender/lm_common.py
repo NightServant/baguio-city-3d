@@ -5,6 +5,7 @@ A landmark lives in collection LM_<slug> under 40_LANDMARKS, authored around the
 instance placed at the anchor in 00_REFERENCE shows it in context for renders."""
 import json
 import math
+import re
 import sys
 from pathlib import Path
 
@@ -17,6 +18,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from terrain_sample import terrain_z  # noqa: E402
 
 TIER_TRIANGLES = {1: 25_000, 2: 10_000}
+# The app stretches the terrain by TERRAIN_EXAGGERATION but draws models at true scale (lib/map/modelTransform.ts),
+# so rel_ground returns stretched relief: ground-hugging parts fit the map, buildings keep their real heights.
+EXAG = float(re.search(r"TERRAIN_EXAGGERATION = ([\d.]+)", (ROOT / "lib" / "map" / "sources.ts").read_text())[1])
 
 
 def begin(slug):
@@ -103,12 +107,12 @@ def rel_ground(fp, pts, low=False):
     two floated the Bell Amphitheater's stairs (owner report 2026-10-05). low=True gives the lower of the
     two DEMs, for depths and tree bases, so nothing floats in the Blender review either."""
     mp = map_ground(fp, list(pts) + [(0.0, 0.0)])
-    rel = [m - mp[-1] for m in mp[:-1]]
+    rel = [(m - mp[-1]) * EXAG for m in mp[:-1]]
     if not low:
         return rel
     ax, ay = fp["anchor_tm"]
     cop = terrain_z([(ax + x, ay + y) for x, y in pts] + [(ax, ay)])
-    return [min(m, c - cop[-1]) if c is not None else m for m, c in zip(rel, cop[:-1])]
+    return [min(m, (c - cop[-1]) * EXAG) if c is not None else m for m, c in zip(rel, cop[:-1])]
 
 
 def drape(S, fp, name, ring, mat, step=8.0, lift=0.15):
@@ -512,3 +516,136 @@ def place(coll, name, mesh, x, y, z, heading_deg=0.0, scale=1.0):
     ob.scale = (scale, scale, scale)
     coll.objects.link(ob)
     return ob
+
+
+# --- Sub-detail pass (owner 2026-10-06: wall and roof patterns, entrances, windows on every landmark) ---------------
+
+def _face_uvs(ob, tile):
+    """Per-face UVs at `tile` m: u runs level along the face, v up it (up a wall, up a roof's slope), so pattern rows stay
+    level and corrugation ribs run down the slope. Meshes that already have UVs keep them."""
+    from mathutils import Vector
+    me = ob.data
+    if me.uv_layers:
+        return
+    layer, mw = me.uv_layers.new(name="UVMap"), ob.matrix_world
+    for poly in me.polygons:
+        n = (mw.to_3x3() @ poly.normal).normalized()
+        flat = abs(n.z) > 0.95
+        t = Vector((1, 0, 0)) if flat else Vector((-n.y, n.x, 0)).normalized()
+        b = Vector((0, 1, 0)) if flat else n.cross(t)
+        for li in poly.loop_indices:
+            p = mw @ me.vertices[me.loops[li].vertex_index].co
+            layer.data[li].uv = (p.dot(t) / tile, p.dot(b) / tile)
+
+
+def _pattern(coll, mat, make, tile):
+    """Texture an untextured material with make(its own sRGB colour), and UV every object of `coll` that uses it."""
+    nt = mat.node_tree
+    if any(n.type == "TEX_IMAGE" for n in nt.nodes):
+        return
+    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    lin = tuple(bsdf.inputs["Base Color"].default_value)[:3]
+    s = [12.92 * c if c <= 0.0031308 else 1.055 * c ** (1 / 2.4) - 0.055 for c in lin]
+    textured(mat.name, pattern_image("TEX_" + mat.name[4:], make(s)), lin, bsdf.inputs["Roughness"].default_value)
+    for ob in coll.all_objects:
+        if ob.type == "MESH" and mat.name in [m.name for m in ob.data.materials if m]:
+            _face_uvs(ob, tile)
+
+
+def detail(coll, fp, roofs=(), walls=(), blocks=(), storey=3.2, bay=3.4, frame_rgb=(236, 234, 226), glass_rgb=(40, 48, 58)):
+    """Shared sub-detail: corrugated sheet (1 m tile) on untextured `roofs`; block joints (2 m tile) on untextured `walls`,
+    and on untextured `blocks`;
+    and on every wall quad of those materials windows per storey and bay, plus one door on each object's longest wall
+    whose middle is at ground level. Rows are level from the wall's floor (its foot, or the highest ground outside it),
+    stepping down where the ground falls away. Openings are proud quads, frame 8 cm and glass 14 cm off the wall, in one
+    object. ESTIMATEs (typical, not measured): 3.2 m storeys, 3.4 m bays, 1.2 x 1.4 m windows on 0.9 m sills,
+    1.5 x 2.4 m doors."""
+    from mathutils import Vector
+    for mat in roofs:
+        _pattern(coll, mat, corrugated, 1.0)
+    for mat in list(walls) + list(blocks):        # blocks: the pattern alone (plinths, rims, stone, no openings)
+        _pattern(coll, mat, wall_blocks, 2.0)
+    names = {m.name for m in walls}
+    faces, runs = {}, {}                            # object -> [(width, n, t, p0, s0, s1, zb, zt)]
+    for ob in coll.all_objects:
+        if ob.type != "MESH":
+            continue
+        slots = {i for i, m in enumerate(ob.data.materials) if m and m.name in names}
+        mw = ob.matrix_world
+        for poly in ob.data.polygons:
+            if poly.material_index not in slots or len(poly.vertices) != 4:
+                continue
+            n = (mw.to_3x3() @ poly.normal).normalized()
+            if abs(n.z) > 0.05:
+                continue
+            n = Vector((n.x, n.y, 0)).normalized()
+            ps = [mw @ ob.data.vertices[i].co for i in poly.vertices]
+            t = Vector((-n.y, n.x, 0))
+            ss, zs = [p.dot(t) for p in ps], sorted(p.z for p in ps)
+            if zs[2] - zs[1] >= 2.8:                 # one wall run: same plane and band (outlines come in short strips)
+                key = (ob.name, round(n.x, 2), round(n.y, 2), round(ps[0].dot(n), 1), round(zs[1], 1), round(zs[2], 1))
+                runs.setdefault(key, []).append((min(ss), max(ss), n, t, ps[0], zs[1], zs[2]))
+    for key, strips in runs.items():
+        strips.sort(key=lambda r: r[0])
+        merged = [list(strips[0])]
+        for r in strips[1:]:
+            if r[0] <= merged[-1][1] + 0.05:
+                merged[-1][1] = max(merged[-1][1], r[1])
+            else:
+                merged.append(list(r))
+        for s0, s1, n, t, p0, zb, zt in merged:
+            if s1 - s0 >= bay:
+                faces.setdefault(key[0], []).append((s1 - s0, n, t, p0, s0, s1, zb, zt))
+    if not faces:
+        return
+    bays = []                                        # (face, centres, ground points)
+    for fs in faces.values():
+        for f in fs:
+            w, n, t, p0, s0, s1, zb, zt = f
+            m = int(w // bay)
+            cs = [s0 + (w - m * bay) / 2 + bay * (i + 0.5) for i in range(m)]
+            bays.append((f, cs, [tuple((p0 + (c - p0.dot(t)) * t + n * 0.6).xy) for c in cs]))
+    ground = iter(rel_ground(fp, [q for _, _, qs in bays for q in qs]))
+    gmap = {id(f): [next(ground) for _ in cs] for f, cs, _ in bays}
+    verts, quads = [], []                            # quads: (corner indices, material slot)
+
+    def quad(f, c, hw, z0, z1, d, slot):
+        _, n, t, p0, *_ = f
+        k = len(verts)
+        for s, z in ((c - hw, z0), (c + hw, z0), (c + hw, z1), (c - hw, z1)):
+            p = p0 + (s - p0.dot(t)) * t + n * d
+            verts.append((p.x, p.y, z))
+        quads.append(((k, k + 1, k + 2, k + 3), slot))
+
+    for fs in faces.values():
+        door = None
+        for f in sorted(fs, key=lambda f: -f[0]):
+            gs, cs = gmap[id(f)], next(cs for g, cs, _ in bays if g is f)
+            floor = max(f[6], max(gs))
+            mid = min(range(len(cs)), key=lambda i: abs(cs[i] - (f[4] + f[5]) / 2))
+            if door is None and gs[mid] >= floor - 0.5:
+                door = (id(f), mid)
+            for k in range(-8, 16):
+                sill = floor + k * storey + 0.9
+                if sill + 1.4 > f[7] - 0.3:
+                    break
+                for i, c in enumerate(cs):
+                    if sill < max(gs[i], f[6]) + 0.6:
+                        continue
+                    if k == 0 and door == (id(f), i):
+                        quad(f, c, 0.9, floor, floor + 2.6, 0.08, 0)
+                        quad(f, c, 0.75, floor, floor + 2.4, 0.14, 2)
+                        continue
+                    quad(f, c, 0.7, sill - 0.1, sill + 1.5, 0.08, 0)
+                    quad(f, c, 0.6, sill, sill + 1.4, 0.14, 1)
+    key = coll.name[3:]
+    mats = [material(f"MAT_{key}_frame", srgb(*frame_rgb), 0.7), material(f"MAT_{key}_glass", srgb(*glass_rgb), 0.2),
+            material(f"MAT_{key}_door", srgb(92, 62, 42), 0.7)]
+    me = bpy.data.meshes.new(f"{key}_openings")
+    me.from_pydata(verts, [], [q for q, _ in quads])
+    for m in mats:
+        me.materials.append(m)
+    for poly, (_, slot) in zip(me.polygons, quads):
+        poly.material_index = slot
+    coll.objects.link(bpy.data.objects.new(f"{key}_openings", me))
+    print("DETAIL", key, "windows+doors", sum(1 for _, s in quads if s), "quads", len(quads))

@@ -125,6 +125,7 @@ for wa, aa in ((-40.0, -34.0), (-40.0, 34.0), (-60.0, -30.0), (-60.0, 30.0), (-9
 hx, hy, _ = H.P(0.0, -16.0, 0.0)
 lm.human_reference(coll, hx, hy)
 print("FLOOR", round(z0, 2), "GATE", round(zg, 2))
+lm.detail(coll, fp, roofs=[ROOF], blocks=[PIER])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

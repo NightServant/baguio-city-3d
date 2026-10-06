@@ -80,6 +80,7 @@ for i, b in enumerate(blds):
 cx, cy = blds[0]["ring"][0]
 lm.human_reference(coll, cx + 2.0, cy + 2.0)
 print("BUILDINGS", len(blds))
+lm.detail(coll, fp, roofs=ROOFS, walls=WALLS)   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

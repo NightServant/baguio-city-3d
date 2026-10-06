@@ -98,6 +98,7 @@ for a, w in ((-22.0, -16.0), (-20.0, 4.0), (0.0, -17.0), (24.0, -12.0), (30.0, 2
 hx, hy, _ = B.P(-6.0, 18.0, 0.0)
 lm.human_reference(coll, hx, hy)
 print("FLOOR", round(z0, 2), "DECK", round(zd, 2))
+lm.detail(coll, fp, roofs=[GREEN])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -zl)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

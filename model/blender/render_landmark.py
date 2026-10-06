@@ -50,7 +50,7 @@ n = int(2 * R / STEP) + 1
 xs = [-R + STEP * i for i in range(n)]
 zs = lm.map_ground(fp, [(x, y) for y in xs for x in xs] + [(0.0, 0.0)])
 me = bpy.data.meshes.new("MAP_GROUND")
-me.from_pydata([(ax + x, ay + y, az + zs[j * n + i] - zs[-1]) for j, y in enumerate(xs) for i, x in enumerate(xs)], [],
+me.from_pydata([(ax + x, ay + y, az + (zs[j * n + i] - zs[-1]) * lm.EXAG) for j, y in enumerate(xs) for i, x in enumerate(xs)], [],
                [(j * n + i, j * n + i + 1, (j + 1) * n + i + 1, (j + 1) * n + i) for j in range(n - 1) for i in range(n - 1)])
 ground = bpy.data.objects.new("MAP_GROUND", me)
 bpy.data.collections["00_REFERENCE"].objects.link(ground)

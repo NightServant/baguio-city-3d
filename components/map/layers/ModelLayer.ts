@@ -77,7 +77,6 @@ function createLayer(map: MapLibreMap, { THREE }: Kit, shown: Map<string, Shown>
     },
     render(_gl, options) {
       if (!renderer || shown.size === 0) return;
-      const exaggeration = map.getTerrain()?.exaggeration ?? 1;
       // Mercator [0..1] -> clip, float64. Not options.modelViewProjectionMatrix: in MapLibre 5 that one
       // works in world pixels (maplibre-gl-dev.js getProjectionDataForCustomLayer, 5.24).
       const mvp = new THREE.Matrix4().fromArray(options.defaultProjectionData.mainMatrix as unknown as number[]);
@@ -85,9 +84,9 @@ function createLayer(map: MapLibreMap, { THREE }: Kit, shown: Map<string, Shown>
       for (const { entry, scene } of shown.values()) {
         const ground = map.queryTerrainElevation([entry.lng, entry.lat]);
         if (ground == null) continue; // terrain tiles not in yet; try again next frame
-        const anchor = MercatorCoordinate.fromLngLat([entry.lng, entry.lat], ground + entry.altitudeM * exaggeration);
+        const anchor = MercatorCoordinate.fromLngLat([entry.lng, entry.lat], ground + entry.altitudeM);
         const local = new THREE.Matrix4().fromArray(
-          modelMatrix(anchor, anchor.meterInMercatorCoordinateUnits(), exaggeration, entry.rotationDeg),
+          modelMatrix(anchor, anchor.meterInMercatorCoordinateUnits(), entry.rotationDeg),
         );
         camera.projectionMatrix.copy(mvp).multiply(local);
         renderer.render(scene, camera);

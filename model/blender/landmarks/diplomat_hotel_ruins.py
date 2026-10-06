@@ -99,6 +99,7 @@ for t in np.linspace(0, 2 * math.pi, 8, endpoint=False):
 
 lm.human_reference(coll, 0.0, -24.0)
 print("BASE", round(base, 2), "PARTS", sum(len(v) for v in groups.values()))
+lm.detail(coll, fp, roofs=[ROOF])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -deep)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

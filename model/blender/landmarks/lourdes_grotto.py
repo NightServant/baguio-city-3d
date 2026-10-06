@@ -143,6 +143,7 @@ for n, (tx, ty) in enumerate((g(-8, 6), g(10, -2), g(-4, -12), g(18, 30), g(30, 
 hx, hy = plaza[1]
 lm.human_reference(coll, hx, hy)
 print("PLAZA", round(zp, 2), "CHAPEL FLOOR", round(zc, 2))
+lm.detail(coll, fp, roofs=[ROOF], walls=[WHITE], blocks=[PILLAR])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()

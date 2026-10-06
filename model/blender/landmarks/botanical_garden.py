@@ -155,6 +155,7 @@ for gx in np.arange(-110.0, 110.0, 26.0):
 
 lm.human_reference(coll, WX + 3.0, WY + 3.0)
 print("PLAZA", round(zp, 2), "GATE", round(zw, 2), "TREES", n)
+lm.detail(coll, fp, roofs=[GREEN], blocks=[WHITE, STONE])   # shared sub-detail pass (lm_common.detail)
 lm.report(SLUG, coll, -lowest)
 lm.context_instance(SLUG, fp)
 bpy.ops.wm.save_mainfile()
