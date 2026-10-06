@@ -157,6 +157,18 @@
       "sha256": "afd63228a5108b84301cf9f134cc97673f1f606241c89742edc0175209592dc2"
     },
     {
+      "slug": "tam-awan-village",
+      "lng": 120.576681,
+      "lat": 16.430071,
+      "url": "/models/landmarks/tam-awan-village.f1a35434.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0,
+      "triangles": 2056,
+      "bytes": 32296,
+      "geometryBytes": 17846,
+      "sha256": "f1a35434821e310aaa020dcc585308400794813ebe54974542c97965ff78ef14"
+    },
+    {
       "slug": "teachers-camp",
       "lng": 120.608367,
       "lat": 16.412158,

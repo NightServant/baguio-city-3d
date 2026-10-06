@@ -105,6 +105,14 @@
       "altitudeM": 0
     },
     {
+      "slug": "tam-awan-village",
+      "lng": 120.576681,
+      "lat": 16.430071,
+      "url": "/models/landmarks/tam-awan-village.f1a35434.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
       "slug": "teachers-camp",
       "lng": 120.608367,
       "lat": 16.412158,
