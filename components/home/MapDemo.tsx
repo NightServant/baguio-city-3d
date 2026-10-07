@@ -5,9 +5,9 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import { applyWeaveBasemap, blankMissingIcons } from "@/components/map/basemapTheme";
+import { applyEarthBasemap, blankMissingIcons } from "@/components/map/basemapTheme";
 import { DEFAULT_CAMERA } from "@/lib/constants";
-import { BASEMAP_STYLE, DEM_SOURCE, applyTerrain, applySky } from "@/lib/map/sources";
+import { BASEMAP_STYLE, applyTerrain, applySky } from "@/lib/map/sources";
 import { cn } from "@/lib/utils";
 
 export interface DemoTarget {
@@ -89,7 +89,7 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
         map.on("style.load", () => {
           styleReady = true;
           applyTerrain(map);
-          applyWeaveBasemap(map, DEM_SOURCE);
+          applyEarthBasemap(map);
         });
         map.once("idle", () => {
           becameLive = true;
@@ -120,7 +120,7 @@ export function MapDemo({ target }: { target: DemoTarget | null }) {
         const themeObserver = new MutationObserver(() => {
           if (!styleReady) return;
           applySky(map);
-          applyWeaveBasemap(map, DEM_SOURCE);
+          applyEarthBasemap(map);
         });
         themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
         themeObserverRef.current = themeObserver;

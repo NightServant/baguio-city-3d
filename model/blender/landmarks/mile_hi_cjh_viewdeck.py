@@ -39,8 +39,7 @@ POST = lm.material("MAT_milehi_post", srgb(238, 234, 222), 0.7)          # [S3] 
 SIGNS = [lm.material(f"MAT_milehi_sign_{i}", srgb(*c), 0.6) for i, c in enumerate(((232, 228, 214), (28, 90, 62), (60, 60, 64), (196, 140, 60)))]
 STONE = lm.material("MAT_milehi_stone", srgb(150, 144, 132), 0.95)
 FLOWER = lm.material("MAT_milehi_flower", srgb(206, 40, 44), 0.8)        # [S3] red flowers
-PINES = [lm.asset_mesh("pine_tall_c", 22.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 18.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {})
 ring = fp["rings"][0]
 zt = max(lm.rel_ground(fp, ring))
@@ -107,7 +106,7 @@ for x, y in ((-30.0, 60.0), (-40.0, 10.0), (-45.0, -30.0), (-30.0, -70.0), (10.0
     x, y = x + rng.uniform(-4, 4), y + rng.uniform(-4, 4)
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
     zl = min(zl, z)
-    lm.place(coll, f"tree_{n}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     n += 1
 
 lm.human_reference(coll, 8.0, 0.0)

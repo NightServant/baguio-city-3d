@@ -41,3 +41,18 @@ it("every road tile in the index exists, fits 100 KiB, and nothing else is shipp
   const listed = new Set(tiles.map((t) => t.url.split("/").pop()));
   expect(readdirSync(D).filter((f) => f !== "index.json" && !listed.has(f)), "orphan files").toEqual([]);
 });
+
+it("every flora tile in the index exists, is whole records, fits 100 KiB, and nothing else is shipped", () => {
+  const D = "public/models/flora";
+  if (!existsSync(`${D}/index.json`)) return;
+  const idx = JSON.parse(readFileSync(`${D}/index.json`, "utf8")) as { archetypes: string; species: unknown[]; tiles: [number, number, number, number, string][] };
+  const species = idx.species.length;
+  for (const [, , count, , file] of idx.tiles) {
+    const buf = readFileSync(`${D}/${file}`);
+    expect(buf.length, file).toBe(count * 8); // build_flora.py: 8-byte records
+    expect(buf.length, file).toBeLessThanOrEqual(100 * KiB);
+    for (let r = 6; r < buf.length; r += 8) if (buf[r] >= species) throw new Error(`${file}: species ${buf[r]} of ${species}`);
+  }
+  const listed = new Set([...idx.tiles.map((t) => t[4]), idx.archetypes.split("/").pop()]);
+  expect(readdirSync(D).filter((f) => f !== "index.json" && !listed.has(f)), "orphan files").toEqual([]);
+});

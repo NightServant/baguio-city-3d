@@ -27,8 +27,7 @@ LAWN = lm.material("MAT_mansion_lawn", srgb(104, 146, 66), 0.95)
 FLOWER = lm.material("MAT_mansion_flower", srgb(208, 52, 44), 0.8)       # [S3] red flower beds
 PIER = lm.material("MAT_mansion_pier", srgb(132, 70, 58), 0.9)           # [S3] the gate's brick-and-stone piers
 IRON = lm.material("MAT_mansion_iron", srgb(26, 28, 30), 0.5)            # [S3] black wrought iron
-PINES = [lm.asset_mesh("pine_tall_c", 22.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 18.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 # [S2] the outline's sides run at 49 / 139 deg: a runs north-east along the facade, w south-east (to the back)
 H = lm.Shapes(coll, 49.0, {WALL.name: 2.0}, pitch_deg=24.0)
 lowest = 0.0
@@ -119,7 +118,7 @@ for wa, aa in ((-40.0, -34.0), (-40.0, 34.0), (-60.0, -30.0), (-60.0, 30.0), (-9
     x, y, _ = H.P(aa + rng.uniform(-3, 3), wa + rng.uniform(-3, 3), 0.0)
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
     lowest = min(lowest, z)
-    lm.place(coll, f"tree_{n:02d}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n:02d}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     n += 1
 
 hx, hy, _ = H.P(0.0, -16.0, 0.0)

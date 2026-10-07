@@ -30,8 +30,7 @@ FLOWER = lm.material("MAT_lourdes_flower", srgb(206, 40, 48), 0.8)       # [S3] 
 ROOF = lm.material("MAT_lourdes_roof", srgb(120, 124, 128), 0.6)         # [S3] grey chapel roof
 WOOD = lm.material("MAT_lourdes_wood", srgb(150, 98, 58), 0.7)           # [S3] the porch gable's wood panelling
 PILLAR = lm.material("MAT_lourdes_pillar", srgb(128, 122, 112), 0.9)     # [S3] stone porch pillars
-TREES = [lm.asset_mesh("broadleaf", 11.0, {"leafs": (80, 118, 58), "woodBark": (110, 84, 60)}),
-         lm.asset_mesh("pine_tall_a", 16.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+TREES = lm.FloraMix("park")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {PAVING.name: 3.0})
 lowest = 0.0
 
@@ -138,7 +137,7 @@ C.gable_wall("porch_gable", a0 - 3.1, a0 - 2.95, -3.2, 3.2, zc + 3.4, zc + 3.4 +
 for n, (tx, ty) in enumerate((g(-8, 6), g(10, -2), g(-4, -12), g(18, 30), g(30, 26), g(28, 44), g(-14, 14), (14.0, 8.0))):
     z = lm.rel_ground(fp, [(tx, ty)], low=True)[0] - 0.3
     lowest = min(lowest, z)
-    lm.place(coll, f"tree_{n}", TREES[n % 2], tx, ty, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n}", TREES[n], tx, ty, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
 
 hx, hy = plaza[1]
 lm.human_reference(coll, hx, hy)

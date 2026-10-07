@@ -413,7 +413,8 @@ def park(slug, pid, split, *opts):
       then lawn for the rest), cut on an 8 m grid;
     - buildings (with holes: the skating rink is a ring), pitches and tracks (for markings), hedges, fences and walls,
       points (rentals, memorials, fountains, toilets, stalls, the rink), and the lake;
-    - trees: wood on a jittered 18 m grid, lawn trees lining the walkways every 22 m (seeded)."""
+    - trees: wood on a jittered 12 m grid, lawn trees lining the walkways every 10 m, lone shade trees on the open lawn
+      (18 m grid, 60%) and ornamentals in the gardens (12 m grid, 50%), seeded; species come from the park mix (model/flora.json)."""
     from shapely.affinity import translate
     fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
     inv = Transformer.from_crs(LOCAL_TM, "EPSG:4326", always_xy=True)
@@ -545,18 +546,32 @@ def park(slug, pid, split, *opts):
     meshes["lawn"] = grid_mesh(lawn, 8.0)   # 8 m: a 12 m cell's 17 m diagonal sagged up to ~0.6 m under the map's terrain
     rng, trees = random.Random(1925), []
     wood = unary_union(ground["wood"]).intersection(R)
-    gx, gy = np.meshgrid(np.arange(R.bounds[0], R.bounds[2], 18.0), np.arange(R.bounds[1], R.bounds[3], 18.0))
+    gx, gy = np.meshgrid(np.arange(R.bounds[0], R.bounds[2], 12.0), np.arange(R.bounds[1], R.bounds[3], 12.0))
     for x, y in zip(gx.ravel(), gy.ravel()):
-        q = Point(x + rng.uniform(-5, 5), y + rng.uniform(-5, 5))
+        q = Point(x + rng.uniform(-4, 4), y + rng.uniform(-4, 4))
         if wood.contains(q) and not taken.difference(wood).contains(q):
             trees.append({"xy": [round(q.x, 2), round(q.y, 2)], "kind": "pine" if rng.random() < 0.8 else "broad"})
     walks = unary_union(paths)
     edge = walks.buffer(3.5).difference(walks.buffer(2.0))
     for ln in getattr(walks.boundary, "geoms", [walks.boundary]):
-        for d in np.arange(0, ln.length, 22.0):
+        for d in np.arange(0, ln.length, 10.0):
             q = ln.interpolate(d)
             if edge.contains(q) and lawn.contains(q):
                 trees.append({"xy": [round(q.x, 2), round(q.y, 2)], "kind": "pine" if rng.random() < 0.55 else "broad"})
+    # lone shade trees on the open lawn, off the pitches and walks (owner 2026-10-07: Burnham was "underwhelming")
+    open_lawn = lawn.difference(walks.buffer(4.0))
+    gx, gy = np.meshgrid(np.arange(R.bounds[0], R.bounds[2], 18.0), np.arange(R.bounds[1], R.bounds[3], 18.0))
+    for x, y in zip(gx.ravel(), gy.ravel()):
+        q = Point(x + rng.uniform(-6, 6), y + rng.uniform(-6, 6))
+        if rng.random() < 0.6 and open_lawn.contains(q):
+            trees.append({"xy": [round(q.x, 2), round(q.y, 2)], "kind": "broad"})
+    gardens = unary_union(ground["garden"]).intersection(R).difference(walks.buffer(2.5)) if ground["garden"] else None
+    if gardens is not None and not gardens.is_empty:                     # ornamental trees in the gardens
+        gx, gy = np.meshgrid(np.arange(R.bounds[0], R.bounds[2], 12.0), np.arange(R.bounds[1], R.bounds[3], 12.0))
+        for x, y in zip(gx.ravel(), gy.ravel()):
+            q = Point(x + rng.uniform(-4, 4), y + rng.uniform(-4, 4))
+            if rng.random() < 0.5 and gardens.contains(q):
+                trees.append({"xy": [round(q.x, 2), round(q.y, 2)], "kind": "broad"})
     out.update({"lake": [[round(x, 2), round(y, 2)] for x, y in orient(lake.simplify(0.2), 1.0).exterior.coords[:-1]] if lake else None,
                 "ground": meshes, "buildings": buildings, "pitches": pitches, "tracks": tracks, "lines": lines, "points": points, "trees": trees})
     (LM_DATA / slug).mkdir(parents=True, exist_ok=True)

@@ -26,9 +26,7 @@ THATCH = lm.textured("MAT_tamawan_thatch", lm.pattern_image("TEX_tamawan_thatch"
 WOOD = lm.material("MAT_tamawan_wood", srgb(86, 62, 44), 0.85)            # [S3] dark weathered timber
 GUARD = lm.material("MAT_tamawan_guard", srgb(104, 78, 56), 0.85)
 STONE = lm.material("MAT_tamawan_stone", srgb(128, 120, 106), 0.95)      # [S3] stone-paved yards
-TREES = [lm.asset_mesh("broadleaf", 12.0, {"leafs": (70, 112, 52), "woodBark": (110, 84, 60)}),
-         lm.asset_mesh("pine_tall_a", 18.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("oak", 9.0, {"leafs": (66, 106, 50), "woodBark": (100, 78, 56)})]
+TREES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {THATCH.name: 2.0}, pitch_deg=55.0)
 park = fp["rings"][0]
 lowest = 0.0
@@ -122,7 +120,7 @@ for gx in np.arange(min(xs), max(xs), 26.0):
             continue
         z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
         lowest = min(lowest, z)
-        lm.place(coll, f"tree_{n:02d}", TREES[n % 3], x, y, z, rng.uniform(0, 360), rng.uniform(0.8, 1.15))
+        lm.place(coll, f"tree_{n:02d}", TREES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.8, 1.15))
         n += 1
 
 hx, hy = huts[0]

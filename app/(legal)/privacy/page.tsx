@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const UPDATED = "29 September 2026";
+const UPDATED = "7 October 2026";
 const HOST = "Vercel"; // Phase 0, D7
 const analytics = Boolean(process.env.NEXT_PUBLIC_GA_ID);
 
@@ -43,8 +43,7 @@ export default function PrivacyPage() {
           <li>OpenFreeMap, for the street map and labels (<code>tiles.openfreemap.org</code>)</li>
           <li>Amazon Web Services, for terrain heights (<code>s3.amazonaws.com</code>)</li>
           <li>
-            Esri, only when you switch to satellite imagery or open a link that starts on it (
-            <code>server.arcgisonline.com</code>)
+            Esri, for the satellite imagery the 3D city stands on (<code>server.arcgisonline.com</code>)
           </li>
           {analytics ? (
             <li>

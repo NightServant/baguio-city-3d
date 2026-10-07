@@ -35,8 +35,7 @@ STONE = lm.material("MAT_museum_stone", srgb(118, 116, 110), 0.95)       # [S3] 
 CREAM = lm.material("MAT_museum_cream", srgb(222, 210, 170), 0.7)        # [S3] the name band and trim
 GLASS = lm.material("MAT_museum_glass", srgb(52, 60, 66), 0.3)
 STEP = lm.material("MAT_museum_step", srgb(58, 58, 60), 0.8)             # [S3] dark tiled stair
-PINES = [lm.asset_mesh("pine_tall_c", 18.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("broadleaf", 11.0, {"leafs": (86, 124, 60), "woodBark": (110, 84, 60)})]
+PINES = lm.FloraMix("park")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 # [S2] the outline's long side runs at bearing 43.5: a north-east, w south-east; the entrance bump is on the
 # north-west (-w) side
 M = lm.Shapes(coll, 43.5, {WALL.name: 1.0}, pitch_deg=22.0)
@@ -75,7 +74,7 @@ n = 0
 for a, w in ((A0 - 6, W0 - 4), (A1 + 6, W0 - 2), (A1 + 5, W1 + 5), (A0 - 5, W1 + 4), (cA + 9, BW0 - 7)):
     x, y, _ = M.P(a + rng.uniform(-1.5, 1.5), w + rng.uniform(-1.5, 1.5), 0.0)
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
-    lm.place(coll, f"tree_{n}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     zb = min(zb, z)
     n += 1
 

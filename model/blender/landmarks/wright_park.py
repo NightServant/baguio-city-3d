@@ -34,9 +34,7 @@ WATER = lm.material("MAT_wright_water", srgb(54, 110, 104), 0.15)       # [S3] g
 RIM = lm.material("MAT_wright_rim", srgb(196, 192, 182), 0.85)           # [S3] pale concrete rim and weirs
 GRASS = lm.material("MAT_wright_grass", srgb(98, 142, 62), 0.95)
 POT = lm.material("MAT_wright_pot", srgb(52, 48, 44), 0.7)               # [S3] dark planters along the pool
-PINES = [lm.asset_mesh("pine_tall_c", 24.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 20.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
-BROAD = lm.asset_mesh("broadleaf", 12.0, {"leafs": (86, 124, 60), "woodBark": (110, 84, 60)})
+PINES = lm.FloraMix("park")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 LEAF = lm.material("MAT_wright_leaf", srgb(56, 104, 48), 0.9)
 
 # The pool's frame: a runs along its length toward The Mansion (south-east), w across. [S2] the outline is a
@@ -121,7 +119,7 @@ for row_w in (14.0,):
             x, y = P(ta, tw)
             z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
             lowest = min(lowest, z)
-            lm.place(coll, f"tree_{n:03d}", BROAD if n % 6 == 5 else PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+            lm.place(coll, f"tree_{n:03d}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
             n += 1
 
 hx, hy = P(A0 + 4.0, HW + RIM_W + 2.0)

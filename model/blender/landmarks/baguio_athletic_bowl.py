@@ -15,7 +15,7 @@ import lm_common as lm  # noqa: E402
 SLUG = "baguio-athletic-bowl"
 coll, fp = lm.begin(SLUG)
 PK = json.loads((lm.ROOT / "model" / "data" / "landmarks" / SLUG / "park.json").read_text())
-lowest = lm.park(coll, fp, PK, SLUG.replace("-", "_"), bay=12.0)   # big halls: a window every 12 m (budget)
+lowest = lm.park(coll, fp, PK, SLUG.replace("-", "_"), bay=12.0, tree_keep=0.8, species=4)   # big halls: a window every 12 m; 80% of the wood's trees, 4 species (budget)
 x, y = PK["region"][0]
 lm.human_reference(coll, x * 0.9, y * 0.9)
 lm.report(SLUG, coll, -lowest)

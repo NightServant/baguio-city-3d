@@ -22,8 +22,7 @@ rng = np.random.default_rng(2017)
 STONE = lm.textured("MAT_isk_stone", lm.pattern_image("TEX_isk_stone", lm.flagstones((0.74, 0.72, 0.67), 2017)), srgb(186, 182, 170), 0.95)
 GRASS = lm.material("MAT_isk_grass", srgb(92, 150, 64), 0.95)           # [S3] the arena's green rings
 WATER = lm.material("MAT_isk_water", srgb(110, 160, 170), 0.2)
-TREES = [lm.asset_mesh("broadleaf", 12.0, {"leafs": (74, 116, 54), "woodBark": (110, 84, 60)}),
-         lm.asset_mesh("pine_tall_a", 18.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+TREES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {STONE.name: 2.0})
 ring = fp["rings"][0]
 xs, ys = [p[0] for p in ring], [p[1] for p in ring]
@@ -94,7 +93,7 @@ for k in range(0, len(ring)):
             continue
         z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
         lowest = min(lowest, z)
-        lm.place(coll, f"tree_{n:02d}", TREES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+        lm.place(coll, f"tree_{n:02d}", TREES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
         n += 1
 
 lm.human_reference(coll, AX + AR - 2.0, AY)

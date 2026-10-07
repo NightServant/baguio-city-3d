@@ -1,0 +1,332 @@
+{
+  "_doc": "Trees, shrubs and rocks of the landscape (owner 2026-10-07: 'Baguio City must be filled with different kinds of trees, not just pine trees'). Archetypes are modelled by model/blender/flora.py at ref_height_m; species pick an archetype, a tint (foliage, or blossom for flowering trees) and a height range. Heights, colours and the zone shares are ESTIMATEs; the species and the pine's share are cited. Zones: forest = WorldCover tree cover away from buildings and OSM woods; urban = tree cover among buildings, OSM single trees and tree rows; park = OSM parks and gardens.",
+  "sources": {
+    "S1": "SunStar Baguio, 'Baguio City wants tree cutting stopped' (2020-07-13), https://www.sunstar.com.ph/baguio/local-news/baguio-city-wants-tree-cutting-stopped : 492,974 Benguet pines, 19.7% of the city's trees; the other 80.3% ornamental and exotic: Alnus, Eucalyptus, Calliandra, African Tulip, Agoho, Cypress, Bottle Brush, Coral Tree, Paper Bark Tree, Norfolk Pine, Maple and Balete.",
+    "S2": "Wikipedia, 'Burnham Park (Baguio)', read 2026-10-07, https://en.wikipedia.org/wiki/Burnham_Park_(Baguio) : about 2,600 trees (2015); 72 species in a 2009 inventory (19 trees); most common families Myrtaceae, Moraceae and Bignoniaceae; Benguet pine, pink shower and African tuliptree among the prevalent trees.",
+    "S3": "Wikipedia, 'Pinus kesiya', read 2026-10-07, https://en.wikipedia.org/wiki/Pinus_kesiya : up to 30-35 m tall with a straight, cylindrical trunk; Baguio, 'The City of Pines', is noted for large stands of it.",
+    "S4": "University of Baguio research abstract, 'Inventory and Assessment of the Floristic Composition of Burnham Park' (via web search 2026-10-07): Cupressus sempervirens and Araucaria bidwillii listed among the park's trees."
+  },
+  "archetypes": {
+    "pine": {
+      "ref_height_m": 16.0
+    },
+    "cypress": {
+      "ref_height_m": 10.0
+    },
+    "araucaria": {
+      "ref_height_m": 18.0
+    },
+    "round": {
+      "ref_height_m": 7.9
+    },
+    "bloom": {
+      "ref_height_m": 7.2
+    },
+    "tall": {
+      "ref_height_m": 16.6
+    },
+    "shrub": {
+      "ref_height_m": 1.0
+    },
+    "rock": {
+      "ref_height_m": 0.9
+    }
+  },
+  "species": [
+    {
+      "key": "benguet_pine",
+      "name": "Benguet pine (Pinus kesiya)",
+      "archetype": "pine",
+      "foliage": [
+        58,
+        92,
+        58
+      ],
+      "height_m": [
+        12,
+        26
+      ],
+      "source": "S1, S3"
+    },
+    {
+      "key": "alnus",
+      "name": "Alnus (alder)",
+      "archetype": "round",
+      "foliage": [
+        84,
+        120,
+        60
+      ],
+      "height_m": [
+        8,
+        14
+      ],
+      "source": "S1"
+    },
+    {
+      "key": "eucalyptus",
+      "name": "Eucalyptus",
+      "archetype": "tall",
+      "foliage": [
+        112,
+        132,
+        98
+      ],
+      "height_m": [
+        14,
+        24
+      ],
+      "source": "S1, S2 (Myrtaceae)"
+    },
+    {
+      "key": "agoho",
+      "name": "Agoho (Casuarina)",
+      "archetype": "tall",
+      "foliage": [
+        88,
+        108,
+        78
+      ],
+      "height_m": [
+        12,
+        20
+      ],
+      "source": "S1"
+    },
+    {
+      "key": "cypress",
+      "name": "Cypress (Cupressus)",
+      "archetype": "cypress",
+      "foliage": [
+        46,
+        78,
+        54
+      ],
+      "height_m": [
+        7,
+        13
+      ],
+      "source": "S1, S4"
+    },
+    {
+      "key": "norfolk_pine",
+      "name": "Norfolk pine and bunya (Araucaria)",
+      "archetype": "araucaria",
+      "foliage": [
+        52,
+        98,
+        62
+      ],
+      "height_m": [
+        12,
+        24
+      ],
+      "source": "S1, S4"
+    },
+    {
+      "key": "balete",
+      "name": "Balete (Ficus)",
+      "archetype": "round",
+      "foliage": [
+        48,
+        90,
+        46
+      ],
+      "height_m": [
+        10,
+        17
+      ],
+      "source": "S1, S2 (Moraceae)"
+    },
+    {
+      "key": "maple",
+      "name": "Maple",
+      "archetype": "round",
+      "foliage": [
+        128,
+        116,
+        56
+      ],
+      "height_m": [
+        7,
+        12
+      ],
+      "source": "S1"
+    },
+    {
+      "key": "paperbark",
+      "name": "Paper bark tree (Melaleuca)",
+      "archetype": "round",
+      "foliage": [
+        104,
+        124,
+        82
+      ],
+      "height_m": [
+        7,
+        12
+      ],
+      "source": "S1, S2 (Myrtaceae)"
+    },
+    {
+      "key": "african_tulip",
+      "name": "African tulip (Spathodea)",
+      "archetype": "bloom",
+      "bloom": [
+        226,
+        84,
+        38
+      ],
+      "height_m": [
+        8,
+        14
+      ],
+      "source": "S1, S2 (Bignoniaceae)"
+    },
+    {
+      "key": "pink_shower",
+      "name": "Pink shower (Cassia)",
+      "archetype": "bloom",
+      "bloom": [
+        236,
+        148,
+        178
+      ],
+      "height_m": [
+        7,
+        12
+      ],
+      "source": "S2"
+    },
+    {
+      "key": "coral_tree",
+      "name": "Coral tree (Erythrina)",
+      "archetype": "bloom",
+      "bloom": [
+        212,
+        48,
+        42
+      ],
+      "height_m": [
+        6,
+        10
+      ],
+      "source": "S1"
+    },
+    {
+      "key": "bottlebrush",
+      "name": "Bottle brush (Callistemon)",
+      "archetype": "bloom",
+      "bloom": [
+        186,
+        30,
+        46
+      ],
+      "height_m": [
+        4,
+        7
+      ],
+      "source": "S1, S2 (Myrtaceae)"
+    },
+    {
+      "key": "calliandra",
+      "name": "Calliandra",
+      "archetype": "bloom",
+      "bloom": [
+        222,
+        52,
+        84
+      ],
+      "height_m": [
+        3,
+        5
+      ],
+      "source": "S1"
+    },
+    {
+      "key": "shrub",
+      "name": "Shrubs and hedging",
+      "archetype": "shrub",
+      "foliage": [
+        78,
+        112,
+        56
+      ],
+      "height_m": [
+        0.8,
+        1.8
+      ],
+      "source": "ESTIMATE"
+    },
+    {
+      "key": "shrub_dry",
+      "name": "Scrub",
+      "archetype": "shrub",
+      "foliage": [
+        118,
+        120,
+        70
+      ],
+      "height_m": [
+        0.8,
+        1.6
+      ],
+      "source": "ESTIMATE"
+    },
+    {
+      "key": "rock",
+      "name": "Boulders and outcrops",
+      "archetype": "rock",
+      "foliage": [
+        150,
+        146,
+        136
+      ],
+      "height_m": [
+        0.6,
+        1.6
+      ],
+      "source": "ESTIMATE"
+    }
+  ],
+  "zones": {
+    "forest": {
+      "benguet_pine": 55,
+      "alnus": 13,
+      "eucalyptus": 8,
+      "agoho": 5,
+      "cypress": 5,
+      "balete": 6,
+      "african_tulip": 3,
+      "maple": 5
+    },
+    "urban": {
+      "benguet_pine": 16,
+      "alnus": 10,
+      "eucalyptus": 7,
+      "african_tulip": 9,
+      "bottlebrush": 8,
+      "calliandra": 6,
+      "coral_tree": 5,
+      "paperbark": 6,
+      "norfolk_pine": 8,
+      "cypress": 9,
+      "maple": 5,
+      "balete": 6,
+      "pink_shower": 5
+    },
+    "park": {
+      "benguet_pine": 24,
+      "cypress": 8,
+      "norfolk_pine": 8,
+      "bottlebrush": 10,
+      "african_tulip": 10,
+      "pink_shower": 9,
+      "balete": 8,
+      "eucalyptus": 8,
+      "alnus": 7,
+      "maple": 4,
+      "coral_tree": 4
+    }
+  }
+}

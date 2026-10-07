@@ -40,8 +40,7 @@ CREAM = lm.material("MAT_shepherd_cream", srgb(232, 222, 196), 0.7)        # [S3
 LEAF = lm.material("MAT_shepherd_leaf", srgb(54, 96, 46), 0.9)             # [S3] the planted wall
 BLOOM = lm.material("MAT_shepherd_bloom", srgb(214, 72, 108), 0.8)
 PAVE = lm.material("MAT_shepherd_pave", srgb(178, 172, 160), 0.9)
-PINES = [lm.asset_mesh("pine_tall_c", 20.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("broadleaf", 11.0, {"leafs": (80, 118, 58), "woodBark": (110, 84, 60)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 B = lm.Shapes(coll, 140.3, {}, pitch_deg=12.0)   # [S2] the outline's long side runs at 140.3 deg; +w faces south-west
 ring = fp["rings"][0]
 zt = max(lm.rel_ground(fp, ring))
@@ -92,7 +91,7 @@ for a, w in ((-22.0, -16.0), (-20.0, 4.0), (0.0, -17.0), (24.0, -12.0), (30.0, 2
     x, y, _ = B.P(a + rng.uniform(-2, 2), w + rng.uniform(-2, 2), 0.0)
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
     zl = min(zl, z)
-    lm.place(coll, f"tree_{n}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     n += 1
 
 hx, hy, _ = B.P(-6.0, 18.0, 0.0)

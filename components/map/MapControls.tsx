@@ -2,8 +2,8 @@
 
 // Floating camera controls: preset fly-to chips, zoom, and a compass/pitch
 // reset. Sized for thumbs — every hit area is at least 40px.
-import { Compass, Minus, Plus, Satellite } from "lucide-react";
-import { useMapStore, useBasemap, useActiveSheet } from "@/stores/useMapStore";
+import { Compass, Minus, Plus } from "lucide-react";
+import { useMapStore, useActiveSheet } from "@/stores/useMapStore";
 import { CAMERA_PRESETS, DEFAULT_CAMERA } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -61,9 +61,6 @@ const controlButton =
   "flex size-10 items-center justify-center border border-border bg-background/92 text-foreground backdrop-blur transition-colors hover:bg-secondary active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function MapControls() {
-  const basemap = useBasemap();
-  const setBasemap = useMapStore((s) => s.setBasemap);
-  const satelliteOn = basemap === "satellite";
   const unavailable = useMapStore((s) => s.mapUnavailable);
   // The destination sheet covers the right edge (desktop) or the lower 60% (phones); keep the stack clear of it.
   const sheetOpen = useActiveSheet() === "destination";
@@ -91,7 +88,7 @@ export function MapControls() {
         </div>
       </div>
 
-      {/* Basemap + zoom + compass — right edge */}
+      {/* Zoom + compass — right edge */}
       <div
         className={cn(
           "absolute z-hud flex flex-col gap-2 transition-[right,top] duration-200 ease-out motion-reduce:transition-none",
@@ -100,19 +97,6 @@ export function MapControls() {
             : "right-3 top-1/2 -translate-y-1/2",
         )}
       >
-        <button
-          type="button"
-          aria-label="Toggle satellite imagery"
-          aria-pressed={satelliteOn}
-          onClick={() => setBasemap(satelliteOn ? "terrain" : "satellite")}
-          className={cn(
-            controlButton,
-            satelliteOn &&
-              "bg-primary text-primary-foreground ring-primary/50 hover:bg-primary/90",
-          )}
-        >
-          <Satellite className="size-4" />
-        </button>
         <button type="button" aria-label="Zoom in" onClick={() => zoomBy(1)} className={controlButton}>
           <Plus className="size-4" />
         </button>

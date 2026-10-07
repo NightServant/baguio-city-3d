@@ -37,8 +37,7 @@ ROOF = lm.material("MAT_cityhall_roof", srgb(40, 84, 62), 0.6)          # [S3] d
 WHITE = lm.material("MAT_cityhall_white", srgb(240, 240, 236), 0.7)
 STEP = lm.material("MAT_cityhall_steps", srgb(200, 196, 188), 0.9)
 CLOCK = lm.material("MAT_cityhall_clock", srgb(36, 40, 44), 0.5)
-PINES = [lm.asset_mesh("pine_tall_c", 20.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 16.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("park")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 # [S2] the outline's sides run at 45 / 135 deg: a along the building (north-east), w across; the portico's
 # projection is on the -w side, so the front faces north-west
 B = lm.Shapes(coll, 45.0, {}, pitch_deg=20.0)   # [S3] low hips
@@ -87,7 +86,7 @@ n = 0
 for a, w in ((-30.0, -27.0), (-50.0, -27.0), (25.0, -18.0), (50.0, -27.0), (-10.0, 26.0), (25.0, 27.0), (-60.0, 14.0), (65.0, 0.0)):
     x, y, _ = B.P(a + rng.uniform(-2, 2), w + rng.uniform(-2, 2), 0.0)
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
-    lm.place(coll, f"tree_{n}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     zl = min(zl, z)
     n += 1
 

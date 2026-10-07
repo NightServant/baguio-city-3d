@@ -253,5 +253,49 @@
     "retrieved": "2026-10-05",
     "use": "landmark ground fitting only (lm_common.rel_ground); not shipped",
     "attribution": "Terrain Tiles: Mapzen / Tilezen, AWS Open Data (https://github.com/tilezen/joerd/blob/master/docs/attribution.md)"
+  },
+  "osm-landscape": {
+    "url": "https://overpass-api.de/api/interpreter",
+    "query": "[out:json][timeout:900][maxsize:536870912][bbox:16.27,120.47,16.53,120.73];(nwr[\"tourism\"~\"^(hotel|motel|hostel|guest_house|apartment|resort|chalet)$\"];node[\"natural\"=\"tree\"];way[\"natural\"=\"tree_row\"];nwr[\"natural\"~\"^(wood|scrub|grassland|heath|bare_rock|cliff|scree|rock|stone|shrubbery)$\"];nwr[\"landuse\"~\"^(forest|grass|meadow|orchard|farmland|cemetery|recreation_ground|village_green|plant_nursery|allotments|greenfield|flowerbed)$\"];nwr[\"leisure\"~\"^(park|garden|golf_course|pitch|playground|nature_reserve)$\"];way[\"barrier\"~\"^(retaining_wall|wall|hedge)$\"];way[\"man_made\"=\"embankment\"];nwr[\"amenity\"~\"^(restaurant|fast_food|cafe|bar|pub|bank|pharmacy|ice_cream|food_court)$\"];nwr[\"shop\"];);out geom qt;",
+    "file": "model/data/osm/landscape.json",
+    "retrieved": "2026-10-07",
+    "osm_data_until": "2026-10-07T06:35:21Z",
+    "elements": 6706,
+    "bytes": 8583467,
+    "md5": "b9a98e9e910bddf7474e813b14400060",
+    "licence": "Open Database License 1.0, https://www.openstreetmap.org/copyright",
+    "attribution": "© OpenStreetMap contributors"
+  },
+  "esa-worldcover": {
+    "url": "https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_N15E120_Map.tif",
+    "file": "model/data/landcover/worldcover.npz",
+    "retrieved": "2026-10-07",
+    "window": [
+      5640,
+      17640,
+      3120,
+      3120
+    ],
+    "md5": "b5804e1f8c4e7dcc735395cd02a5062b",
+    "licence": "CC BY 4.0, https://creativecommons.org/licenses/by/4.0/",
+    "attribution": "© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium"
+  },
+  "polyhaven-asphalt_06": {
+    "url": "https://polyhaven.com/a/asphalt_06",
+    "file": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_06/asphalt_06_diff_1k.jpg",
+    "md5": "3d92683ec4481c35a43b4034f8363bc3",
+    "retrieved": "2026-10-07",
+    "licence": "CC0 1.0",
+    "attribution": "Poly Haven (polyhaven.com), CC0",
+    "shipped": "public/models/textures/asphalt.137a6bf7.webp"
+  },
+  "polyhaven-concrete_pavers_02": {
+    "url": "https://polyhaven.com/a/concrete_pavers_02",
+    "file": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_pavers_02/concrete_pavers_02_diff_1k.jpg",
+    "md5": "a0669d6bb1ef8db865b7c05795761c5b",
+    "retrieved": "2026-10-07",
+    "licence": "CC0 1.0",
+    "attribution": "Poly Haven (polyhaven.com), CC0",
+    "shipped": "public/models/textures/pavers.aa956249.webp"
   }
 }

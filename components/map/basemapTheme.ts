@@ -1,229 +1,65 @@
-// Re-dyes the third-party OpenFreeMap "Liberty" basemap into the Cordillera
-// Weave palette, and lights the terrain with a hillshade pass.
+// Turns the OpenFreeMap "Liberty" style into a Google Earth-like view (owner 2026-10-07: "used the satellite view to
+// combine with the existing 3d model", with a Google Earth 3D screenshot as the goal): Esri World Imagery is the
+// ground under the 3D city, and Liberty contributes only what a photograph can't carry, its labels and faint road
+// lines. Every map fill (land use, parks, water, the flat and extruded buildings) is hidden: the photograph shows
+// them, and the 3D layer draws the buildings, trees and near roads.
 //
-// Two problems this solves, both measured on the running map:
+// The tiles stay upstream's; only visibility and paint are overridden, so a Liberty update can't break us beyond a
+// layer id going missing (every write is guarded).
 //
-// 1. Liberty ships OSM's default carto colours — highway yellow (#fea), motorway
-//    orange (#fc8), park green (#d8e8c8), cornflower water. Against bone chrome
-//    and madder markers that reads as two unrelated products stacked on top of
-//    each other.
-// 2. The map runs at pitch 60 with terrain exaggerated 1.35×, but Liberty has no
-//    relief shading of its own, so a mountain city rendered in 3D still read as
-//    a flat pale sheet. The DEM was already loaded — nothing was drawing it.
-//
-// Both are fixed here rather than by forking the style: the tiles stay
-// upstream's, only paint is overridden, so a Liberty update can't break us
-// beyond a layer id going missing (each write is guarded).
-//
-// Two palettes, day and night, chosen from `data-theme` on <html> each time
-// this runs, so MapView can call it again when the visitor toggles the theme.
-import type { Map as MapLibreMap } from "maplibre-gl";
+// Two palettes, day and night, chosen from `data-theme` on <html> each time this runs, so MapView can call it again
+// when the visitor toggles the theme.
+import type { Map as MapLibreMap, LayerSpecification } from "maplibre-gl";
+import { IMAGERY_HD_ID, IMAGERY_HD_MINZOOM, IMAGERY_HD_SOURCE, IMAGERY_ID, IMAGERY_SOURCE } from "@/lib/map/sources";
 
 interface Palette {
-  ground: string;
-  label: string; // major labels
-  thread: string; // minor labels, rails
-  roadMajor: [fill: string, casing: string];
-  roadMid: [fill: string, casing: string];
-  roadMinor: [fill: string, casing: string];
-  weld: string; // vegetation and parks
-  wood: string;
-  pitch: string;
-  residential: string;
-  school: string;
-  hospital: string;
-  sand: string;
-  ice: string;
-  water: string;
-  waterLabel: string;
-  aeroway: string;
-  building: string;
-  boundary: [outer: string, inner: string];
+  background: string; // under the imagery while its tiles load
+  brightness: number; // imagery
+  saturation: number;
+  contrast: number;
+  label: string;
+  minorLabel: string;
   halo: string;
-  shadow: string;
-  highlight: string;
-  accent: string;
+  road: [major: string, mid: string, minor: string];
+  rail: string;
+  boundary: string;
 }
 
-// The ground the map is woven on. Roads are graded warp threads rather than
-// hue-coded classes; hierarchy comes from value and width, not colour.
 const DAY: Palette = {
-  ground: "#F5F0E6",
-  label: "#16130F",
-  thread: "#6B6156",
-  roadMajor: ["#EFE3CD", "#9C8969"],
-  roadMid: ["#F2EADC", "#B7A78C"],
-  roadMinor: ["#FBF7EF", "#C8BCA6"],
-  weld: "#DDD3AC", // weld dye, lightened: straw, not sage (owner: no green)
-  wood: "rgba(214,203,160,0.7)",
-  pitch: "#E3DABB",
-  residential: "rgba(232,223,208,0.25)",
-  school: "#E6E2CE",
-  hospital: "#EDDDD8",
-  sand: "#EFE6D2",
-  ice: "#E8ECEC",
-  water: "#9FB3C4", // indigo dye, lightened — the one cool note
-  waterLabel: "#44586B",
-  aeroway: "#E4DFD6",
-  building: "#E2D9CA",
-  boundary: ["rgba(107,97,86,0.35)", "rgba(107,97,86,0.55)"],
-  halo: "rgba(245,240,230,0.9)",
-  // Warp in the shadows, bone on the lit faces: the chrome's own threads.
-  shadow: "rgba(22,19,15,0.30)",
-  highlight: "rgba(255,251,242,0.22)",
-  accent: "rgba(140,35,24,0.14)",
+  background: "#3A4148",
+  brightness: 1,
+  saturation: 0.1,
+  contrast: 0.1,
+  label: "#FFFFFF",
+  minorLabel: "#F3EFE6",
+  halo: "rgba(12,14,16,0.78)",
+  road: ["rgba(255,236,190,0.62)", "rgba(255,255,255,0.42)", "rgba(255,255,255,0.2)"],
+  rail: "rgba(255,255,255,0.35)",
+  boundary: "rgba(255,255,255,0.4)",
 };
 
-// Night: the walnut ground of the dark chrome, roads as lighter browns
-// catching light, parks a dark straw, water the one cool note still (slate).
+// Night: the photograph dimmed and cooled, labels kept white.
 const NIGHT: Palette = {
-  ground: "#30261F",
-  label: "#F3ECE1",
-  thread: "#CDBBA7",
-  roadMajor: ["#7A6452", "#3F322A"],
-  roadMid: ["#65513F", "#382C24"],
-  roadMinor: ["#524234", "#342920"],
-  weld: "#3D3527",
-  wood: "rgba(61,53,39,0.8)",
-  pitch: "#41382A",
-  residential: "rgba(65,52,43,0.35)",
-  school: "#3E332A",
-  hospital: "#44322D",
-  sand: "#433728",
-  ice: "#403B36",
-  water: "#3A4852",
-  waterLabel: "#AEBFCB",
-  aeroway: "#3A2E26",
-  building: "#403229",
-  boundary: ["rgba(201,184,165,0.30)", "rgba(201,184,165,0.50)"],
-  halo: "rgba(48,38,31,0.9)",
-  shadow: "rgba(12,8,6,0.45)",
-  highlight: "rgba(243,236,225,0.10)",
-  accent: "rgba(217,138,123,0.10)",
+  background: "#14181C",
+  brightness: 0.48,
+  saturation: -0.3,
+  contrast: 0.06,
+  label: "#F3F1EC",
+  minorLabel: "#D9D4CA",
+  halo: "rgba(0,0,0,0.85)",
+  road: ["rgba(255,214,150,0.5)", "rgba(230,230,230,0.32)", "rgba(220,220,220,0.16)"],
+  rail: "rgba(220,220,220,0.28)",
+  boundary: "rgba(220,220,220,0.32)",
 };
 
-// Liberty's park and garden POIs draw a green tree sprite, and sprites can't be
-// re-dyed. The owner's rule is no green anywhere, so those icons are hidden
-// (their labels stay); every other POI icon keeps the half-strength fade.
+// Liberty's park and garden POIs draw a green tree sprite over the photograph's own trees: hidden (labels stay); every
+// other POI icon at half strength, so the destination pins stay the point.
 const HIDE_PARK_ICONS = ["match", ["get", "class"], ["park", "garden"], 0, 0.5];
 
-/** [layerId, paintProperty, value] — applied only if the layer exists. */
-type Paint = [string, string, unknown];
-
-const LINE = "line-color";
-const FILL = "fill-color";
-const TEXT = "text-color";
-
-const LABELS: [id: string, major: boolean][] = [
-  ["poi_r20", false],
-  ["poi_r7", false],
-  ["poi_r1", false],
-  ["airport", false],
-  ["highway-name-minor", false],
-  ["highway-name-major", true],
-  ["label_other", false],
-  ["label_village", true],
-  ["label_town", true],
-  ["label_city", true],
-  ["label_city_capital", true],
-  ["label_state", false],
-];
-
-function paints(p: Palette): Paint[] {
-  return [
-    ["background", "background-color", p.ground],
-    ["natural_earth", "raster-opacity", 0],
-
-    // Vegetation — Baguio's defining cover, so it keeps its own value, just in
-    // weld rather than OSM's mint green.
-    ["park", FILL, p.weld],
-    ["park_outline", LINE, p.weld],
-    ["landcover_wood", FILL, p.wood],
-    ["landcover_grass", FILL, p.weld],
-    ["landuse_pitch", FILL, p.pitch],
-    ["landuse_track", FILL, p.pitch],
-    ["landuse_cemetery", FILL, p.pitch],
-    ["landuse_residential", FILL, p.residential],
-    ["landuse_school", FILL, p.school],
-    ["landuse_hospital", FILL, p.hospital],
-    ["landcover_sand", FILL, p.sand],
-    ["landcover_ice", FILL, p.ice],
-
-    // Water — the one cool note, so Burnham's lagoon and the rivers read at all.
-    ["water", FILL, p.water],
-    ["waterway_river", LINE, p.water],
-    ["waterway_other", LINE, p.water],
-    ["waterway_tunnel", LINE, p.water],
-    ["waterway_line_label", TEXT, p.waterLabel],
-    ["water_name_point_label", TEXT, p.waterLabel],
-    ["water_name_line_label", TEXT, p.waterLabel],
-    ["poi_transit", TEXT, p.waterLabel],
-
-    ["aeroway_fill", FILL, p.aeroway],
-    ["aeroway_runway", LINE, p.roadMinor[0]],
-    ["aeroway_taxiway", LINE, p.roadMinor[0]],
-
-    ["building", FILL, p.building],
-    // The extruded massing is what the pitched camera actually shows of the city,
-    // so it gets the wall colour verified from street level — painted CHB render,
-    // not OSM's neutral grey.
-    ["building-3d", "fill-extrusion-color", p.building],
-    ["building-3d", "fill-extrusion-opacity", 0.92],
-
-    // Liberty's POI markers are sprite images, so they can't be re-dyed — they
-    // stay OSM blue and green. Dropped back far enough to read as reference
-    // rather than compete with the madder destination pins, which are the point.
-    ["poi_r20", "icon-opacity", HIDE_PARK_ICONS],
-    ["poi_r7", "icon-opacity", HIDE_PARK_ICONS],
-    ["poi_r1", "icon-opacity", HIDE_PARK_ICONS],
-    ["poi_transit", "icon-opacity", 0.6],
-
-    ["boundary_3", LINE, p.boundary[0]],
-    ["boundary_2", LINE, p.boundary[1]],
-
-    ["road_major_rail", LINE, p.thread],
-    ["road_major_rail_hatching", LINE, p.thread],
-    ["road_transit_rail", LINE, p.thread],
-    ["road_transit_rail_hatching", LINE, p.thread],
-    ["highway-name-path", TEXT, p.thread],
-
-    ...LABELS.flatMap(([id, major]): Paint[] => [
-      [id, TEXT, major ? p.label : p.thread],
-      [id, "text-halo-color", p.halo],
-    ]),
-    ["waterway_line_label", "text-halo-color", p.halo],
-    ["water_name_point_label", "text-halo-color", p.halo],
-    ["water_name_line_label", "text-halo-color", p.halo],
-  ];
-}
-
-// Roads come in tunnel_/road_/bridge_ triplets with identical ids otherwise, so
-// they're generated rather than listed three times.
-const ROAD_TIERS: [suffix: string, tier: "roadMajor" | "roadMid" | "roadMinor"][] = [
-  ["motorway", "roadMajor"],
-  ["motorway_link", "roadMajor"],
-  ["trunk_primary", "roadMajor"],
-  ["secondary_tertiary", "roadMid"],
-  ["link", "roadMid"],
-  ["street", "roadMinor"],
-  ["minor", "roadMinor"],
-  ["service_track", "roadMinor"],
-  ["path_pedestrian", "roadMinor"],
-];
-
-function roadPaints(p: Palette): Paint[] {
-  const out: Paint[] = [];
-  for (const prefix of ["road", "tunnel", "bridge"]) {
-    for (const [suffix, tier] of ROAD_TIERS) {
-      const [fill, casing] = p[tier];
-      out.push([`${prefix}_${suffix}`, LINE, fill]);
-      out.push([`${prefix}_${suffix}_casing`, LINE, casing]);
-    }
-  }
-  return out;
-}
-
-const HILLSHADE_ID = "terrain-hillshade";
+// Road line tiers by Liberty's id suffix; casings, paths and one-way arrows are hidden.
+const MAJOR = /(motorway|trunk_primary)$/;
+const MID = /(secondary_tertiary|_link)$/;
+const MINOR = /(street|minor|service_track)$/;
 
 /**
  * Liberty's style names some POI icons ("office", "gate", "atm", …) that its
@@ -241,56 +77,78 @@ export function isDarkTheme(): boolean {
   return typeof document !== "undefined" && document.documentElement.dataset.theme === "dark";
 }
 
-/**
- * Re-dye Liberty and add relief shading, in the day or night palette. Safe to
- * call on every style load and on every theme change: every write is guarded
- * on the layer existing, and the hillshade is added once.
- *
- * `demSource` must already be on the map (applyTerrain adds it).
- */
-export function applyWeaveBasemap(map: MapLibreMap, demSource: string) {
-  const p = isDarkTheme() ? NIGHT : DAY;
+type Write = ["layout" | "paint", string, unknown];
 
-  // Relief first, so it sits under the road/label writes below and any failure
-  // there still leaves the terrain readable.
-  if (!map.getLayer(HILLSHADE_ID) && map.getSource(demSource)) {
-    // The shading gets its own copy of the DEM: sharing one raster-dem source
-    // between the hillshade and the 3D terrain renders the relief worse (and
-    // MapLibre warns about it). Same tiles, so the browser cache serves them.
-    const hillshadeSource = `${demSource}-hillshade`;
-    if (!map.getSource(hillshadeSource)) {
-      map.addSource(hillshadeSource, { ...map.getSource(demSource)!.serialize(), attribution: undefined });
-    }
-    map.addLayer(
-      { id: HILLSHADE_ID, type: "hillshade", source: hillshadeSource, paint: { "hillshade-exaggeration": 0.5 } },
-      // Above the land fills, below water and roads: ridges get modelled,
-      // carriageways and labels stay crisp.
-      map.getLayer("waterway_tunnel") ? "waterway_tunnel" : undefined,
-    );
+function writesFor(layer: LayerSpecification, p: Palette): Write[] {
+  const { id, type } = layer;
+  const hide: Write[] = [["layout", "visibility", "none"]];
+  if (id === IMAGERY_ID || id === IMAGERY_HD_ID) {
+    return [
+      ["paint", "raster-brightness-max", p.brightness],
+      ["paint", "raster-saturation", p.saturation],
+      ["paint", "raster-contrast", p.contrast],
+    ];
   }
+  if (id === "background") return [["paint", "background-color", p.background]];
+  if (type === "fill" || type === "fill-extrusion" || type === "raster" || type === "hillshade") return hide;
+  if (type === "line") {
+    if (id.startsWith("boundary")) return [["paint", "line-color", p.boundary]];
+    if (/rail/.test(id) && !/hatching/.test(id)) return [["paint", "line-color", p.rail]];
+    if (!/^(road|bridge|tunnel)_/.test(id) || /casing|path_pedestrian|hatching/.test(id)) return hide;
+    const colour = MAJOR.test(id) ? p.road[0] : MID.test(id) ? p.road[1] : MINOR.test(id) ? p.road[2] : null;
+    return colour ? [["paint", "line-color", colour]] : hide;
+  }
+  if (type === "symbol") {
+    if (id.startsWith("road_one_way")) return hide;
+    const minor = /^(poi|highway-name-(minor|path)|label_other|water)/.test(id);
+    const out: Write[] = [
+      ["paint", "text-color", minor ? p.minorLabel : p.label],
+      ["paint", "text-halo-color", p.halo],
+      ["paint", "text-halo-width", 1.4],
+    ];
+    if (/^poi_r/.test(id)) out.push(["paint", "icon-opacity", HIDE_PARK_ICONS]);
+    return out;
+  }
+  return [];
+}
 
-  const hillshade: Paint[] = [
-    [HILLSHADE_ID, "hillshade-shadow-color", p.shadow],
-    [HILLSHADE_ID, "hillshade-highlight-color", p.highlight],
-    [HILLSHADE_ID, "hillshade-accent-color", p.accent],
-  ];
-
-  for (const [id, prop, value] of [...hillshade, ...paints(p), ...roadPaints(p)]) {
-    if (!map.getLayer(id)) continue;
-    // No fade. With 3D terrain on, MapLibre draws fills, lines and the
-    // hillshade into cached terrain textures; a 300 ms colour fade got
-    // captured part-way and never redrawn, so after a theme toggle the ground
-    // kept the old palette under new labels (seen on a real GPU).
-    try {
-      map.setPaintProperty(id, `${prop}-transition`, { duration: 0, delay: 0 });
-    } catch {
-      // Not transitionable; nothing to switch off.
-    }
-    try {
-      map.setPaintProperty(id, prop, value);
-    } catch {
-      // A Liberty update renamed or retyped this layer. Skip it — a basemap
-      // that is partly the wrong colour beats a map that throws on load.
+/**
+ * Put the imagery under Liberty's labels and set every layer for the view, in the day or night palette. Safe to call
+ * on every style load and on every theme change: every write is guarded on the layer existing, and the imagery is
+ * added once.
+ */
+export function applyEarthBasemap(map: MapLibreMap) {
+  const p = isDarkTheme() ? NIGHT : DAY;
+  const layers = map.getStyle()?.layers ?? [];
+  if (!map.getLayer(IMAGERY_ID)) {
+    if (!map.getSource(IMAGERY_ID)) map.addSource(IMAGERY_ID, IMAGERY_SOURCE);
+    if (!map.getSource(IMAGERY_HD_ID)) map.addSource(IMAGERY_HD_ID, IMAGERY_HD_SOURCE);
+    const above = layers.find((l) => l.id !== "background")?.id; // right above the background
+    const paint = { "raster-fade-duration": 0 };
+    map.addLayer({ id: IMAGERY_ID, type: "raster", source: IMAGERY_ID, maxzoom: IMAGERY_HD_MINZOOM, paint }, above);
+    map.addLayer({ id: IMAGERY_HD_ID, type: "raster", source: IMAGERY_HD_ID, minzoom: IMAGERY_HD_MINZOOM, paint }, above);
+  }
+  for (const layer of map.getStyle()?.layers ?? []) {
+    for (const [kind, prop, value] of writesFor(layer, p)) {
+      try {
+        if (kind === "layout") {
+          map.setLayoutProperty(layer.id, prop, value);
+          continue;
+        }
+        // No fade. With 3D terrain on, MapLibre draws fills, lines and rasters
+        // into cached terrain textures; a 300 ms colour fade got captured
+        // part-way and never redrawn, so after a theme toggle the ground kept
+        // the old palette under new labels (seen on a real GPU).
+        try {
+          map.setPaintProperty(layer.id, `${prop}-transition`, { duration: 0, delay: 0 });
+        } catch {
+          // Not transitionable; nothing to switch off.
+        }
+        map.setPaintProperty(layer.id, prop, value);
+      } catch {
+        // A Liberty update renamed or retyped this layer. Skip it: a map that
+        // is partly the wrong colour beats a map that throws on load.
+      }
     }
   }
 }

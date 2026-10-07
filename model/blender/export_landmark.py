@@ -28,7 +28,7 @@ def export_landmark_glb(collection_name, out_path, image_format="WEBP", image_qu
         export_cameras=False, export_lights=False, export_animations=False, export_skins=False, export_morph=False,
         export_materials="EXPORT", export_image_format=image_format, export_image_quality=image_quality,
         export_texcoords=True, export_normals=NORMALS, export_tangents=False,
-        export_vertex_color="NONE", export_attributes=False, export_extras=False,
+        export_vertex_color="MATERIAL", export_attributes=False, export_extras=False,
         export_draco_mesh_compression_enable=False, export_use_gltfpack=False,
     )
     assert result == {"FINISHED"}, result

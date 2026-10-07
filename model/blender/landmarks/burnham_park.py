@@ -37,9 +37,7 @@ STALL_ROOF = lm.material("MAT_burnham_stall_roof", srgb(40, 150, 120), 0.6)   # 
 PAVILION_ROOF = lm.material("MAT_burnham_pavilion_roof", srgb(50, 90, 170), 0.6)  # [S5] blue-roofed pavilion
 POST = lm.material("MAT_burnham_post", srgb(200, 200, 194), 0.8)
 # Ready-made CC0 assets (Kenney kits, model/sources.json), recoloured toward S5's greens
-PINES = [lm.asset_mesh("pine_simple_c", 18.0, {"leafs": (58, 92, 56), "woodBark": (92, 70, 54)}),   # simple: the whole park's budget
-         lm.asset_mesh("pine_simple_a", 15.0, {"leafs": (52, 86, 52), "woodBark": (92, 70, 54)})]
-BROADLEAF = lm.asset_mesh("broadleaf", 11.0, {"leafs": (88, 122, 60), "woodBark": (110, 84, 60)})
+PINES = lm.FloraMix("park", extra={"bottlebrush": 30})   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 ROWBOAT = lm.asset_mesh("rowboat", 0.7)    # Kenney wooden rowboat, about 2.6 m long at this height
 S = lm.Shapes(coll, 0.0, {WATER.name: 4.0, RIM.name: 2.0})   # bearing 0: a = north (y), w = east (x)
 
@@ -139,8 +137,8 @@ S.pyramid("pavilion_roof", py, px, 4.6, water + 3.3, water + 5.8, PAVILION_ROOF)
 # Trees ringing the lake, 7 m out from the rim: pines and broadleaf (ESTIMATE spacing; S5 shows a dense ring)
 perim = [(ring[i], ring[(i + 1) % len(ring)]) for i in range(len(ring))]
 total = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in perim)
-for n in range(int(total // 18)):
-    d = n * 18.0 + rng.uniform(0, 4)
+for n in range(int(total // 12)):
+    d = n * 12.0 + rng.uniform(0, 3)
     for (x0, y0), (x1, y1) in perim:
         L = math.hypot(x1 - x0, y1 - y0)
         if d <= L:
@@ -153,7 +151,7 @@ for n in range(int(total // 18)):
     if inside(tx, ty):                  # concave corners: keep trees out of the water
         continue
     gz = lm.rel_ground(fp, [(tx, ty)], low=True)[0]
-    mesh = BROADLEAF if n % 3 == 0 else PINES[n % 2]   # two pines to one broadleaf (S5)
+    mesh = PINES[n]   # the park mix, bottlebrush round the lake (model/flora.json S2: Myrtaceae most common)
     lm.place(coll, f"tree_{n:02d}", mesh, tx, ty, gz - 0.3, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
 
 lm.human_reference(coll, ring[0][0] * 1.08, ring[0][1] * 1.08)

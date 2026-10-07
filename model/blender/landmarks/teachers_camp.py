@@ -21,8 +21,7 @@ TRACK = lm.material("MAT_teachers_track", srgb(150, 100, 72), 0.95)       # ESTI
 FIELD = lm.textured("MAT_teachers_field", lm.pattern_image("TEX_teachers_field",
                     np.array((0.36, 0.55, 0.25)) * (1 + 0.05 * np.sin(2 * np.pi * 6 * lm._grid()[1]))[..., None]), srgb(96, 140, 62), 0.95)
 LINE = lm.material("MAT_teachers_line", srgb(236, 236, 230), 0.8)
-PINES = [lm.asset_mesh("pine_tall_c", 24.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 20.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 # [S2] way/3495210: a 174 x 99 m stadium shape along bearing 25.9 deg
 O = lm.Shapes(coll, 25.9, {FIELD.name: 8.0})
 R_OUT, HALF = 49.5, 174.0 / 2 - 49.5           # end radius and half the straight
@@ -89,7 +88,7 @@ for k in range(0, len(pts)):
         x, y, _ = O.P(a + rng.uniform(-2, 2), w + rng.uniform(-2, 2), 0.0)
         z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
         lowest = min(lowest, z)
-        lm.place(coll, f"tree_{n:02d}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+        lm.place(coll, f"tree_{n:02d}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
         n += 1
 
 hx, hy, _ = O.P(0.0, -(R_OUT - 3.0), 0.0)

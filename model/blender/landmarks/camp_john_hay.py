@@ -66,8 +66,7 @@ FLOOR = lm.material("MAT_cjh_veranda", srgb(112, 64, 44), 0.6)             # [S3
 LAMP = lm.material("MAT_cjh_lamp", srgb(30, 32, 34), 0.5)
 URN = lm.material("MAT_cjh_urn", srgb(64, 140, 140), 0.6)                  # [S3] teal-rimmed urn planters
 BRICK = lm.material("MAT_cjh_brick", srgb(120, 72, 58), 0.9)
-PINES = [lm.asset_mesh("pine_tall_c", 24.0, {"leafs": (66, 100, 58), "woodBark": (96, 74, 56)}),   # [S1] tall stands
-         lm.asset_mesh("pine_tall_a", 20.0, {"leafs": (58, 94, 54), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 BUSH = lm.asset_mesh("bush", 1.3, {"": (60, 110, 50)})
 S = lm.Shapes(coll, 0.0, {GRASS.name: 4.0, FLOWERS.name: 2.0, PAVING.name: 3.0, PILLAR.name: 1.5, ROOF.name: 1.0}, pitch_deg=30.0)
 lowest = 0.0
@@ -260,7 +259,7 @@ for px, py in spots:
         continue
     z = lm.rel_ground(fp, [(px, py)], low=True)[0] - 0.3
     lowest = min(lowest, z)
-    lm.place(coll, f"tree_{trees:02d}", PINES[trees % 2], px, py, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{trees:02d}", PINES[trees], px, py, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     trees += 1
 
 lm.human_reference(coll, LX + 3.0, LY)

@@ -35,8 +35,7 @@ def slate(band):
 
 WHITE = lm.material("MAT_bencab_white", srgb(240, 240, 236), 0.6)        # [S3] white roof slabs and canopy
 RED = lm.material("MAT_bencab_red", srgb(214, 32, 48), 0.5)              # [S3] the "bencab" sign
-PINES = [lm.asset_mesh("pine_tall_c", 20.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 16.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {})
 ring = fp["rings"][0]
 # [S2] Asin Road runs past the north side; the building steps down the slope away from it
@@ -89,7 +88,7 @@ for t in np.linspace(0, 2 * math.pi, 9, endpoint=False):
         continue
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
     zl = min(zl, z)
-    lm.place(coll, f"tree_{n}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     n += 1
 
 lm.human_reference(coll, -2.0, 30.0)

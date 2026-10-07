@@ -37,8 +37,11 @@ export default function AboutPage() {
         </p>
         <p>
           The 3D buildings stand on those footprints. Their heights are estimated from each building’s type,
-          size and distance from the city centre: plausible massing, not measured heights. Buildings and
-          landmarks keep their real size; only the ground is drawn taller. The landmark models are built from
+          size and distance from the city centre: plausible massing, not measured heights. Their roofs, and the
+          ground of the parks and streets, show the satellite photograph. Buildings and landmarks keep their real
+          size; only the ground is drawn taller. The trees stand where ESA WorldCover maps tree cover, in the mix of
+          species Baguio actually grows: Benguet pine, alder, eucalyptus, cypress, Norfolk pine, balete, and the
+          flowering African tulip, pink shower and bottlebrush. Their exact places and heights are illustrative. The landmark models are built from
           the sources listed in each landmark’s{" "}
           <a href="https://github.com/NightServant/baguio-city-3d/tree/main/model/landmarks">research sheet</a>.
           Their foundations were sized partly on the Copernicus terrain model, produced using Copernicus

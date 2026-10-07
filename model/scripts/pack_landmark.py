@@ -3,7 +3,7 @@
 # dependencies = []
 # ///
 """Landmark procedure step D: compress, budget-check, hash and publish one landmark.
-Run: uv run model/scripts/pack_landmark.py <slug>"""
+Run: uv run model/scripts/pack_landmark.py <slug> | --prune"""
 import hashlib
 import json
 import struct
@@ -59,5 +59,19 @@ def main(slug):
     print(f"PACK {slug}: {len(data):,} bytes (geometry {geometry:,}), {tris:,} triangles, {name}")
 
 
+def prune():
+    """Drop the published GLBs and manifest entries of slugs no longer in the registry (a regenerated district)."""
+    reg = json.loads(LANDMARKS.read_text())
+    manifest = json.loads(MANIFEST.read_text())
+    gone = [e for e in manifest["landmarks"] if e["slug"] not in reg]
+    for e in gone:
+        (ROOT / "public" / e["url"].lstrip("/")).unlink(missing_ok=True)
+    manifest["landmarks"] = [e for e in manifest["landmarks"] if e["slug"] in reg]
+    MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n")
+    keep = ("slug", "lng", "lat", "url", "rotationDeg", "altitudeM")
+    (PUBLIC / "index.json").write_text(json.dumps({"landmarks": [{k: e[k] for k in keep} for e in manifest["landmarks"]]}, indent=2) + "\n")
+    print(f"pruned {len(gone)}: {', '.join(e['slug'] for e in gone)}")
+
+
 if __name__ == "__main__":
-    main(sys.argv[1])
+    prune() if sys.argv[1] == "--prune" else main(sys.argv[1])

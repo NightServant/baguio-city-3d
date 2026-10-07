@@ -56,3 +56,8 @@ Fix (owner report, 2026-10-05: "Asphalt is not fully rendered"):
 
 ## Ground fit (2026-10-05)
 The cross-sections now sit 0.15 m above the map's own terrain (contract C2, ground fitting), which differs from Copernicus by up to about 2 m along the road. Checked in the live map: the road is continuous.
+
+## Traffic and surfaces (owner requests, 2026-10-07)
+- **Vehicles:** jeepneys in red, blue and yellow liveries, and white taxis and silver cars, in about half the median's tree and lamp stations. Each sits in one of the two lanes on either carriageway, heading with the traffic (right-hand). Sizes are ESTIMATEs: a jeepney 6.1 × 1.9 × 2.0 m, a car 4.4 × 1.8 × 1.45 m. They are vertex-coloured meshes under the trees' material, instanced by gltfpack.
+- **Surfaces:** in the app the asphalt and the sidewalk pavers take the CC0 Poly Haven scans that the city's road tiles use (`asphalt_06`, `concrete_pavers_02`, `fetch_road_textures.py`), tiled at real size in this model's colours.
+- **Budget:** geometry 59.2 KB (tier-1 cap 60 KiB), after cutting the vehicle variants to three jeepneys and two cars, with five-sided wheels.

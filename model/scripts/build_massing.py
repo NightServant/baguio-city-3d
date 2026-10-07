@@ -170,9 +170,10 @@ def prepare():
     fwd = Transformer.from_crs("EPSG:4326", LOCAL_TM, always_xy=True)
     to_tm = lambda g: shapely.transform(g, lambda c: np.column_stack(fwd.transform(c[:, 0], c[:, 1])))
     reg = json.loads(LANDMARKS.read_text())
-    missing = [s for s, e in reg.items() if not e["exclusion"]]
+    missing = [s for s, e in reg.items() if not e["exclusion"] and not e.get("exclusion_parts")]
     assert not missing, f"landmarks without an exclusion ring: {missing}"
-    excl = STRtree([to_tm(shapely.Polygon(e["exclusion"])) for e in reg.values()])
+    # a landmark's ring, or a district's parts: each modelled building's footprint shrunk 0.5 m (district_osm.py)
+    excl = STRtree([to_tm(shapely.Polygon(r)) for e in reg.values() for r in ([e["exclusion"]] if e["exclusion"] else []) + e.get("exclusion_parts", [])])
     cbd = next(f["geometry"]["coordinates"] for f in json.loads((ROOT / "data/geojson/landmarks.geojson").read_text())["features"]
                if f["properties"]["slug"] == "session-road")
     cbd_tm = shapely.Point(fwd.transform(*cbd))

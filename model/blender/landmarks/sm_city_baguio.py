@@ -70,8 +70,7 @@ PAVE = lm.material("MAT_sm_pave", srgb(176, 168, 156), 0.9)
 RED = lm.material("MAT_sm_red", srgb(200, 48, 44), 0.5)
 YELLOW = lm.material("MAT_sm_yellow", srgb(236, 184, 48), 0.5)
 BLUE = lm.material("MAT_sm_blue", srgb(36, 96, 186), 0.5)
-PINES = [lm.asset_mesh("pine_tall_c", 20.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 16.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 TREE = lm.asset_mesh("broadleaf", 5.0, {"leafs": (72, 120, 58), "woodBark": (100, 78, 58)})   # garden shade trees
 HEDGE = lm.material("MAT_sm_hedge", srgb(64, 112, 52), 0.95)      # owner 2026-10-06: green accents, the sky garden
 S = lm.Shapes(coll, 0.0, {WALL.name: 2.0, DECK.name: 4.0, PARK.name: 6.0})   # bearing 0: a = north (y), w = east (x)
@@ -297,7 +296,7 @@ for gx in np.arange(-150.0, 120.0, 13.0):
             continue
         z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
         lowest = min(lowest, z)
-        lm.place(coll, f"pine_{k:02d}", PINES[k % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+        lm.place(coll, f"pine_{k:02d}", PINES[k], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
         k += 1
 
 lm.human_reference(coll, *((p0 + p1) / 2 + np.array(t) * -12.0))

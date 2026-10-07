@@ -39,8 +39,7 @@ LOG = lm.material("MAT_mines_log", srgb(104, 76, 54), 0.85)          # [S3] rust
 EAGLE = lm.material("MAT_mines_eagle", srgb(38, 38, 40), 0.6)        # [S3] black eagle sculpture
 CURB = lm.material("MAT_mines_curb", srgb(128, 124, 116), 0.9)
 # Ready-made CC0 assets (Kenney kits, model/sources.json), recoloured toward S3
-PINES = [lm.asset_mesh("pine_tall_c", 18.0, {"leafs": (72, 108, 62), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 14.0, {"leafs": (64, 100, 58), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("park")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 BUSH = lm.asset_mesh("bush", 1.4, {"": (64, 104, 52)})
 S = lm.Shapes(coll, 0.0, {PAVING.name: 3.0, ROCK.name: 6.0})   # bearing 0: a = north (y), w = east (x)
 rng = np.random.default_rng(1950)
@@ -211,7 +210,7 @@ for gx in np.arange(-60, 70, 12.0):
             continue
         z = zlow([(px, py)]) - 0.3
         lowest = min(lowest, z)
-        lm.place(coll, f"tree_{trees:02d}", PINES[trees % 2], px, py, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+        lm.place(coll, f"tree_{trees:02d}", PINES[trees], px, py, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
         trees += 1
 
 lm.human_reference(coll, cx + 3.5, cy - 3.5)

@@ -49,13 +49,9 @@ export interface TimelineState {
   activeEra: Era | null;
 }
 
-export type Basemap = "terrain" | "satellite";
-
 export interface UiState {
   selectedSlug: string | null;
   activeSheet: SheetKind;
-  /** Active basemap: vector Liberty terrain vs. Esri satellite imagery. */
-  basemap: Basemap;
   /**
    * Bumped on every MapLibre `style.load`. `setStyle` destroys all sources,
    * layers and terrain, so app layers must be re-added afterward. MapLayers is
@@ -105,7 +101,6 @@ interface MapStore {
   openSheet: (sheet: SheetKind) => void;
   closeSheet: () => void;
   selectDestination: (slug: string) => void;
-  setBasemap: (basemap: Basemap) => void;
   bumpStyleGeneration: () => void;
 }
 
@@ -134,7 +129,7 @@ export const useMapStore = create<MapStore>((set) => ({
     fareResult: null,
   },
   timeline: { activeEra: null },
-  ui: { selectedSlug: null, activeSheet: null, basemap: "terrain", styleGeneration: 0 },
+  ui: { selectedSlug: null, activeSheet: null, styleGeneration: 0 },
 
   setMap: (map) => set({ map }),
   setMapUnavailable: () => set({ mapUnavailable: true }),
@@ -175,7 +170,6 @@ export const useMapStore = create<MapStore>((set) => ({
   closeSheet: () => set((s) => ({ ui: { ...s.ui, activeSheet: null } })),
   selectDestination: (slug) =>
     set((s) => ({ ui: { ...s.ui, selectedSlug: slug, activeSheet: "destination" } })),
-  setBasemap: (basemap) => set((s) => ({ ui: { ...s.ui, basemap } })),
   bumpStyleGeneration: () =>
     set((s) => ({ ui: { ...s.ui, styleGeneration: s.ui.styleGeneration + 1 } })),
 }));
@@ -192,7 +186,6 @@ export const useActiveEra = () => useMapStore((s) => s.timeline.activeEra);
 export const useSelectedSlug = () => useMapStore((s) => s.ui.selectedSlug);
 export const useActiveSheet = () => useMapStore((s) => s.ui.activeSheet);
 export const useActiveRouteCode = () => useMapStore((s) => s.transit.activeRouteCode);
-export const useBasemap = () => useMapStore((s) => s.ui.basemap);
 export const useStyleGeneration = () => useMapStore((s) => s.ui.styleGeneration);
 
 /** Stable bag of every action. Actions are defined once, so this never changes identity per-field. */
@@ -216,7 +209,6 @@ export const useMapActions = () =>
       openSheet: s.openSheet,
       closeSheet: s.closeSheet,
       selectDestination: s.selectDestination,
-      setBasemap: s.setBasemap,
       bumpStyleGeneration: s.bumpStyleGeneration,
     })),
   );

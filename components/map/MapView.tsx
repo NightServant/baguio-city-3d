@@ -12,12 +12,12 @@ import maplibregl, {
   type Map as MapLibreMap,
   type MapMouseEvent,
 } from "maplibre-gl";
-import { useMapStore, type Basemap } from "@/stores/useMapStore";
+import { useMapStore } from "@/stores/useMapStore";
 import { BAGUIO_BOUNDS, DEFAULT_CAMERA } from "@/lib/constants";
 import type { TerrainConfig } from "@/types/api";
 import { MapLayers } from "./MapLayers";
-import { applyWeaveBasemap, blankMissingIcons } from "./basemapTheme";
-import { BASEMAP_STYLE, SATELLITE_STYLE, DEM_SOURCE, TERRAIN_EXAGGERATION, applyTerrain, applySky } from "@/lib/map/sources";
+import { applyEarthBasemap, blankMissingIcons } from "./basemapTheme";
+import { BASEMAP_STYLE, TERRAIN_EXAGGERATION, applyTerrain, applySky } from "@/lib/map/sources";
 
 /** Expand [minLng,minLat,maxLng,maxLat] outward so panning has a little slack. */
 function expandBounds(
@@ -38,21 +38,10 @@ export function MapView() {
   // canvas. Once the user dismisses it we stay quiet for the session.
   const [tileError, setTileError] = useState(false);
   const errorDismissed = useRef(false);
-  const basemap = useMapStore((s) => s.ui.basemap);
   const styleGeneration = useMapStore((s) => s.ui.styleGeneration);
+  const storeMap = useMapStore((s) => s.map);
   const unavailable = useMapStore((s) => s.mapUnavailable);
-  // Which basemap the map's CURRENT, FULLY LOADED style reflects. Only ever
-  // updated inside the map's `style.load` handler (via pendingBasemapRef), so
-  // `appliedBasemap === basemap` is a commit-time guarantee that the style is
-  // loaded and matches the requested basemap. MapLayers is mounted only under
-  // that condition — see the render expression below.
-  const [appliedBasemap, setAppliedBasemap] = useState<Basemap>("terrain");
-  // The basemap the in-flight (or most recent) style corresponds to. Written
-  // right before map creation / setStyle; read by the style.load handler.
-  const pendingBasemapRef = useRef<Basemap>("terrain");
-
-  // True whenever a stylesheet is in flight — from map construction and from
-  // every setStyle() basemap swap until the matching style.load. In that window
+  // True while the stylesheet is in flight, from map construction until style.load. In that window
   // MapLibre has torn down style.projection, and any frame rendered against it
   // throws (Painter.useProgram dereferences style.projection.shaderPreludeCode).
   // Starts true: the initial style is in flight the moment the map is created.
@@ -61,18 +50,11 @@ export function MapView() {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    // Honor a basemap already chosen before the map exists (the ?basemap=
-    // deep-link sets the store while this component's dynamic chunk is still
-    // loading), so a satellite deep-link starts directly on the satellite style
-    // instead of loading Liberty and then switching.
-    const initialBasemap = useMapStore.getState().ui.basemap;
-    pendingBasemapRef.current = initialBasemap;
-
     let map: MapLibreMap;
     try {
       map = new maplibregl.Map({
         container: containerRef.current,
-        style: initialBasemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE,
+        style: BASEMAP_STYLE,
         center: DEFAULT_CAMERA.center as [number, number],
         zoom: DEFAULT_CAMERA.zoom,
         pitch: DEFAULT_CAMERA.pitch,
@@ -91,13 +73,8 @@ export function MapView() {
     mapRef.current = map;
     useMapStore.getState().setMap(map);
 
-    // applyTerrain (lib/map/sources) re-establishes the 3D relief after any style
-    // load. It runs on the initial style.load, the /api/geo/terrain fetch, AND
-    // after every setStyle basemap switch — because setStyle() destroys ALL
-    // sources, layers, terrain and sky. addSource is guarded (idempotent);
-    // setTerrain/setSky are cheap and re-run each time so the DEM + atmosphere
-    // are always restored, keeping satellite imagery draped over the same 3D
-    // terrain.
+    // applyTerrain (lib/map/sources) sets up the 3D relief on style.load and again after the /api/geo/terrain fetch.
+    // addSource is guarded (idempotent); setTerrain/setSky are cheap.
 
     // Pull terrain config (works without a DB — pure constants), fall back safely.
     let exaggeration = TERRAIN_EXAGGERATION;
@@ -112,35 +89,28 @@ export function MapView() {
         applyTerrain(map, exaggeration);
       });
 
-    // Fires on the initial style AND after every basemap setStyle(). Re-apply
-    // terrain/sky, then record which basemap this loaded style belongs to and
-    // bump the generation. The resulting commit is the ONLY place MapLayers can
-    // (re)mount, and at that instant the style spec is guaranteed loaded — the
-    // exact flag addSource's _checkLoaded asserts is set right before this
-    // event fires.
+    // The satellite imagery under the 3D city (owner 2026-10-07: "used the satellite view to combine with the
+    // existing 3d model", Google Earth-like; the satellite toggle is gone). Then bump the generation: the resulting
+    // commit is the ONLY place MapLayers mounts, and at that instant the style spec is guaranteed loaded, the exact
+    // flag addSource's _checkLoaded asserts.
     const onStyleLoad = () => {
       styleInFlightRef.current = false;
       applyTerrain(map, exaggeration);
-      // Liberty only. Satellite imagery carries its own colour and its own
-      // shading, so re-dyeing or hillshading it would fight the photograph.
-      if (pendingBasemapRef.current === "terrain") {
-        applyWeaveBasemap(map, DEM_SOURCE);
-      }
+      applyEarthBasemap(map);
       useMapStore.getState().bumpStyleGeneration();
-      setAppliedBasemap(pendingBasemapRef.current);
       setReady(true);
     };
     map.on("style.load", onStyleLoad);
 
     // The theme toggle flips data-theme on <html> without a reload. Re-dye the
-    // basemap and sky in place; paint writes need no style swap. Mid-swap,
-    // onStyleLoad applies the current theme itself.
+    // imagery, labels and sky in place; paint writes need no style swap. Before
+    // style.load, onStyleLoad applies the current theme itself.
     const themeObserver = new MutationObserver(() => {
       // Not isStyleLoaded(): that also waits on tiles, so a toggle during a
       // fly or a tile load was dropped and the map kept the old palette.
       if (styleInFlightRef.current) return;
       applySky(map);
-      if (pendingBasemapRef.current === "terrain") applyWeaveBasemap(map, DEM_SOURCE);
+      applyEarthBasemap(map);
     });
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
@@ -243,45 +213,12 @@ export function MapView() {
     };
   }, []);
 
-  // Basemap switch. setStyle preserves the camera transform; onStyleLoad (above)
-  // re-applies terrain/sky, records the applied basemap, and bumps the
-  // generation, at which point MapLayers remounts. `diff: false` swaps the whole
-  // style rather than diffing raster-vs-vector.
-  //
-  // Ordering guarantee (the fix for "Style is not done loading"): MapLayers is
-  // rendered only while `appliedBasemap === basemap`. The commit that changes
-  // `basemap` therefore UNMOUNTS MapLayers during its mutation phase — running
-  // every layer cleanup against the still-loaded old style — before this passive
-  // effect calls setStyle and unloads it. While the new style is in flight the
-  // mismatch keeps MapLayers unmounted (no mount effects can run, including
-  // Strict Mode double-invokes), and the only path that mounts it again is the
-  // style.load commit above, where the style spec is loaded by definition. The
-  // layer install effects can therefore never race setStyle, on any load path.
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready) return;
-    if (appliedBasemap === basemap) return;
-    pendingBasemapRef.current = basemap;
-    styleInFlightRef.current = true;
-    // Drop terrain BEFORE the swap. setStyle({diff:false}) unloads the style,
-    // but terrain stays configured on the map — and the terrain render path
-    // (Painter.maybeDrawDepth -> terrainDepth -> useProgram) dereferences
-    // style.projection.shaderPreludeCode on the very next frame, which is
-    // undefined while the style is gone. That throw happens inside MapLibre's
-    // rAF callback, so it kills the render loop outright: the canvas goes blank
-    // and every in-flight tile request is aborted, permanently. (Reproduced on
-    // both the ?basemap=satellite deep link and the satellite toggle.)
-    // onStyleLoad's applyTerrain restores it once the new style is in.
-    map.setTerrain(null);
-    map.setStyle(basemap === "satellite" ? SATELLITE_STYLE : BASEMAP_STYLE, { diff: false });
-  }, [basemap, appliedBasemap, ready]);
-
   if (unavailable) return <MapFallback />;
   return (
     <div className="absolute inset-0">
       <div ref={containerRef} className="size-full" aria-label="Baguio City 3D map" />
-      {ready && appliedBasemap === basemap && mapRef.current && (
-        <MapLayers key={styleGeneration} map={mapRef.current} />
+      {ready && storeMap && (
+        <MapLayers key={styleGeneration} map={storeMap} />
       )}
 
       {tileError && (

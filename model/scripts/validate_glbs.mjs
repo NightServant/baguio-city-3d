@@ -14,7 +14,7 @@ const entry = join(prefix, "node_modules", "gltf-validator", "gltf_validator.dar
 if (!existsSync(entry)) execFileSync("npm", ["install", "--no-save", "--prefix", prefix, PIN], { stdio: "ignore" });
 const { default: validator } = await import(pathToFileURL(join(prefix, "node_modules", "gltf-validator", "index.js")).href);
 
-const dirs = ["public/models/landmarks", "public/models/buildings", "public/models/roads"];
+const dirs = ["public/models/landmarks", "public/models/buildings", "public/models/roads", "public/models/flora"];
 let errors = 0;
 let files = 0;
 for (const dir of dirs) {

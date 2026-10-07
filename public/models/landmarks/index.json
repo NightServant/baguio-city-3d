@@ -4,7 +4,7 @@
       "slug": "baguio-athletic-bowl",
       "lng": 120.595959,
       "lat": 16.406676,
-      "url": "/models/landmarks/baguio-athletic-bowl.e77013bb.glb",
+      "url": "/models/landmarks/baguio-athletic-bowl.52e7e066.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -12,7 +12,7 @@
       "slug": "baguio-cathedral",
       "lng": 120.598528,
       "lat": 16.412729,
-      "url": "/models/landmarks/baguio-cathedral.af87b1fd.glb",
+      "url": "/models/landmarks/baguio-cathedral.ae3933d8.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -20,7 +20,7 @@
       "slug": "baguio-city-hall",
       "lng": 120.591335,
       "lat": 16.413792,
-      "url": "/models/landmarks/baguio-city-hall.cbcb7ab3.glb",
+      "url": "/models/landmarks/baguio-city-hall.4e2a8102.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -28,7 +28,7 @@
       "slug": "baguio-museum",
       "lng": 120.598426,
       "lat": 16.407027,
-      "url": "/models/landmarks/baguio-museum.f43a1245.glb",
+      "url": "/models/landmarks/baguio-museum.707c9865.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -44,7 +44,7 @@
       "slug": "bencab-museum",
       "lng": 120.550342,
       "lat": 16.410587,
-      "url": "/models/landmarks/bencab-museum.3c40e9f6.glb",
+      "url": "/models/landmarks/bencab-museum.0a90d426.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -52,7 +52,7 @@
       "slug": "botanical-garden",
       "lng": 120.613788,
       "lat": 16.414261,
-      "url": "/models/landmarks/botanical-garden.8992d321.glb",
+      "url": "/models/landmarks/botanical-garden.99d58828.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -60,7 +60,7 @@
       "slug": "burnham-park",
       "lng": 120.594665,
       "lat": 16.410741,
-      "url": "/models/landmarks/burnham-park.feb843f5.glb",
+      "url": "/models/landmarks/burnham-park.a0504f34.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -68,7 +68,7 @@
       "slug": "burnham-park-east",
       "lng": 120.596272,
       "lat": 16.410822,
-      "url": "/models/landmarks/burnham-park-east.33fef938.glb",
+      "url": "/models/landmarks/burnham-park-east.7f5338b4.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -76,7 +76,7 @@
       "slug": "burnham-park-fields",
       "lng": 120.595245,
       "lat": 16.409355,
-      "url": "/models/landmarks/burnham-park-fields.fee71a22.glb",
+      "url": "/models/landmarks/burnham-park-fields.1c52cbd3.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -84,7 +84,7 @@
       "slug": "burnham-park-north",
       "lng": 120.594668,
       "lat": 16.412255,
-      "url": "/models/landmarks/burnham-park-north.ea7e204a.glb",
+      "url": "/models/landmarks/burnham-park-north.6794a843.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -92,7 +92,7 @@
       "slug": "burnham-park-west",
       "lng": 120.593118,
       "lat": 16.411111,
-      "url": "/models/landmarks/burnham-park-west.0a564232.glb",
+      "url": "/models/landmarks/burnham-park-west.e282b7f4.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -100,7 +100,7 @@
       "slug": "camp-john-hay",
       "lng": 120.617989,
       "lat": 16.398924,
-      "url": "/models/landmarks/camp-john-hay.d69910f5.glb",
+      "url": "/models/landmarks/camp-john-hay.8bc8febf.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -108,7 +108,7 @@
       "slug": "diplomat-hotel-ruins",
       "lng": 120.586669,
       "lat": 16.403891,
-      "url": "/models/landmarks/diplomat-hotel-ruins.a75c520e.glb",
+      "url": "/models/landmarks/diplomat-hotel-ruins.50b5a55e.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -116,7 +116,279 @@
       "slug": "good-shepherd-convent",
       "lng": 120.626208,
       "lat": 16.422401,
-      "url": "/models/landmarks/good-shepherd-convent.c8bbc6a1.glb",
+      "url": "/models/landmarks/good-shepherd-convent.f100db79.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27353-14867",
+      "lng": 120.511137,
+      "lat": 16.429716,
+      "url": "/models/landmarks/hotels-27353-14867.68e74e08.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27355-14866",
+      "lng": 120.531891,
+      "lat": 16.442621,
+      "url": "/models/landmarks/hotels-27355-14866.326480ea.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27357-14869",
+      "lng": 120.562399,
+      "lat": 16.410525,
+      "url": "/models/landmarks/hotels-27357-14869.bd0590d3.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27358-14865",
+      "lng": 120.571831,
+      "lat": 16.453467,
+      "url": "/models/landmarks/hotels-27358-14865.331dfe2d.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27358-14867",
+      "lng": 120.573796,
+      "lat": 16.431431,
+      "url": "/models/landmarks/hotels-27358-14867.dfa44c0d.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27358-14870",
+      "lng": 120.571911,
+      "lat": 16.394591,
+      "url": "/models/landmarks/hotels-27358-14870.b4c88f15.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27358-14871",
+      "lng": 120.572026,
+      "lat": 16.39392,
+      "url": "/models/landmarks/hotels-27358-14871.f555fc97.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27358-14872",
+      "lng": 120.568782,
+      "lat": 16.382805,
+      "url": "/models/landmarks/hotels-27358-14872.4cd7a01d.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27358-14873",
+      "lng": 120.569485,
+      "lat": 16.367922,
+      "url": "/models/landmarks/hotels-27358-14873.0a1e6be2.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27359-14868",
+      "lng": 120.579428,
+      "lat": 16.419872,
+      "url": "/models/landmarks/hotels-27359-14868.3354f71b.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27359-14869",
+      "lng": 120.580434,
+      "lat": 16.412207,
+      "url": "/models/landmarks/hotels-27359-14869.c86b9d13.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27359-14871",
+      "lng": 120.578711,
+      "lat": 16.391201,
+      "url": "/models/landmarks/hotels-27359-14871.20bd6ae2.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27360-14866",
+      "lng": 120.593109,
+      "lat": 16.441457,
+      "url": "/models/landmarks/hotels-27360-14866.e437ffd3.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27360-14867",
+      "lng": 120.594949,
+      "lat": 16.429249,
+      "url": "/models/landmarks/hotels-27360-14867.8353d402.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27360-14868",
+      "lng": 120.591231,
+      "lat": 16.418827,
+      "url": "/models/landmarks/hotels-27360-14868.af90efe9.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27360-14870",
+      "lng": 120.593974,
+      "lat": 16.402914,
+      "url": "/models/landmarks/hotels-27360-14870.decd13db.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27361-14864",
+      "lng": 120.602267,
+      "lat": 16.462869,
+      "url": "/models/landmarks/hotels-27361-14864.5a6b217b.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27361-14867",
+      "lng": 120.599334,
+      "lat": 16.430159,
+      "url": "/models/landmarks/hotels-27361-14867.e6f14e8f.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27361-14868",
+      "lng": 120.601098,
+      "lat": 16.42248,
+      "url": "/models/landmarks/hotels-27361-14868.2e9a71d2.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27361-14869",
+      "lng": 120.602982,
+      "lat": 16.411526,
+      "url": "/models/landmarks/hotels-27361-14869.be0053de.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27361-14870",
+      "lng": 120.605443,
+      "lat": 16.402704,
+      "url": "/models/landmarks/hotels-27361-14870.c3da522f.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27361-14871",
+      "lng": 120.601039,
+      "lat": 16.388469,
+      "url": "/models/landmarks/hotels-27361-14871.4b638ab8.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27361-14872",
+      "lng": 120.604371,
+      "lat": 16.382771,
+      "url": "/models/landmarks/hotels-27361-14872.012922f7.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27362-14868",
+      "lng": 120.611514,
+      "lat": 16.415108,
+      "url": "/models/landmarks/hotels-27362-14868.431025b9.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27362-14869",
+      "lng": 120.616322,
+      "lat": 16.411689,
+      "url": "/models/landmarks/hotels-27362-14869.ac7176bb.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27362-14870",
+      "lng": 120.617416,
+      "lat": 16.400804,
+      "url": "/models/landmarks/hotels-27362-14870.4b2a299f.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27363-14868",
+      "lng": 120.623813,
+      "lat": 16.417233,
+      "url": "/models/landmarks/hotels-27363-14868.7816be7d.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27363-14869",
+      "lng": 120.621609,
+      "lat": 16.412384,
+      "url": "/models/landmarks/hotels-27363-14869.c6dfca39.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27363-14873",
+      "lng": 120.62168,
+      "lat": 16.368483,
+      "url": "/models/landmarks/hotels-27363-14873.6acb6da9.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-27365-14867",
+      "lng": 120.642744,
+      "lat": 16.429608,
+      "url": "/models/landmarks/hotels-27365-14867.27e9343a.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-54720-29738",
+      "lng": 120.590692,
+      "lat": 16.411887,
+      "url": "/models/landmarks/hotels-54720-29738.ded7f507.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-54720-29739",
+      "lng": 120.589975,
+      "lat": 16.407305,
+      "url": "/models/landmarks/hotels-54720-29739.3cf59016.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-54721-29738",
+      "lng": 120.592797,
+      "lat": 16.411985,
+      "url": "/models/landmarks/hotels-54721-29738.bc052938.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "hotels-54721-29739",
+      "lng": 120.592642,
+      "lat": 16.407701,
+      "url": "/models/landmarks/hotels-54721-29739.9e1082b7.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -124,7 +396,7 @@
       "slug": "igorot-stone-kingdom",
       "lng": 120.575043,
       "lat": 16.432082,
-      "url": "/models/landmarks/igorot-stone-kingdom.68cc089c.glb",
+      "url": "/models/landmarks/igorot-stone-kingdom.b32258df.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -140,7 +412,7 @@
       "slug": "lions-head-kennon-road",
       "lng": 120.606002,
       "lat": 16.367607,
-      "url": "/models/landmarks/lions-head-kennon-road.554a9d53.glb",
+      "url": "/models/landmarks/lions-head-kennon-road.61baf626.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -148,7 +420,7 @@
       "slug": "lourdes-grotto",
       "lng": 120.580839,
       "lat": 16.409523,
-      "url": "/models/landmarks/lourdes-grotto.7ed4148c.glb",
+      "url": "/models/landmarks/lourdes-grotto.554216a3.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -156,7 +428,7 @@
       "slug": "mile-hi-cjh-viewdeck",
       "lng": 120.616588,
       "lat": 16.401433,
-      "url": "/models/landmarks/mile-hi-cjh-viewdeck.cb571363.glb",
+      "url": "/models/landmarks/mile-hi-cjh-viewdeck.2c388666.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -164,7 +436,7 @@
       "slug": "mines-view-park",
       "lng": 120.62745,
       "lat": 16.419638,
-      "url": "/models/landmarks/mines-view-park.a4bb74df.glb",
+      "url": "/models/landmarks/mines-view-park.7c2f0413.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -172,7 +444,7 @@
       "slug": "philippine-military-academy",
       "lng": 120.620644,
       "lat": 16.35909,
-      "url": "/models/landmarks/philippine-military-academy.d909aae9.glb",
+      "url": "/models/landmarks/philippine-military-academy.a3f67ed0.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -180,7 +452,47 @@
       "slug": "session-road",
       "lng": 120.597329,
       "lat": 16.412624,
-      "url": "/models/landmarks/session-road.3529db57.glb",
+      "url": "/models/landmarks/session-road.869cf391.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "session-road-buildings-1",
+      "lng": 120.595472,
+      "lat": 16.413761,
+      "url": "/models/landmarks/session-road-buildings-1.c014aa64.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "session-road-buildings-2",
+      "lng": 120.596647,
+      "lat": 16.413208,
+      "url": "/models/landmarks/session-road-buildings-2.fbb0802b.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "session-road-buildings-3",
+      "lng": 120.597361,
+      "lat": 16.412317,
+      "url": "/models/landmarks/session-road-buildings-3.7e17c2a3.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "session-road-buildings-4",
+      "lng": 120.598335,
+      "lat": 16.411787,
+      "url": "/models/landmarks/session-road-buildings-4.e2498a57.glb",
+      "rotationDeg": 0,
+      "altitudeM": 0
+    },
+    {
+      "slug": "session-road-buildings-5",
+      "lng": 120.599033,
+      "lat": 16.41111,
+      "url": "/models/landmarks/session-road-buildings-5.f6cff728.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -188,7 +500,7 @@
       "slug": "sm-city-baguio",
       "lng": 120.599314,
       "lat": 16.408506,
-      "url": "/models/landmarks/sm-city-baguio.16451044.glb",
+      "url": "/models/landmarks/sm-city-baguio.844ec2cb.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -196,7 +508,7 @@
       "slug": "tam-awan-village",
       "lng": 120.576681,
       "lat": 16.430071,
-      "url": "/models/landmarks/tam-awan-village.cd6e918d.glb",
+      "url": "/models/landmarks/tam-awan-village.f4b36112.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -204,7 +516,7 @@
       "slug": "teachers-camp",
       "lng": 120.608367,
       "lat": 16.412158,
-      "url": "/models/landmarks/teachers-camp.61783be3.glb",
+      "url": "/models/landmarks/teachers-camp.3a88bc3c.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -212,7 +524,7 @@
       "slug": "the-mansion",
       "lng": 120.621522,
       "lat": 16.412366,
-      "url": "/models/landmarks/the-mansion.9d648e8d.glb",
+      "url": "/models/landmarks/the-mansion.d93c52c3.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     },
@@ -220,7 +532,7 @@
       "slug": "wright-park",
       "lng": 120.619604,
       "lat": 16.414443,
-      "url": "/models/landmarks/wright-park.d2e3a563.glb",
+      "url": "/models/landmarks/wright-park.d9cae115.glb",
       "rotationDeg": 0,
       "altitudeM": 0
     }

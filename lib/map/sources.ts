@@ -1,41 +1,30 @@
 // The map's basemap styles and terrain/DEM setup — shared by MapView and the
 // homepage demo map so both draw the same styles and relief.
-import type { Map as MapLibreMap, StyleSpecification } from "maplibre-gl";
+import type { Map as MapLibreMap, RasterSourceSpecification } from "maplibre-gl";
 
 // Keyless basemap style (OpenFreeMap "Liberty"). No token required.
 export const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 
-// Minimal keyless satellite style — Esri World Imagery raster tiles. The glyphs
-// endpoint is REQUIRED: the app's symbol layers (marker labels, cluster counts,
-// history events) render Noto Sans glyphs and break without a font source. A
-// slight brightness/saturation pull-back keeps overlay markers legible on top of
-// the imagery.
-export const SATELLITE_STYLE: StyleSpecification = {
-  version: 8,
-  glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
-  sources: {
-    "esri-world-imagery": {
-      type: "raster",
-      tiles: [
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      ],
-      tileSize: 256,
-      maxzoom: 19,
-      attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
-    },
-  },
-  layers: [
-    {
-      id: "esri-world-imagery",
-      type: "raster",
-      source: "esri-world-imagery",
-      paint: {
-        "raster-brightness-max": 0.92,
-        "raster-saturation": -0.12,
-      },
-    },
-  ],
-};
+// Esri World Imagery: the ground the 3D city stands on (components/map/basemapTheme.ts puts it under Liberty's labels).
+// The 3D trees are placed from ESA WorldCover (model/scripts/build_flora.py), credited here because the custom 3D
+// layer has no source of its own to carry an attribution.
+export const IMAGERY_ID = "esri-world-imagery";
+export const IMAGERY_SOURCE = {
+  type: "raster",
+  tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+  tileSize: 256,
+  // 18: Esri has photographs of Baguio to z18 (about 0.6 m a pixel); every z19 tile there is the grey "Map data not yet
+  // available" placeholder (probed 2026-10-07 at the cathedral, Burnham, SM and Camp John Hay), so z19+ overzooms z18.
+  maxzoom: 18,
+  attribution:
+    "Imagery © Esri, Maxar, Earthstar Geographics | Land cover © <a href='https://esa-worldcover.org'>ESA WorldCover</a> 2021 (CC BY 4.0)",
+} as const satisfies RasterSourceSpecification;
+// From zoom 15 (owner 2026-10-07: "reduce the blur and increase the sharpness"): the same tiles declared at 128 px, so
+// MapLibre asks two zooms finer than the view (z17 at map zoom 15, the z18 photographs from 16 up) and draws two image
+// pixels to a screen pixel. Below 15 the 256 px source keeps the bytes down.
+export const IMAGERY_HD_ID = "esri-world-imagery-hd";
+export const IMAGERY_HD_MINZOOM = 15;
+export const IMAGERY_HD_SOURCE = { ...IMAGERY_SOURCE, tileSize: 128 } as const satisfies RasterSourceSpecification;
 
 export const DEM_SOURCE = "terrain-dem";
 
@@ -64,20 +53,20 @@ export function applyTerrain(m: MapLibreMap, exaggeration = TERRAIN_EXAGGERATION
 }
 
 /**
- * Cheap atmospheric sky/fog for the 3D horizon (MapLibre 5+ supports setSky),
- * in the chrome's light: bone sky and ecru horizon by day, walnut by night.
- * Reads data-theme on <html>, so MapView calls it again when the theme toggles.
+ * A clear-day atmosphere like Google Earth's (owner 2026-10-07): blue sky, pale haze toward the horizon, a light blue
+ * fog over distant ground; a deep blue night. Reads data-theme on <html>, so MapView calls it again when the theme
+ * toggles.
  */
 export function applySky(m: MapLibreMap) {
   const night = typeof document !== "undefined" && document.documentElement.dataset.theme === "dark";
   try {
     m.setSky({
-      "sky-color": night ? "#211A15" : "#DCD3C4",
-      "horizon-color": night ? "#41342B" : "#F5F0E6",
-      "fog-color": night ? "#352A23" : "#E8DFD0",
-      "sky-horizon-blend": 0.6,
-      "horizon-fog-blend": 0.5,
-      "fog-ground-blend": 0.4,
+      "sky-color": night ? "#0B1424" : "#6E9FD4",
+      "horizon-color": night ? "#26344A" : "#D6E4F1",
+      "fog-color": night ? "#1B2534" : "#C8D8E8",
+      "sky-horizon-blend": 0.7,
+      "horizon-fog-blend": 0.6,
+      "fog-ground-blend": 0.25,
     });
   } catch {
     /* older MapLibre without setSky — atmosphere is optional */

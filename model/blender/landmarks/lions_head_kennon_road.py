@@ -26,8 +26,7 @@ FACE = lm.material("MAT_lion_face", srgb(126, 92, 72), 0.85)              # [S3]
 DARK = lm.material("MAT_lion_dark", srgb(52, 36, 30), 0.8)                # nose, mouth, pupils
 WHITE = lm.material("MAT_lion_white", srgb(236, 232, 222), 0.7)           # eyes, fangs, claws
 PLINTH = lm.material("MAT_lion_plinth", srgb(146, 140, 130), 0.95)
-TREES = [lm.asset_mesh("broadleaf", 10.0, {"leafs": (90, 120, 60), "woodBark": (110, 84, 60)}),
-         lm.asset_mesh("pine_tall_a", 15.0, {"leafs": (66, 98, 56), "woodBark": (96, 74, 56)})]
+TREES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 L = lm.Shapes(coll, 90.0, {MANE.name: 3.0})     # [S2] Kennon Road runs past the east side: the lion faces east (a)
 ring = fp["rings"][0]
 zt = max(lm.rel_ground(fp, ring))
@@ -75,7 +74,7 @@ n = 0
 for x, y in ((-14.0, -10.0), (-16.0, 4.0), (-12.0, 14.0), (-24.0, -2.0), (-22.0, 16.0), (-20.0, -16.0)):
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
     zl = min(zl, z)
-    lm.place(coll, f"tree_{n}", TREES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n}", TREES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     n += 1
 
 lm.human_reference(coll, 9.0, -5.0)

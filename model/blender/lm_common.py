@@ -517,6 +517,65 @@ def asset_mesh(name, height, recolor=None):
     return me
 
 
+# --- Trees of every kind (owner 2026-10-07: "not just pine trees") -------------------------------------------------------
+# model/blender/flora.py's archetypes, tinted per species (model/flora.json), as vertex-coloured meshes under one material:
+# placed copies share a species' mesh, so gltfpack instances it (one draw call a species, whatever the material count).
+FLORA = json.loads((ROOT / "model" / "flora.json").read_text())
+FLORA_SPECIES = {s["key"]: s for s in FLORA["species"]}
+
+
+def flora_material():
+    mat = bpy.data.materials.get("MAT_flora") or bpy.data.materials.new("MAT_flora")
+    mat.use_nodes = True
+    nt = mat.node_tree
+    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    col = next((n for n in nt.nodes if n.type == "VERTEX_COLOR"), None) or nt.nodes.new("ShaderNodeVertexColor")
+    col.layer_name = "Col"
+    nt.links.new(col.outputs["Color"], bsdf.inputs["Base Color"])
+    bsdf.inputs["Roughness"].default_value = 0.9
+    mat.diffuse_color = (*srgb(66, 100, 56), 1.0)            # Workbench review renders
+    return mat
+
+
+def flora_mesh(key, height=None):
+    """A species as one vertex-coloured mesh, `height` m tall (default: the middle of its range)."""
+    sp = FLORA_SPECIES[key]
+    h = height or sum(sp["height_m"]) / 2
+    name = f"FLORA_{key}_{h:g}"
+    me = bpy.data.meshes.get(name)
+    if me:
+        return me
+    a = np.load(ROOT / "model" / "data" / "flora" / "archetypes.npz")
+    arch = sp["archetype"]
+    pos, col, idx = a[f"{arch}_pos"], a[f"{arch}_col"], a[f"{arch}_idx"]
+    k = h / FLORA["archetypes"][arch]["ref_height_m"]
+    tint = np.array(sp.get("bloom") or sp["foliage"], float) / 255
+    rgb = np.where(col[:, 3:4] == 255, col[:, :3] / 255 * tint, col[:, :3] / 255)
+    lin = np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([tuple(float(c) * k for c in p) for p in pos], [], [tuple(int(v) for v in t) for t in idx])
+    attr = me.color_attributes.new("Col", "FLOAT_COLOR", "POINT")
+    attr.data.foreach_set("color", np.column_stack([lin, np.ones(len(lin))]).ravel().astype(np.float32))
+    me.materials.append(flora_material())
+    return me
+
+
+class FloraMix:
+    """A zone's species mix (model/flora.json zones), at most `top` species (each is a draw call), reweighted by `extra`:
+    MIX[n] is the n-th tree's mesh, picked by weight from a hash of n, so it is deterministic and well spread."""
+
+    def __init__(self, zone, top=6, extra=None):
+        mix = dict(FLORA["zones"][zone])
+        mix.update(extra or {})
+        keys = sorted(mix, key=lambda k: (-mix[k], k))[:top]
+        w = np.array([mix[k] for k in keys], float)
+        self.keys, self.cum = keys, np.cumsum(w / w.sum())
+
+    def __getitem__(self, n):
+        u = ((n * 2654435761 + 1013904223) % 2 ** 32) / 2 ** 32
+        return flora_mesh(self.keys[min(int(np.searchsorted(self.cum, u, side="right")), len(self.keys) - 1)])
+
+
 def place(coll, name, mesh, x, y, z, heading_deg=0.0, scale=1.0):
     """A linked copy of an asset mesh at local (x east, y north, z up), turned clockwise from north."""
     ob = bpy.data.objects.new(name, mesh)
@@ -718,7 +777,7 @@ PARK_LIFT = {"lawn": 0.3, "wood": 0.3, "garden": 0.34, "paved": 0.4, "plaza": 0.
              "pitch": 0.4, "pool": 0.45}
 
 
-def park(coll, fp, pk, key, seed=1925, bay=8.0):
+def park(coll, fp, pk, key, seed=1925, bay=8.0, tree_keep=1.0, species=7):
     """A park part from landmark_osm.py park (park.json) at 1:1: ground surfaces per class on the map's terrain; football
     and tennis markings; buildings (grandstands as stepped seating under a roof facing the nearest pitch, greenhouses in
     glass, roof-only shelters on posts, a ring building (the skating rink) as a roofed ring round an open floor, the rest
@@ -874,13 +933,15 @@ def park(coll, fp, pk, key, seed=1925, bay=8.0):
             S.cone(f"{key}_fount_{j}_water", y, x, 2.6, z + 0.55, z + 0.62, water, seg=12)
         elif p["kind"] == "lamp":
             S.box(f"{key}_lamp_{j}", y - 0.06, y + 0.06, x - 0.06, x + 0.06, z, z + 4.0, steel)
-    trees = {"pine": [asset_mesh("pine_simple_c", 16.0, {"leafs": (60, 96, 56), "woodBark": (92, 70, 54)}),
-                      asset_mesh("pine_simple_a", 13.0, {"leafs": (54, 88, 52), "woodBark": (92, 70, 54)})],
-             "broad": [asset_mesh("broadleaf", 9.0, {"leafs": (88, 124, 60), "woodBark": (110, 84, 60)})]}
+    # OSM's woods keep the pine its share of the park mix; elsewhere the park's ornamentals (model/flora.json, S2: Burnham's
+    # most common trees are Myrtaceae, Moraceae and Bignoniaceae)
+    trees = {"pine": FloraMix("park", top=species), "broad": FloraMix("park", top=species, extra={"benguet_pine": 0})}
     for j, t in enumerate(pk["trees"]):
+        if tree_keep < 1.0 and (j * 2654435761 % 1000) / 1000 >= tree_keep:   # thinned evenly (a part over its byte budget)
+            continue
         x, y = t["xy"]
         z = rel_ground(fp, [(x, y)], low=True)[0] - 0.3
         lowest = min(lowest, z)
-        place(coll, f"{key}_tree_{j:03d}", trees[t["kind"]][j % len(trees[t["kind"]])], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+        place(coll, f"{key}_tree_{j:03d}", trees[t["kind"]][j], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     detail(coll, fp, roofs=roofs, walls=[wall], bay=bay)
     return lowest

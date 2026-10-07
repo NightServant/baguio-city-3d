@@ -1,0 +1,20 @@
+{
+ "asphalt": {
+  "url": "/models/textures/asphalt.137a6bf7.webp",
+  "metres": 3.0,
+  "mean": [
+   0.30906,
+   0.2682,
+   0.21455
+  ]
+ },
+ "pavers": {
+  "url": "/models/textures/pavers.aa956249.webp",
+  "metres": 2.0,
+  "mean": [
+   0.1701,
+   0.11856,
+   0.0813
+  ]
+ }
+}

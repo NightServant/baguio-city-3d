@@ -33,8 +33,7 @@ THATCH = lm.material("MAT_botanical_thatch", srgb(132, 104, 64), 0.95)     # nat
 GREEN = lm.material("MAT_botanical_green_roof", srgb(52, 120, 84), 0.6)    # [S3] green roofs
 WHITE = lm.material("MAT_botanical_white", srgb(232, 232, 226), 0.8)
 GLASS = lm.material("MAT_botanical_glass", srgb(176, 196, 186), 0.2)
-PINES = [lm.asset_mesh("pine_tall_c", 22.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 18.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("park")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {PAVING.name: 3.0})
 lowest = 0.0
 
@@ -150,7 +149,7 @@ for gx in np.arange(-110.0, 110.0, 26.0):
             continue
         z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
         lowest = min(lowest, z)
-        lm.place(coll, f"tree_{n:02d}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+        lm.place(coll, f"tree_{n:02d}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
         n += 1
 
 lm.human_reference(coll, WX + 3.0, WY + 3.0)

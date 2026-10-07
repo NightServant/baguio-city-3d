@@ -35,8 +35,7 @@ def weathered(rgb=(0.86, 0.85, 0.81)):          # [S3] off-white render streaked
 WALL = lm.textured("MAT_diplomat_wall", lm.pattern_image("TEX_diplomat_wall", weathered()), srgb(206, 202, 192), 0.9)
 ROOF = lm.material("MAT_diplomat_roof", srgb(105, 105, 105), 0.6)         # [S2] roof:colour #696969 / #7A7D80
 TRIM = lm.material("MAT_diplomat_trim", srgb(222, 220, 212), 0.85)        # [S3] parapets, crosses, arches
-PINES = [lm.asset_mesh("pine_tall_c", 20.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 16.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {WALL.name: 3.0})
 
 parts = json.loads((lm.ROOT / "model" / "data" / "landmarks" / SLUG / "parts.json").read_text())
@@ -94,7 +93,7 @@ for t in np.linspace(0, 2 * math.pi, 8, endpoint=False):
     x, y = r * math.cos(t), r * math.sin(t)
     z = lm.rel_ground(fp, [(x, y)], low=True)[0] - 0.3
     deep = min(deep, z)
-    lm.place(coll, f"tree_{n:02d}", PINES[n % 2], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+    lm.place(coll, f"tree_{n:02d}", PINES[n], x, y, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
     n += 1
 
 lm.human_reference(coll, 0.0, -24.0)

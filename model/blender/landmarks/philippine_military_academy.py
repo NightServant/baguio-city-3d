@@ -27,8 +27,7 @@ WHITE = lm.material("MAT_pma_white", srgb(240, 240, 236), 0.7)           # [S3] 
 GOLD = lm.material("MAT_pma_gold", srgb(222, 176, 52), 0.5)              # [S3] the crests
 DARK = lm.material("MAT_pma_dark", srgb(30, 32, 36), 0.6)                # [S3] the arch's shade and the fence
 FLAGS = [lm.material(f"MAT_pma_flag_{i}", srgb(*c), 0.7) for i, c in enumerate(((206, 40, 40), (40, 160, 70), (232, 200, 40), (240, 240, 236), (40, 90, 190)))]
-PINES = [lm.asset_mesh("pine_tall_c", 22.0, {"leafs": (64, 98, 56), "woodBark": (96, 74, 56)}),
-         lm.asset_mesh("pine_tall_a", 18.0, {"leafs": (58, 92, 52), "woodBark": (96, 74, 56)})]
+PINES = lm.FloraMix("forest")   # mixed species (owner 2026-10-07: "not just pine trees"), model/flora.json
 S = lm.Shapes(coll, 0.0, {FIELD.name: 10.0})
 G = lm.Shapes(coll, 90.0, {})                   # the grandstand's frame: a east along it, w south (to the field)
 
@@ -85,7 +84,7 @@ for k in range(len(FIELD_RING)):
             px, py = px - 18.0 * nx, py - 18.0 * ny
         z = lm.rel_ground(fp, [(px, py)], low=True)[0] - 0.3
         lowest = min(lowest, z)
-        lm.place(coll, f"tree_{n:02d}", PINES[n % 2], px, py, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
+        lm.place(coll, f"tree_{n:02d}", PINES[n], px, py, z, rng.uniform(0, 360), rng.uniform(0.85, 1.15))
         n += 1
 
 lm.human_reference(coll, mid + 5.0, FY - 3.0)
