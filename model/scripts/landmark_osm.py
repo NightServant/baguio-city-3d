@@ -23,6 +23,7 @@ import subprocess
 import sys
 
 import numpy as np
+import shapely
 
 from pyproj import Transformer
 from shapely import box, constrained_delaunay_triangles
@@ -204,8 +205,10 @@ REACH_M = 35.0        # cross streets kept this far from the main street, so its
 CELL_M = 6.0          # ground surfaces are cut on this grid, so every triangle can follow the terrain (the DEM is ~9 m)
 
 
-def grid_mesh(geom, cell=CELL_M):
-    """Triangles of `geom` cut on a `cell` grid (shared vertices, CCW), so a drape over them follows the terrain."""
+def grid_mesh(geom, cell=CELL_M, tol=0.3, origin=(0.0, 0.0)):
+    """Triangles of `geom` cut on a `cell` grid (shared vertices, CCW), so a drape over them follows the terrain. The
+    outline is simplified by `tol` (0: as given); the grid runs on multiples of `cell` from -`origin`, so meshes cut in
+    frames offset by their origins share grid lines (and ground samples) where they meet."""
     verts, index, faces = [], {}, []
 
     def vid(x, y):
@@ -217,12 +220,14 @@ def grid_mesh(geom, cell=CELL_M):
 
     if geom.is_empty:
         return {"v": [], "f": []}
-    geom = areas(geom.simplify(0.3))                  # 0.3 m: below what the map can show, and far fewer vertices
+    # 0.3 m: below what the map can show, and far fewer vertices (valid again: an overlay's sliver can simplify into a bowtie)
+    geom = areas(shapely.make_valid(geom.simplify(tol) if tol else geom))
     if geom.is_empty:                                 # a sliver that simplified away
         return {"v": [], "f": []}
     x0, y0, x1, y1 = geom.bounds
-    for gx in np.arange(math.floor(x0 / cell) * cell, x1, cell):
-        for gy in np.arange(math.floor(y0 / cell) * cell, y1, cell):
+    ox, oy = origin
+    for gx in np.arange(math.floor((x0 + ox) / cell) * cell - ox, x1, cell):
+        for gy in np.arange(math.floor((y0 + oy) / cell) * cell - oy, y1, cell):
             piece = geom.intersection(box(gx, gy, gx + cell, gy + cell))
             for poly in getattr(piece, "geoms", [piece]):
                 if poly.geom_type != "Polygon" or poly.area < 1e-3:
@@ -356,14 +361,8 @@ def streets(slug):
            "dashes": dashes, "median_points": sites, "awnings": awnings,
            "ways": [{"id": i, "name": t.get("name"), "lanes": n, "oneway": t.get("oneway")} for i, _, t, _, _, n in ways]}
     (LM_DATA / slug / "streets.json").write_text(json.dumps(out) + "\n")
-    # The modelled street (asphalt, median, sidewalks) as the city road tiles' exclusion (build_roads.py), so they don't
-    # overlap it; the massing keeps the narrower `exclusion`, so the frontage buildings stay.
-    inv = Transformer.from_crs(LOCAL_TM, "EPSG:4326", always_xy=True)
-    street = unary_union([asphalt, median, sidewalk]).buffer(-0.2)   # 0.2 m under: the city roads tuck in, no gap
-    street = max(getattr(street, "geoms", [street]), key=lambda g: g.area)
-    reg = json.loads(LANDMARKS.read_text())
-    reg[slug]["road_exclusion"] = [[round(v, 6) for v in inv.transform(x + ax, y + ay)] for x, y in orient(street.simplify(0.3), 1.0).exterior.coords]
-    LANDMARKS.write_text(json.dumps(reg, indent=2) + "\n")
+    # The city road tiles (build_roads.py) draw this street itself, its sidewalks and median; the landmark keeps the
+    # awnings and the traffic (owner 2026-10-08), and the massing its narrower `exclusion`, so the frontage buildings stay.
     print(f"{slug}: pair {sep:.2f} m apart -> lanes {lane} m, kerb {kerb:.2f} m from the axis, building line {np.median(hits):.2f} m "
           f"(n={len(hits)}) -> sidewalk {band} m; {len(ways)} other carriageway(s) {sorted({(w['name'], w['lanes']) for w in out['ways']})}; "
           f"asphalt {asphalt.area:,.0f} m2, sidewalk {sidewalk.area:,.0f} m2, median {median.area:,.0f} m2; {len(bars)} zebra bars, "

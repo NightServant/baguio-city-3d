@@ -9,19 +9,29 @@
   on a CELL_M grid, with a skirt from every edge; bridges span straight between their ends, tunnels are left out;
 - centre lines on two-way main roads (double solid yellow on bends, broken white on straights, DPWH) and broken white lane
   dividers on multi-lane one-ways, kept clear of junctions; the carriageways take a CC0 asphalt scan in the app;
-- left out inside landmarks that model their own streets (their `road_exclusion`, else `exclusion`), except parks built
-  by landmark_osm.py park, whose lawns leave the drives to these tiles;
+- left out inside landmarks' `exclusion` rings, except parks built by landmark_osm.py park, whose lawns leave the drives
+  to these tiles, and Session Road (landmark_osm.py streets), whose street, sidewalks and median are these tiles' own
+  (owner 2026-10-08: "Session Road landmark overlaps with the City-Wide Road Mode");
 - street furniture and markings (owner 2026-10-06: "traffic markings, signs, and lights"): solid edge lines, stop lines
   on the right-hand approach to every junction (the Philippines drives on the right), zebra stripes at OSM's marked
   and uncontrolled crossings, traffic signals at OSM's traffic_signals nodes, street lights at OSM's street lamps and
   every 32 m along the main roads, and signs at OSM's stop, give_way and traffic_sign nodes, coloured by their PH code
   (model/data/osm/road-nodes.json, Overpass 2026-10-06);
-- walkways (owner 2026-10-07: "add sidewalks/pathways"): OSM's sidewalks, footways, pedestrian streets and paths as
-  paving 0.12 m above the asphalt (trails in earth or gravel by their surface), never over a carriageway or inside a
-  landmark; its 1,471 stairways stepped, a riser per 0.17 m of real climb; and its retaining walls (stone, 2.7 m) and
-  walls (1.8 m, stone or render), coursed in blocks (model/data/osm/landscape.json, Overpass 2026-10-07);
+- sidewalks city-wide (owner 2026-10-08: "rebuild the sidewalks city-wide ... richer textures, higher width (width same
+  with the session road), add people, implement staircases connected to sidewalks"; SIDEWALK_M and below), after the
+  owner's walk video up Session Road to SM Baguio (model/flora.json S5), with a concrete kerb, tactile pads at the
+  crossings, and people (sites for build_flora.py);
+- centre islands (owner 2026-10-08: "the center island for roads (dividers that contains street lamps and trees from the
+  map source data)"): the strips between divided roads' carriageways, kerbed and planted, with OSM's lamps and trees on
+  them and, where it maps none, a twin-arm lamp and a tree in turn every 12 m and shrubs between (MEDIAN_REACH_M);
+- walkways (owner 2026-10-07: "add sidewalks/pathways"): OSM's footways, pedestrian streets and paths as paving 0.15 m
+  above the asphalt (trails in earth or gravel by their surface), never over a carriageway or inside a landmark; its
+  1,471 stairways stepped at an even rise from the paving at one end to the paving at the other, so each meets its
+  sidewalk flush; and its retaining walls (stone, 2.7 m) and walls (1.8 m, stone or render), coursed in blocks
+  (model/data/osm/landscape.json, Overpass 2026-10-07);
 - tiles from z15, split while over CAP_VERTICES; near zoom only (zoomed out, the basemap's lines read the same).
-Run: uv run model/scripts/build_roads.py"""
+Writes public/models/roads/ and model/data/roads/sites.npz (people, median trees and shrubs, and the paved areas, for
+build_flora.py: run it after this). Run: uv run model/scripts/build_roads.py"""
 import hashlib
 import json
 import math
@@ -33,10 +43,10 @@ import numpy as np
 import shapely
 from pyproj import Transformer
 from shapely.geometry import LineString, Polygon, box
-from shapely.ops import unary_union
+from shapely.ops import substring, unary_union
 from shapely.strtree import STRtree
 
-from build_massing import EXAG, Ground, slippy, tile_bounds, write_glb
+from build_massing import EXAG, Ground, load_buildings, slippy, tile_bounds, write_glb
 from common import DATA, LANDMARKS, LM_DATA, LOCAL_TM, OSM, PADDED, ROOT
 from landmark_osm import areas, grid_mesh
 from pack_landmark import GLTFPACK
@@ -47,6 +57,7 @@ DEFAULT_LANES = {"motorway": 4, "trunk": 2, "primary": 2, "secondary": 2, "terti
 MIN_WIDTH = {"service": 3.5, "track": 3.0, "pedestrian": 4.0, "residential": 5.0, "living_street": 4.5}
 MARKED = {"motorway", "trunk", "primary", "secondary", "tertiary"}
 LIFT_M, SKIRT_M, CELL_M, CAP_VERTICES = 0.3, 1.2, 10.0, 9000   # vertices bound a tile's bytes
+TOL_M = 0.3                                                       # outlines simplified (below what the map can show)
 PUBLIC = ROOT / "public" / "models" / "roads"
 WORK = DATA / "roads"
 
@@ -63,9 +74,26 @@ SIGN = {"R": (lin(238, 238, 234), lin(204, 32, 36)), "W": (lin(246, 200, 40), li
         "G": (lin(24, 120, 72), lin(238, 238, 234)), "stop": (lin(204, 32, 36), lin(238, 238, 234)), "give_way": (lin(238, 238, 234), lin(204, 32, 36))}
 LAMP_EVERY_M, LAMP_H, SIGNAL_H, SIGN_H = 32.0, 7.0, 4.5, 2.2   # ESTIMATEs (Session Road's lamps are 7 m)
 # Walkways (ESTIMATEs): width by kind; colour by surface (never ASPHALT or CONCRETE, which show the satellite photograph)
-WALK_W = {"sidewalk": 2.0, "footway": 1.8, "pedestrian": 5.0, "cycleway": 2.0, "path": 1.2, "bridleway": 1.5, "steps": 1.8}
+# Sidewalks (owner 2026-10-08): SIDEWALK_M from the kerb (Session Road's kerb to building line, model/landmarks/session-
+# road.md), cut back to the building fronts, on each side of a street where a building stands within BUILT_M of that
+# sidewalk's outer edge (forest and open roadsides keep the photograph). Paving by road class after the walk video (S5,
+# model/flora.json): hexagonal pavers on trunk and primary roads, red brick on secondary and tertiary, concrete on the rest;
+# a concrete kerb KERB_W wide, KERB_H over the asphalt. People a square metre by paving (S5: crowds on Session Road). The
+# chunking, BUILT_M, kerb and densities are ESTIMATEs.
+SIDEWALK_M, BUILT_M, CHUNK_M, KERB_W, KERB_H = 5.57, 6.0, 25.0, 0.3, 0.15
+SIDE_KINDS = {"trunk", "primary", "secondary", "tertiary", "unclassified", "residential", "living_street"}
+HEX, BRICK, CONC, KERB, TACTILE = lin(178, 170, 156), lin(156, 92, 72), lin(176, 174, 166), lin(204, 202, 196), lin(214, 170, 48)
+SIDE_PAVING = {"trunk": HEX, "primary": HEX, "secondary": BRICK, "tertiary": BRICK}           # else CONC
+WALK_W = {"sidewalk": SIDEWALK_M, "footway": 1.8, "pedestrian": 5.0, "cycleway": 2.0, "path": 1.2, "bridleway": 1.5, "steps": 1.8}
 PAVING, SETTS, EARTH, GRAVEL, STEP_STONE = lin(188, 184, 174), lin(176, 160, 144), lin(140, 116, 88), lin(164, 156, 142), lin(170, 166, 156)
-WALK_LIFT, STEP_RISE_M = LIFT_M + 0.12, 0.17
+PEOPLE_PER_M2 = {HEX: 1 / 30, BRICK: 1 / 60, CONC: 1 / 250, PAVING: 1 / 150, SETTS: 1 / 150}
+WALK_LIFT, STEP_RISE_M, MAX_GOING_M = LIFT_M + KERB_H, 0.17, 0.5   # a tread at most 0.5 m deep where OSM gives no count
+# Centre islands (owner 2026-10-08): the space the one-way carriageways' union closes over within 2 x MEDIAN_REACH_M, off
+# every carriageway, building and landmark, kept where long and thin; a concrete kerb ring, planted inside where at least
+# PLANTED_M wide, MEDIAN_LIFT over the asphalt. Trees (median_m tall) and shrubs go to build_flora.py; lamps are drawn here.
+MEDIAN_REACH_M, MEDIAN_LIFT, PLANTED_M, MEDIAN_KERB_M = 8.0, 0.2, 1.0, 0.25
+PLANTER = lin(84, 104, 60)
+
 WALLS = {"retaining_wall": (2.7, 0.4), "wall": (1.8, 0.25)}                       # height, thickness (ESTIMATEs)
 STONE = (lin(150, 143, 130), lin(132, 126, 115), lin(162, 155, 141))             # coursed blocks, three tones
 RENDER = (lin(214, 208, 196), lin(204, 198, 186), lin(220, 214, 202))
@@ -115,7 +143,8 @@ def load_nodes(fwd):
 
 
 def load_walks(fwd):
-    """OSM walkways in the model frame: (kind, LineString, half width, colour); crossings are the zebras."""
+    """OSM walkways in the model frame: (kind, LineString, half width, colour, steps a metre or None); crossings are the
+    zebras. Steps a metre: a stairway's OSM `step_count` over its length."""
     out = []
     for el in json.loads(OSM.read_text())["elements"]:
         t, g = el.get("tags", {}), el.get("geometry") or []
@@ -128,7 +157,12 @@ def load_walks(fwd):
                   GRAVEL if surf in ("gravel", "fine_gravel", "compacted", "pebblestone") else
                   SETTS if surf in ("paving_stones", "sett", "cobblestone") else STEP_STONE if h == "steps" else PAVING)
         xy = np.column_stack(fwd.transform([p["lon"] for p in g], [p["lat"] for p in g]))
-        out.append((kind, LineString(xy), WALK_W[kind] / 2, colour))
+        ln = LineString(xy)
+        try:
+            per_m = int(t["step_count"]) / ln.length if h == "steps" and ln.length > 0 else None
+        except (KeyError, ValueError):
+            per_m = None
+        out.append((kind, ln, WALK_W[kind] / 2, colour, per_m))
     return out
 
 
@@ -150,36 +184,145 @@ def load_walls(fwd):
     return out
 
 
-def modelled_streets():
-    """The streets landmarks model with their own sidewalks (landmark_osm.py streets: Session Road), asphalt and sidewalks
-    grown 0.5 m, in the model frame: OSM's walkways stay out of them, so the two pavements never overlap (owner
-    2026-10-07: "the awkward texture/build of the sidewalk in Session Road")."""
-    out = []
-    for slug in json.loads(LANDMARKS.read_text()):
-        f = LM_DATA / slug / "streets.json"
-        if not f.exists():
-            continue
-        st = json.loads(f.read_text())
-        ox, oy = json.loads((LM_DATA / slug / "footprint.json").read_text())["anchor_tm"]
-        for key in ("asphalt", "sidewalk", "median"):
-            v = np.asarray(st[key]["v"], float) + (ox, oy)
-            out += [Polygon(v[t]).buffer(0.5) for t in st[key]["f"]]
-    return [unary_union(out)] if out else []
-
-
-def keep_out(fwd, surfaces=False):
-    """Landmark areas the road tiles stay out of (see the module docstring). surfaces=True: the areas their asphalt stays
-    out of, which leaves out the landmarks that model a street (streets.json: Session Road). The tiles' asphalt runs on
-    under those, identical in the app (same scan, colour and world-anchored texture), so the street and the city's roads
-    meet with no cut or gap; their markings and furniture still stay out (owner 2026-10-07, upper Session Road)."""
+def keep_out(fwd, parks=False):
+    """Landmark rings the road tiles stay out of: every landmark's `exclusion` but Session Road's (landmark_osm.py streets:
+    its street is these tiles' own, owner 2026-10-08) and, unless `parks`, the parks built by landmark_osm.py park (their
+    lawns leave the drives to these tiles; their own walks keep the city's walkways out)."""
     polys = []
     for slug, e in json.loads(LANDMARKS.read_text()).items():
-        if (LM_DATA / slug / "park.json").exists() or (surfaces and (LM_DATA / slug / "streets.json").exists()):
+        if (LM_DATA / slug / "streets.json").exists() or (not parks and (LM_DATA / slug / "park.json").exists()):
             continue
-        ring = e.get("road_exclusion") or e.get("exclusion")
-        if ring:
-            polys.append(Polygon([fwd.transform(*p) for p in ring]))
+        polys.append(Polygon([fwd.transform(*p) for p in e["exclusion"]]))
     return unary_union(polys)
+
+
+def frame_at(ln, q):
+    """The unit direction of line ln at its point nearest q, that point, and q's signed offset (left +) from it."""
+    s_ = ln.project(shapely.Point(q))
+    a, b = ln.interpolate(max(0.0, s_ - 1.0)), ln.interpolate(min(ln.length, s_ + 1.0))
+    d = np.array((b.x - a.x, b.y - a.y))
+    d /= max(np.linalg.norm(d), 1e-9)
+    c = ln.interpolate(s_)
+    return d, np.array((c.x, c.y)), float(np.dot(np.subtract(q, (c.x, c.y)), (-d[1], d[0])))
+
+
+def sidewalk_bands(ways, bridges, blds, btree):
+    """Each street's sidewalk bands as (polygon, paving): per CHUNK_M of its centreline and side, from the carriageway's
+    edge out SIDEWALK_M, kept where a building stands within BUILT_M beyond it on that side."""
+    out = []
+    for i, (_, t, ln, half, *_r) in enumerate(ways):
+        kind = t.get("highway", "").removesuffix("_link")
+        if kind not in SIDE_KINDS or i in bridges:
+            continue
+        for a in np.arange(0.0, ln.length, CHUNK_M):
+            piece = substring(ln, a, min(ln.length, a + CHUNK_M))
+            if piece.length < 0.5:
+                continue
+            road = piece.buffer(half, cap_style="flat")
+            for side in (1, -1):
+                reach = piece.buffer(side * (half + SIDEWALK_M + BUILT_M), single_sided=True).difference(road)
+                if not len(btree.query(reach, predicate="intersects")):
+                    continue
+                band = areas(piece.buffer(side * (half + SIDEWALK_M), single_sided=True).buffer(0).difference(road))
+                if band.area > 1.0:
+                    out.append((band, SIDE_PAVING.get(kind, CONC)))
+    return out
+
+
+def find_medians(ways, polys, blds, btree, out_of):
+    """Centre islands: the space the one-way carriageways' union closes over within 2 x MEDIAN_REACH_M, off every
+    carriageway, kept where it holds no building and no landmark and is long and thin (half its perimeter over 20 m and
+    over 8 x its area's square root): a junction's filled corner is a triangle, a city block holds buildings."""
+    one = unary_union([polys[i] for i, w in enumerate(ways) if w[5]])
+    gap = one.buffer(MEDIAN_REACH_M, join_style="mitre").buffer(-MEDIAN_REACH_M, join_style="mitre").difference(unary_union(polys))
+    out = []
+    for g in getattr(gap, "geoms", [gap]):
+        if g.geom_type != "Polygon" or g.area < 15 or out_of.contains(g.representative_point()):
+            continue
+        hit = [blds[i] for i in btree.query(g, predicate="intersects")]
+        if hit and unary_union(hit).intersection(g).area > 0.05 * g.area:
+            continue
+        g = g.difference(unary_union(hit)) if hit else g
+        if g.length / 2 > 20 and (g.length / 2) ** 2 / g.area > 8:
+            out.append(g)
+    return out
+
+
+def median_sites(meds, ways, tree, lamps, trees):
+    """Lamps (x, y, ux, uy, arm half-length: u across the road), trees and shrubs on the islands: OSM's street lamps and
+    trees on them, and on the planted ones (PLANTED_M), a twin-arm lamp and a tree in turn every 12 m along the island's
+    middle, shrubs every 3 m between (as Session Road's, session-road.md S3), where OSM maps none near."""
+    L, T, S = [], [], []
+    lamp_t, tree_t = STRtree([shapely.Point(q) for q in lamps]), STRtree([shapely.Point(q) for q in trees])
+    for m in meds:
+        width = 2 * m.area / m.length
+        arm = min(width / 2 + 1.5, 5.0)
+        grown = m.buffer(0.5)
+        border = [int(j) for j in tree.query(m, predicate="dwithin", distance=0.5) if ways[int(j)][5]]
+        if not border:
+            continue
+        lam = []
+        for k in lamp_t.query(grown, predicate="contains"):
+            q = lamps[int(k)]
+            j = min(border, key=lambda j: ways[j][2].distance(shapely.Point(q)))
+            d, _, _ = frame_at(ways[j][2], q)
+            lam.append((np.asarray(q, float), np.array((-d[1], d[0]))))
+        tre = [np.asarray(trees[int(k)], float) for k in tree_t.query(grown, predicate="contains")]
+        shr = []
+        if width >= PLANTED_M:
+            near = lambda q, pts, r: any(math.hypot(q[0] - p[0], q[1] - p[1]) < r for p in pts)
+            for j in sorted(border, key=lambda j: -ways[j][2].intersection(m.buffer(2 * MEDIAN_REACH_M)).length):
+                ln, half = ways[j][2], ways[j][3]
+                for k, t_ in enumerate(np.arange(1.5, ln.length, 3.0)):
+                    d, c, _ = frame_at(ln, ln.interpolate(t_).coords[0])
+                    n = np.array((-d[1], d[0]))
+                    for side in (1, -1):
+                        hit = LineString([c + n * side * (half - 0.2), c + n * side * (half + 2 * MEDIAN_REACH_M + 1)]).intersection(m)
+                        parts = [h for h in getattr(hit, "geoms", [hit]) if h.geom_type == "LineString" and h.length > 0.2]
+                        if not parts:
+                            continue
+                        q = np.array(min(parts, key=lambda h: h.distance(shapely.Point(c))).interpolate(0.5, normalized=True).coords[0])
+                        lamps_q = [p for p, _ in lam]
+                        if k % 4 == 0 and (k // 4) % 2 and not near(q, lamps_q, 16.0) and not near(q, tre, 3.0):
+                            lam.append((q, n * side))
+                        elif k % 4 == 0 and not near(q, tre + lamps_q, 6.0):
+                            tre.append(q)
+                        elif not near(q, shr + tre + lamps_q, 2.4):
+                            shr.append(q)
+        L += [(*q, *u, arm) for q, u in lam]
+        T += [tuple(q) for q in tre]
+        S += [tuple(q) for q in shr]
+    return L, T, S
+
+
+def simp(g):
+    """g's outline simplified by TOL_M, valid (a sliver can simplify into a bowtie)."""
+    return shapely.make_valid(g.simplify(TOL_M))
+
+
+def cut(g, cell, *holes):
+    """g within cell, less each of `holes` (the last snapped to 1 cm, as the pieces are unioned on that grid), polygonal
+    after every step: GEOS can leave a stray line where a cut grazes an edge, and a snapped overlay refuses mixed input."""
+    g = areas(areas(simp(areas(g))).intersection(cell))
+    for k, h in enumerate(holes):
+        g = areas(g.difference(h, grid_size=0.01) if k == len(holes) - 1 else g.difference(h))
+    return g
+
+
+def scatter(g, density, rng):
+    """Random points over polygon(s) g, `density` a square metre on average."""
+    tris = [t for p in getattr(g, "geoms", [g]) if p.geom_type == "Polygon" for t in shapely.constrained_delaunay_triangles(p).geoms]
+    if not tris:
+        return np.empty((0, 2))
+    T = np.array([t.exterior.coords[:3] for t in tris])
+    e1, e2 = T[:, 1] - T[:, 0], T[:, 2] - T[:, 0]
+    A = np.abs(e1[:, 0] * e2[:, 1] - e1[:, 1] * e2[:, 0]) / 2
+    n = rng.poisson(A.sum() * density)
+    k = rng.choice(len(T), n, p=A / A.sum())
+    u, v = rng.random(n), rng.random(n)
+    flip = u + v > 1
+    u[flip], v[flip] = 1 - u[flip], 1 - v[flip]
+    return T[k, 0] + (T[k, 1] - T[k, 0]) * u[:, None] + (T[k, 2] - T[k, 0]) * v[:, None]
 
 
 def dashes(ln, half, lanes, oneway, near_junction):
@@ -239,34 +382,39 @@ def build():
     fwd, ways, junctions = load()
     inv = Transformer.from_crs(LOCAL_TM, "EPSG:4326", always_xy=True)
     ground = Ground(1)
-    out_of, surface_out = keep_out(fwd), keep_out(fwd, surfaces=True)
+    out_of, every_ring = areas(keep_out(fwd)), areas(keep_out(fwd, parks=True))
     polys = [w[2].buffer(w[3], quad_segs=3, cap_style="round") for w in ways]
     tree, jtree = STRtree(polys), STRtree([shapely.Point(p) for p in junctions])
     near_junction = lambda p: len(jtree.query(shapely.Point(p), predicate="dwithin", distance=12.0)) > 0
     nodes = load_nodes(fwd)
     ltree = STRtree([w[2] for w in ways])
-    lamp_tree = STRtree([shapely.Point(p) for p in nodes["street_lamp"]]) if nodes["street_lamp"] else None
-
-    def along(i, q):
-        """Way i's unit direction and its point nearest q, and q's signed offset (left +) from it."""
-        ln = ways[i][2]
-        s_ = ln.project(shapely.Point(q))
-        a, b = ln.interpolate(max(0.0, s_ - 1.0)), ln.interpolate(min(ln.length, s_ + 1.0))
-        d = np.array((b.x - a.x, b.y - a.y))
-        d /= max(np.linalg.norm(d), 1e-9)
-        c = ln.interpolate(s_)
-        return d, np.array((c.x, c.y)), float(np.dot(np.subtract(q, (c.x, c.y)), (-d[1], d[0])))
+    along = lambda i, q: frame_at(ways[i][2], q)
     bridges = {i for i, w in enumerate(ways) if w[1].get("bridge") in ("yes", "viaduct")}
+    to_tm = lambda g: shapely.transform(g, lambda c: np.column_stack(fwd.transform(c[:, 0], c[:, 1])))
+    blds = [to_tm(g) for _, _, g in load_buildings()]
+    btree = STRtree(blds)
+    bands = sidewalk_bands(ways, bridges, blds, btree)
+    btree_s = STRtree([b for b, _ in bands])
+    meds = find_medians(ways, polys, blds, btree, out_of)
+    mtree = STRtree(meds)
+    land = json.loads((DATA / "osm" / "landscape.json").read_text())["elements"]
+    osm_trees = [fwd.transform(e["lon"], e["lat"]) for e in land if e["type"] == "node" and e.get("tags", {}).get("natural") == "tree"]
+    m_lamps, m_trees, m_shrubs = median_sites(meds, ways, tree, nodes["street_lamp"], osm_trees)
+    on_median = unary_union(meds).buffer(0.5)
+    nodes["street_lamp"] = [q for q in nodes["street_lamp"] if not on_median.contains(shapely.Point(q))]   # drawn twin-armed
+    every_lamp = nodes["street_lamp"] + [q[:2] for q in m_lamps]
+    lamp_tree = STRtree([shapely.Point(p) for p in every_lamp]) if every_lamp else None
+    people = []                                          # model frame (x, y), from every finished tile
     (x0, y1), (x1, y0) = slippy(PADDED[0], PADDED[3], 15), slippy(PADDED[2], PADDED[1], 15)   # the map's box (its terrain)
     (px0, py0), (px1, py1) = fwd.transform(PADDED[0], PADDED[1]), fwd.transform(PADDED[2], PADDED[3])
     padded = box(px0, py0, px1, py1)
     walks, walls = load_walks(fwd), load_walls(fwd)
     walk_polys = [w[1].buffer(w[2], quad_segs=2, cap_style="flat") for w in walks]
     wtree, walltree = STRtree(walk_polys), STRtree([w[0] for w in walls])
-    every_ring = unary_union([Polygon([fwd.transform(*q) for q in e["exclusion"]]) for e in json.loads(LANDMARKS.read_text()).values()]
-                             + modelled_streets())
     print(f"roads: {len(ways):,} ways, {len(bridges)} bridges, {len(junctions):,} junctions; {len(walks):,} walkways, "
-          f"{len(walls):,} walls; z15 tiles x {x0}-{x1}, y {y0}-{y1}")
+          f"{len(walls):,} walls; {len(bands):,} sidewalk bands ({sum(b.area for b, _ in bands) / 1e6:.2f} km2 before cuts); "
+          f"{len(meds)} centre islands ({sum(m.area for m in meds):,.0f} m2), {len(m_lamps)} lamps, {len(m_trees)} trees, "
+          f"{len(m_shrubs)} shrubs on them; z15 tiles x {x0}-{x1}, y {y0}-{y1}")
 
     def heights(vx, vy):
         lng, lat = inv.transform(np.atleast_1d(vx), np.atleast_1d(vy))
@@ -282,12 +430,15 @@ def build():
         idx = [int(i) for i in tree.query(cell, predicate="intersects")]
         widx = [int(i) for i in wtree.query(cell, predicate="intersects")]
         lidx = [int(i) for i in walltree.query(cell, predicate="intersects")]
-        if not idx and not widx and not lidx:
+        sidx = [int(i) for i in btree_s.query(cell, predicate="intersects")]
+        midx = [int(i) for i in mtree.query(cell, predicate="intersects")]
+        if not idx and not widx and not lidx and not sidx and not midx:
             return []
         ax, ay = fwd.transform((tw + te) / 2, (ts + tn) / 2)
-        deck = areas(unary_union([polys[i] for i in idx if i in bridges]).intersection(cell)) if any(i in bridges for i in idx) else Polygon()
-        asphalt = areas(unary_union([polys[i] for i in idx if i not in bridges and not ways[i][6]]).intersection(cell).difference(surface_out).difference(deck))
-        concrete = areas(unary_union([polys[i] for i in idx if i not in bridges and ways[i][6]]).intersection(cell).difference(surface_out)
+        # outlines simplified before the cut to the tile, so its edges stay exact and neighbours meet without a crack
+        deck = areas(simp(unary_union([polys[i] for i in idx if i in bridges])).intersection(cell)) if any(i in bridges for i in idx) else Polygon()
+        asphalt = areas(simp(unary_union([polys[i] for i in idx if i not in bridges and not ways[i][6]])).intersection(cell).difference(out_of).difference(deck))
+        concrete = areas(simp(unary_union([polys[i] for i in idx if i not in bridges and ways[i][6]])).intersection(cell).difference(out_of)
                          .difference(deck).difference(asphalt))
         pos, col, tri = [], [], []
 
@@ -317,6 +468,7 @@ def build():
                     tri.extend([[k + b, k + a, m], [k + b, m, m + 1]])
 
         local = lambda g: shapely.transform(g, lambda c: c - np.array([ax, ay]))
+        mesh = lambda g: grid_mesh(local(g), CELL_M, tol=0, origin=(ax, ay))   # g already simplified, cut to the tile
 
         def put(c, d, al, ac, z0, z1, colour):          # c in the model frame
             solid(pos, col, tri, np.subtract(c, (ax, ay)), d, al, ac, z0, z1, colour)
@@ -359,13 +511,19 @@ def build():
             for i in range(n_):                              # CCW from above, as the quads were
                 tri.extend([[k + i, k + i + 1, k + m + i + 1], [k + i, k + m + i + 1, k + m + i]])
 
-        def stairs(ln, half, colour):
-            """Steps up a stairway's line: flat treads, a riser at each, sides to below the ground (no gaps on slopes)."""
+        def stairs(ln, half, colour, per_m):
+            """Steps along a stairway's line at an even rise, from the paving height over the ground at one end (WALK_LIFT)
+            to the same at the other, so each end meets its sidewalk or walk flush (owner 2026-10-08: "staircases connected
+            to sidewalks"); sides to below the ground (no gaps on slopes). The treads: OSM's step_count where mapped (519 of
+            the 1,471, the Pilgrim's Stairs' 105 among them), else one per STEP_RISE_M of the terrain's climb, at most
+            MAX_GOING_M deep (the map's z14 terrain, about 9 m a pixel, smooths a stair's slope away)."""
             ts = np.linspace(0, ln.length, max(2, int(ln.length / 2.0) + 1))
             pts = np.array([ln.interpolate(t_).coords[0] for t_ in ts])
             zs = heights(pts[:, 0], pts[:, 1])
-            climb = abs(zs[-1] - zs[0]) / EXAG                                   # true metres
-            n = max(1, int(round(climb / STEP_RISE_M)))
+            za, zb = zs[0] + WALK_LIFT, zs[-1] + WALK_LIFT
+            n = (int(round(per_m * ln.length)) if per_m else
+                 max(int(round(abs(zb - za) / EXAG / STEP_RISE_M)), int(math.ceil(ln.length / MAX_GOING_M))))
+            n = min(max(1, n), int(ln.length / 0.2) + 1)
             for k in range(n):
                 s0, s1 = ln.length * k / n, ln.length * (k + 1) / n
                 p0, p1 = ln.interpolate(s0), ln.interpolate(s1)
@@ -373,35 +531,63 @@ def build():
                 L = float(np.linalg.norm(d))
                 if L < 0.05:
                     continue
-                z_lo = float(np.interp(s0, ts, zs)) if zs[-1] >= zs[0] else float(np.interp(s1, ts, zs))
-                z_t = float(np.interp((s0 + s1) / 2, ts, zs)) + WALK_LIFT
-                put(((p0.x + p1.x) / 2, (p0.y + p1.y) / 2), d / L, L / 2 + 0.02, half, min(z_lo, z_t) - 0.8, z_t, colour)
+                top = za + (zb - za) * (k + (1 if zb >= za else 0)) / n         # the higher edge of the tread
+                low = float(min(np.interp(s0, ts, zs), np.interp(s1, ts, zs)))
+                put(((p0.x + p1.x) / 2, (p0.y + p1.y) / 2), d / L, L / 2 + 0.02, half, min(low, top) - 0.8, top, colour)
+
         for surface, colour in ((asphalt, ASPHALT), (concrete, CONCRETE)):
-            add(grid_mesh(local(surface), CELL_M), heights, colour, SKIRT_M, road=True)
-        # walkways by colour, off the carriageways and out of every landmark (parks included: they draw their own walks)
-        roads_here = unary_union([asphalt, concrete, deck])
+            add(mesh(surface), heights, colour, SKIRT_M, road=True)
+        roads_here = areas(unary_union([asphalt, concrete, deck]))
+        # centre islands: a concrete kerb ring, planted inside (soil 5 cm under the kerb)
+        med = areas(simp(unary_union([meds[i] for i in midx])).intersection(cell)) if midx else Polygon()
+        if not med.is_empty:
+            inner = areas(med.buffer(-MEDIAN_KERB_M, join_style="mitre"))
+            add(mesh(areas(med.difference(inner))), heights, KERB, 0.6, LIFT_M + MEDIAN_LIFT)
+            add(mesh(inner), heights, PLANTER, 0.3, LIFT_M + MEDIAN_LIFT - 0.05)
+        # sidewalks: paving by road class (hexagonal pavers win where bands meet), cut back to the building fronts, a kerb
+        # strip along the carriageway
+        taken = areas(unary_union([roads_here, med]))
+        fronts = areas(unary_union([blds[i] for i in btree.query(cell, predicate="intersects")]).buffer(0))
+        paved_by = {}
+        for colour in (HEX, BRICK, CONC):
+            g = [bands[i][0] for i in sidx if bands[i][1] == colour]
+            if not g:
+                continue
+            g = cut(unary_union(g), cell, every_ring, fronts, taken)
+            if g.is_empty:
+                continue
+            taken = areas(taken.union(g, grid_size=0.01))
+            paved_by[colour] = g
+        walked = unary_union(list(paved_by.values())) if paved_by else Polygon()
+        kerb = areas(walked.intersection(roads_here.buffer(KERB_W, join_style="mitre"))) if paved_by else Polygon()
+        for colour, g in paved_by.items():
+            paved_by[colour] = areas(g.difference(kerb))
+            add(mesh(paved_by[colour]), heights, colour, 0.7, WALK_LIFT)
+        add(mesh(kerb), heights, KERB, 0.7, WALK_LIFT)
+        # walkways by colour, off the carriageways and sidewalks and out of every landmark (parks included: they draw their
+        # own walks)
         groups = {}
         for i in widx:
             if walks[i][0] != "steps":
                 groups.setdefault(walks[i][3], []).append(walk_polys[i])
-        taken = roads_here
         for colour in (PAVING, SETTS, STEP_STONE, GRAVEL, EARTH):     # paving first: it wins where a trail meets it
             if colour not in groups:
                 continue
-            g = areas(unary_union(groups[colour]).intersection(cell).difference(every_ring).difference(taken, grid_size=0.01))
+            g = cut(unary_union(groups[colour]), cell, every_ring, fronts, taken)
             if g.is_empty:
                 continue
             taken = areas(taken.union(g, grid_size=0.01))
-            add(grid_mesh(local(g), CELL_M), heights, colour, 0.7, WALK_LIFT if colour != EARTH else LIFT_M + 0.06)
-        for i in widx:                               # stairways: a tread and a riser per STEP_RISE_M of real climb
-            kind, ln, half, colour = walks[i]
+            paved_by[colour] = g
+            add(mesh(g), heights, colour, 0.7, WALK_LIFT if colour != EARTH else LIFT_M + 0.06)
+        for i in widx:                               # stairways, from the edge of the paving they meet
+            kind, ln, half, colour, per_m = walks[i]
             if kind != "steps":
                 continue
-            piece = ln.intersection(cell)
+            piece = ln.intersection(cell).difference(taken)
             for part in getattr(piece, "geoms", [piece]):
                 if part.geom_type != "LineString" or part.length < 1.0 or every_ring.contains(part.centroid):
                     continue
-                stairs(part, half, colour)
+                stairs(part, half, colour, per_m)
         for i in lidx:                               # walls: blocks of 2.4 m, three stone (or render) tones, coursed
             ln, h, half, palette = walls[i]
             piece = ln.intersection(cell)
@@ -423,12 +609,12 @@ def build():
             if i not in bridges:
                 continue
             ln = ways[i][2]
-            piece = areas(polys[i].intersection(cell).difference(surface_out))
+            piece = areas(simp(polys[i]).intersection(cell).difference(out_of))
             if piece.is_empty:
                 continue
             g0, g1 = float(heights(*ln.coords[0])[0]), float(heights(*ln.coords[-1])[0])
             z_of = lambda vx, vy, ln=ln, g0=g0, g1=g1: np.array([g0 + (g1 - g0) * ln.project(shapely.Point(a, b), normalized=True) for a, b in zip(vx, vy)])
-            add(grid_mesh(local(piece), CELL_M), z_of, ASPHALT, 0.8, road=True)
+            add(mesh(piece), z_of, ASPHALT, 0.8, road=True)
         for i in idx:                               # markings on main roads, clear of junctions and landmarks
             wy = ways[i]
             kind = wy[1].get("highway", "").removesuffix("_link")
@@ -479,6 +665,11 @@ def build():
             n = np.array((-d[1], d[0]))
             for o in np.arange(-ways[j][3] + 0.6, ways[j][3] - 0.3, 1.0):
                 mark_rect(c + n * o, d, 1.5, 0.25)
+            for side in (-1, 1):                        # a yellow tactile pad on the sidewalk at each end (S5, 0:30)
+                pad = c + n * side * (ways[j][3] + KERB_W + 0.45)
+                if walked.contains(shapely.Point(pad)):
+                    zp = gz(pad) - LIFT_M + WALK_LIFT
+                    put(pad, d, 0.6, 0.3, zp - 0.03, zp + 0.012, TACTILE)
         for q in nodes["traffic_signals"]:              # a signal pole at either kerb, its head over the road
             if not cell.contains(shapely.Point(q)) or out_of.contains(shapely.Point(q)):
                 continue
@@ -523,6 +714,15 @@ def build():
             n = np.array((-d[1], d[0]))
             base = np.asarray(q) if abs(off) > ways[j][3] + 0.3 else c + n * (ways[j][3] + 0.6) * (1 if off >= 0 else -1)
             lamp(base, -n * np.sign(np.dot(base - c, n) or 1.0))
+        for x_, y_, ux, uy, arm in m_lamps:             # the islands' lamps: a pole, an arm over each carriageway
+            if not cell.contains(shapely.Point(x_, y_)):
+                continue
+            u = np.array((ux, uy))
+            zg = gz((x_, y_)) - LIFT_M + MEDIAN_LIFT
+            put((x_, y_), u, 0.08, 0.08, zg - 0.6, zg + LAMP_H, POLE)
+            put((x_, y_), u, arm, 0.04, zg + LAMP_H - 0.1, zg + LAMP_H, POLE)
+            for sgn in (-1, 1):
+                put(np.array((x_, y_)) + u * sgn * (arm - 0.3), u, 0.3, 0.13, zg + LAMP_H - 0.2, zg + LAMP_H - 0.05, LAMP)
         for i in idx:                                   # and every 32 m along the main roads, sides alternating
             wy = ways[i]
             if wy[1].get("highway", "").removesuffix("_link") not in MARKED or i in bridges:
@@ -533,7 +733,7 @@ def build():
                 n = np.array((-d[1], d[0])) * side
                 base = c + n * (wy[3] + 0.6)
                 pb = shapely.Point(base)
-                if (not cell.contains(pb) or out_of.contains(pb) or near_junction(base)
+                if (not cell.contains(pb) or out_of.contains(pb) or near_junction(base) or on_median.contains(pb)
                         or (lamp_tree is not None and len(lamp_tree.query(pb, predicate="dwithin", distance=15.0)))):
                     continue
                 lamp(base, -n)
@@ -541,6 +741,10 @@ def build():
             return [t for cx in (2 * x, 2 * x + 1) for cy in (2 * y, 2 * y + 1) for t in tile(z + 1, cx, cy)]
         if not tri:
             return []
+        rng = np.random.default_rng(int(hashlib.sha256(f"people-{z}-{x}-{y}".encode()).hexdigest()[:8], 16))
+        for colour, g in paved_by.items():                  # people on this finished tile's sidewalks and paved walks
+            if colour in PEOPLE_PER_M2:
+                people.extend(map(tuple, scatter(g, PEOPLE_PER_M2[colour], rng)))
         raw = WORK / f"{z}-{x}-{y}.glb"
         count = write_glb(raw, pos, col, [i for q in tri for i in q])
         return [(f"{z}-{x}-{y}", raw, count, [(tw + te) / 2, (ts + tn) / 2], [round(v, 6) for v in (tw, ts, te, tn)])]
@@ -552,6 +756,12 @@ def build():
     with ThreadPoolExecutor(8) as pool:
         for res in pool.map(lambda xy: tile(15, *xy), [(x, y) for x in range(min(x0, x1), max(x0, x1) + 1) for y in range(min(y0, y1), max(y0, y1) + 1)]):
             jobs += res
+    ll = lambda pts: np.column_stack(inv.transform(*np.asarray(pts, float).reshape(-1, 2).T)) if len(pts) else np.empty((0, 2))
+    paved = shapely.transform(shapely.GeometryCollection([b for b, _ in bands] + meds), lambda c: np.column_stack(inv.transform(c[:, 0], c[:, 1])))
+    np.savez_compressed(WORK / "sites.npz", person=ll(people), median_tree=ll(m_trees), median_shrub=ll(m_shrubs),
+                        person_lift=WALK_LIFT, median_lift=LIFT_M + MEDIAN_LIFT - 0.05,
+                        paved=np.frombuffer(shapely.to_wkb(paved), np.uint8))
+    print(f"sites: {len(people):,} people, {len(m_trees)} median trees, {len(m_shrubs)} median shrubs -> {WORK / 'sites.npz'}")
     PUBLIC.mkdir(parents=True, exist_ok=True)
     for old in PUBLIC.glob("*.glb"):
         old.unlink()
@@ -563,11 +773,13 @@ def build():
         data = packed.read_bytes()
         name = f"{tid}.{hashlib.sha256(data).hexdigest()[:8]}.glb"
         (PUBLIC / name).write_bytes(data)
-        return {"id": tid, "anchor": anchor, "bbox": bbox, "url": f"/models/roads/{name}", "bytes": len(data), "triangles": tris}
+        return {"id": tid, "anchor": [round(v, 9) for v in anchor], "bbox": bbox, "url": f"/models/roads/{name}", "bytes": len(data), "triangles": tris}
 
     with ThreadPoolExecutor(8) as pool:
         tiles = sorted(pool.map(pack, jobs), key=lambda t: t["id"])
-    (PUBLIC / "index.json").write_text(json.dumps({"nearZoom": 15, "laneM": LANE_M, "exaggeration": EXAG, "tiles": tiles}, indent=1) + "\n")
+    # what the app reads (ModelLayer.ts TileEntry), compact: every visit fetches it (C6 session bytes)
+    shipped = [{k: t[k] for k in ("id", "anchor", "bbox", "url")} for t in tiles]
+    (PUBLIC / "index.json").write_text(json.dumps({"nearZoom": 15, "laneM": LANE_M, "exaggeration": EXAG, "tiles": shipped}, separators=(",", ":")) + "\n")
     sizes = np.array([t["bytes"] for t in tiles])
     print(f"road tiles {len(tiles)}, bytes p50 {np.percentile(sizes, 50):,.0f} p95 {np.percentile(sizes, 95):,.0f} max {sizes.max():,}, "
           f"total {sizes.sum():,}; triangles {sum(t['triangles'] for t in tiles):,}")

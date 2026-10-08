@@ -131,8 +131,8 @@ The map is a Google Earth-like view: Esri World Imagery is the ground, under Ope
 - 22 landmark models;
 - Session Road's buildings and the city's hotels;
 - the building massing;
-- the roads, walkways and walls;
-- 1.7 million trees, shrubs and rocks.
+- the roads, their sidewalks and centre islands, walkways, stairs and walls;
+- 1.7 million trees, shrubs and rocks, and people on the sidewalks.
 
 The satellite photograph is draped on the massing's roofs, the road asphalt and the landmarks' lawns and paving (`components/map/layers/imageryAtlas.ts`).
 
@@ -144,14 +144,16 @@ How it is built:
   - centre lines on the DPWH pattern: double solid yellow on bends, broken white on straights;
   - lane and edge lines, stop lines and zebra crossings;
   - traffic signals, signs and street lights;
-  - OSM's sidewalks, footways, trails, 1,471 stairways (stepped), and retaining and other walls.
+  - sidewalks city-wide, 5.57 m from the kerb (Session Road's width) to the building fronts, wherever a street has buildings on that side, with kerbs and tactile pads at the crossings;
+  - centre islands between divided roads' carriageways, kerbed and planted, with OSM's lamps and trees on them (else a twin-arm lamp and a tree in turn every 12 m, shrubs between);
+  - OSM's footways, trails, 1,471 stairways (an even rise, flush with the paving at each end), and retaining and other walls.
 
-  Every carriageway (asphalt or OSM's concrete) and pavement takes Session Road's look: CC0 photo-scanned asphalt and paver textures from Poly Haven (`fetch_road_textures.py`, `public/models/textures/`), in Session Road's colours.
+  Session Road is drawn by these tiles like every street; its landmark adds only the awnings and the traffic. Every carriageway (asphalt or OSM's concrete) takes Session Road's asphalt colour, and every surface a CC0 photo scan from Poly Haven (`fetch_road_textures.py`, `public/models/textures/`): asphalt, and for sidewalks hexagonal pavers (trunk and primary roads), red brick (secondary and tertiary) or concrete (the rest, and kerbs), after a walk up Session Road to SM Baguio on video.
 - **Districts:** Session Road's buildings and the hotels (`district_osm.py`, `district_textures.py`, `model/blender/landmarks/district.py`):
   - facades tinted per building;
   - shopfronts signed with OSM's tenants, and balconies;
   - hotel boards and canopies.
-- **Flora:** trees of 14 cited species plus shrubs and rocks (`model/flora.json`), modelled in Blender (`model/blender/flora.py`). They are placed by ESA WorldCover land cover with OSM's woods, parks, trees and rocks (`build_landcover.py`, `build_flora.py`), clear of buildings, roads and paths, and streamed as GPU-instanced tiles from zoom 15 (`public/models/flora/`).
+- **Flora and people:** trees of 14 cited species plus shrubs and rocks (`model/flora.json`), and a pedestrian in eight jacket colours, modelled in Blender (`model/blender/flora.py`). Plants are placed by ESA WorldCover land cover with OSM's woods, parks, trees and rocks (`build_landcover.py`, `build_flora.py`), clear of buildings, roads, sidewalks and paths; people and the islands' trees and shrubs come from `build_roads.py`. All stream as GPU-instanced tiles from zoom 15 (`public/models/flora/`); people, shrubs and rocks draw near only.
 
 The plans live in `docs/superpowers/plans/`: the contract `2026-10-01-baguio-3d-model-contract.md` and one plan per milestone, M1 to M8, with progress in `2026-09-24-ledger.md`.
 
@@ -163,7 +165,7 @@ To rebuild from scratch, in order (`model/data/` is regenerable and gitignored):
    - `model/blender/flora.py`, run headless with `--factory-startup`;
    - `uv run model/scripts/district_osm.py street session-road-buildings "Session Road" 70 0`, then `district_osm.py hotels`, `district_textures.py`, and `pack_landmark.py --prune` once the models are rebuilt.
 4. Every landmark and district model: `model/scripts/rebuild_landmarks.sh [slug ...]` (Blender build, export, pack).
-5. `uv run model/scripts/build_massing.py build`, `uv run model/scripts/build_roads.py` and `uv run model/scripts/build_flora.py`.
+5. `uv run model/scripts/build_massing.py build`, `uv run model/scripts/build_roads.py` and then `uv run model/scripts/build_flora.py` (it reads the roads' sites).
 6. `uv run model/scripts/landmarks_sql.py`, which writes a migration; apply it with `supabase db push --linked`.
 7. `node model/scripts/validate_glbs.mjs`: every GLB must be valid. `node model/scripts/map_shot.mjs <out.png> <lng> <lat> <zoom> <pitch> <bearing>` screenshots the running map.
 

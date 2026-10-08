@@ -108,9 +108,10 @@ class Batch:
             return
         me = bpy.data.meshes.new(name)
         me.from_pydata(self.v, [], self.f)
-        lin = np.array([lm.srgb(*c) for c in self.c], np.float32)
-        attr = me.color_attributes.new("Col", "FLOAT_COLOR", "POINT")
-        attr.data.foreach_set("color", np.column_stack([lin, np.ones(len(lin), np.float32)]).ravel())
+        if self.mat is not ROOF:                  # the roofs show the photograph: no tint, and an unread colour layer exports
+            lin = np.array([lm.srgb(*c) for c in self.c], np.float32)   # as a lone COLOR_1 the glTF validator rejects
+            attr = me.color_attributes.new("Col", "FLOAT_COLOR", "POINT")
+            attr.data.foreach_set("color", np.column_stack([lin, np.ones(len(lin), np.float32)]).ravel())
         uvl = me.uv_layers.new(name="UVMap")
         uvl.data.foreach_set("uv", np.array([self.uv[i] for f in self.f for i in f], np.float32).ravel())
         me.materials.append(self.mat)

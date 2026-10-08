@@ -21,8 +21,13 @@ from PIL import Image
 from common import ROOT, load_sources, save_sources
 
 UA = "baguio-city-3d/1.0"
-# name -> (Poly Haven asset, the real-world size of one tile in metres, from the asset's dimensions)
-TEXTURES = {"asphalt": ("asphalt_06", 3.0), "pavers": ("concrete_pavers_02", 2.0)}   # every carriageway is asphalt (owner)
+# name -> (Poly Haven asset, the real-world size of one tile in metres, from the asset's dimensions). Every carriageway is
+# asphalt (owner 2026-10-07). Sidewalks (owner 2026-10-08: "richer textures", after the SESSION ROAD to SM Baguio walk
+# video, youtube.com/watch?v=_6sBS3FvTKo): hexagonal concrete pavers on the main roads (Session Road, 1:15 to 4:00), red
+# brick pavers on the secondary roads (the climb to SM, 7:00), plain concrete on the rest and on every kerb. The brick
+# scan is 1.94 m, tiled at 2.0 m so the runtime's world wrap (816 m) stays a whole number of every tile.
+TEXTURES = {"asphalt": ("asphalt_06", 3.0), "pavers": ("concrete_pavers_02", 2.0), "hex": ("hexagonal_concrete_paving", 1.6),
+            "brick": ("short_bricks_floor", 2.0), "concrete": ("concrete_floor_01", 2.0)}
 OUT = ROOT / "public" / "models" / "textures"
 
 

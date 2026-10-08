@@ -1,10 +1,11 @@
 {
-  "_doc": "Trees, shrubs and rocks of the landscape (owner 2026-10-07: 'Baguio City must be filled with different kinds of trees, not just pine trees'). Archetypes are modelled by model/blender/flora.py at ref_height_m; species pick an archetype, a tint (foliage, or blossom for flowering trees) and a height range. Heights, colours and the zone shares are ESTIMATEs; the species and the pine's share are cited. Zones: forest = WorldCover tree cover away from buildings and OSM woods; urban = tree cover among buildings, OSM single trees and tree rows; park = OSM parks and gardens.",
+  "_doc": "Trees, shrubs, rocks and people of the landscape (owner 2026-10-07: 'Baguio City must be filled with different kinds of trees, not just pine trees'). Archetypes are modelled by model/blender/flora.py at ref_height_m; species pick an archetype, a tint (foliage, or blossom for flowering trees) and a height range. Heights, colours and the zone shares are ESTIMATEs; the species and the pine's share are cited. Zones: forest = WorldCover tree cover away from buildings and OSM woods; urban = tree cover among buildings, OSM single trees and tree rows; park = OSM parks and gardens. Median = the planted centre islands of divided roads (build_roads.py: OSM's trees there, else one every 24 m). People (owner 2026-10-08: 'add people') share the instancing: the 'person' archetype, its jacket tinted per species (colours seen in S5), standing on the sidewalks; pedestrians = their mix.",
   "sources": {
     "S1": "SunStar Baguio, 'Baguio City wants tree cutting stopped' (2020-07-13), https://www.sunstar.com.ph/baguio/local-news/baguio-city-wants-tree-cutting-stopped : 492,974 Benguet pines, 19.7% of the city's trees; the other 80.3% ornamental and exotic: Alnus, Eucalyptus, Calliandra, African Tulip, Agoho, Cypress, Bottle Brush, Coral Tree, Paper Bark Tree, Norfolk Pine, Maple and Balete.",
     "S2": "Wikipedia, 'Burnham Park (Baguio)', read 2026-10-07, https://en.wikipedia.org/wiki/Burnham_Park_(Baguio) : about 2,600 trees (2015); 72 species in a 2009 inventory (19 trees); most common families Myrtaceae, Moraceae and Bignoniaceae; Benguet pine, pink shower and African tuliptree among the prevalent trees.",
     "S3": "Wikipedia, 'Pinus kesiya', read 2026-10-07, https://en.wikipedia.org/wiki/Pinus_kesiya : up to 30-35 m tall with a straight, cylindrical trunk; Baguio, 'The City of Pines', is noted for large stands of it.",
-    "S4": "University of Baguio research abstract, 'Inventory and Assessment of the Floristic Composition of Burnham Park' (via web search 2026-10-07): Cupressus sempervirens and Araucaria bidwillii listed among the park's trees."
+    "S4": "University of Baguio research abstract, 'Inventory and Assessment of the Floristic Composition of Burnham Park' (via web search 2026-10-07): Cupressus sempervirens and Araucaria bidwillii listed among the park's trees.",
+    "S5": "YouTube, 'Walking at SESSION ROAD Going to SM Baguio Mall | City Pandemic Tour 2021 [4K Walk Tour]', https://www.youtube.com/watch?v=_6sBS3FvTKo (supplied by the owner 2026-10-08), frames at 0:30, 1:15, 2:30, 4:00, 5:30, 7:00 and 7:35: busy sidewalks, people in grey hoodies and red, orange, pink, white, black and navy jackets; trimmed round shrubs and small trees in Session Road's median."
   },
   "archetypes": {
     "pine": {
@@ -24,6 +25,9 @@
     },
     "tall": {
       "ref_height_m": 16.6
+    },
+    "person": {
+      "ref_height_m": 1.63
     },
     "shrub": {
       "ref_height_m": 1.0
@@ -287,6 +291,126 @@
         1.6
       ],
       "source": "ESTIMATE"
+    },
+    {
+      "key": "person_grey",
+      "name": "Pedestrian (grey jacket)",
+      "archetype": "person",
+      "foliage": [
+        132,
+        132,
+        136
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
+    },
+    {
+      "key": "person_red",
+      "name": "Pedestrian (red jacket)",
+      "archetype": "person",
+      "foliage": [
+        178,
+        40,
+        46
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
+    },
+    {
+      "key": "person_orange",
+      "name": "Pedestrian (orange jacket)",
+      "archetype": "person",
+      "foliage": [
+        226,
+        118,
+        40
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
+    },
+    {
+      "key": "person_pink",
+      "name": "Pedestrian (pink jacket)",
+      "archetype": "person",
+      "foliage": [
+        214,
+        122,
+        152
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
+    },
+    {
+      "key": "person_white",
+      "name": "Pedestrian (white jacket)",
+      "archetype": "person",
+      "foliage": [
+        228,
+        228,
+        224
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
+    },
+    {
+      "key": "person_black",
+      "name": "Pedestrian (black jacket)",
+      "archetype": "person",
+      "foliage": [
+        38,
+        38,
+        42
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
+    },
+    {
+      "key": "person_navy",
+      "name": "Pedestrian (navy jacket)",
+      "archetype": "person",
+      "foliage": [
+        40,
+        54,
+        92
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
+    },
+    {
+      "key": "person_olive",
+      "name": "Pedestrian (olive jacket)",
+      "archetype": "person",
+      "foliage": [
+        98,
+        106,
+        66
+      ],
+      "height_m": [
+        1.5,
+        1.78
+      ],
+      "source": "S5"
     }
   ],
   "zones": {
@@ -327,6 +451,21 @@
       "alnus": 7,
       "maple": 4,
       "coral_tree": 4
+    },
+    "median": {
+      "alnus": 6,
+      "maple": 2,
+      "bottlebrush": 2
+    },
+    "pedestrians": {
+      "person_grey": 3,
+      "person_red": 2,
+      "person_orange": 2,
+      "person_pink": 2,
+      "person_white": 2,
+      "person_black": 3,
+      "person_navy": 2,
+      "person_olive": 2
     }
   }
 }

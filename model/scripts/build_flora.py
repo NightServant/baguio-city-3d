@@ -11,7 +11,9 @@ trees, not just pine trees"), as GPU-instanced tiles for the web map's near zoom
 - species by zone (model/flora.json: forest away from buildings, urban among them, park in OSM parks and gardens),
   height in the species' range; rocks on bare ground and slopes steeper than 30 degrees, shrubs under the trees and
   in the scrub;
-- standing on the map's terrain (AWS Terrarium z14, stretched by EXAG), z16 tiles over the city's bounds.
+- standing on the map's terrain (AWS Terrarium z14, stretched by EXAG), z16 tiles over the city's bounds;
+- with build_roads.py's sites (model/data/roads/sites.npz; run it first): people on the sidewalks (owner 2026-10-08: "add
+  people"), and trees and shrubs on the centre islands, standing on their paving; no other plant on a sidewalk or island.
 A tile is N records of 8 bytes, in random order (the runtime thins far tiles by taking a prefix): x and y in 1/80 m
 from the tile centre + 400 m (uint16), the ground in 1/20 m above the tile's lowest (uint16), species, height in 1/8 m.
 The archetype meshes (model/blender/flora.py) ship once, as one GLB.
@@ -50,6 +52,8 @@ PATH_W = {"footway": 2.0, "path": 1.5, "cycleway": 2.0, "steps": 2.0, "bridleway
           "corridor": 2.0}                    # metres (ESTIMATEs)
 CLEAR_M = 1.2                                 # trunks stand at least this far from a wall or a kerb
 URBAN_M = 25.0
+SITES = np.load(DATA / "roads" / "sites.npz")
+MEDIAN_TREE_M, MEDIAN_SHRUB_M = (4.0, 6.0), (0.7, 1.0)   # ESTIMATEs: Session Road's median trees are 4.2 to 4.5 m (session-road.md S3)
 
 
 def gxy(lng, lat):
@@ -80,6 +84,7 @@ def obstacles():
             w = PATH_W.get(kind, 2.0)
         roads.append(shapely.buffer(to_g(LineString([(p["lon"], p["lat"]) for p in g])), w / 2 + CLEAR_M, cap_style="flat"))
     rings = [to_g(Polygon(e["exclusion"])) for e in json.loads(LANDMARKS.read_text()).values()]
+    rings += [to_g(g) for g in shapely.get_parts(shapely.from_wkb(SITES["paved"].tobytes()))]   # sidewalks and islands
     land = json.loads((DATA / "osm" / "landscape.json").read_text())["elements"]
     parks = [to_g(p) for el in land if el.get("tags", {}).get("leisure") in ("park", "garden") and (p := polygon(el)) is not None]
     trees = [gxy(el["lon"], el["lat"]) for el in land if el["type"] == "node" and el.get("tags", {}).get("natural") == "tree"]
@@ -177,7 +182,7 @@ def tile(x, y):
         tlng = tx / K0 * 360 - 180
         tlat = np.degrees(np.arctan(np.sinh(ty / K0 * 2 * math.pi)))
         recs.append((0, tlng, tlat, np.full(len(tx), NONE), np.full(len(tx), 2), park[ti, tj]))
-    lngs, lats, sp, hs = [], [], [], []
+    lngs, lats, sp, hs, lifts = [], [], [], [], []
     for kind, lg, lt, kk, zk, pk in recs:
         if not len(lg):
             continue
@@ -196,19 +201,35 @@ def tile(x, y):
         h = lo + (hi - lo) * rng.random(len(ids)) ** 1.3                         # more young trees than old
         if kind == 2:
             h = np.where(kk == ROCK, h * 1.8, h)                                  # outcrops on bare rock
-        lngs.append(lg), lats.append(lt), sp.append(ids), hs.append(h)
+        lngs.append(lg), lats.append(lt), sp.append(ids), hs.append(h), lifts.append(np.zeros(len(lg)))
+    # build_roads.py's sites in this tile, on their paving
+    for key, zone, tall, lift in (("person", "pedestrians", None, "person_lift"), ("median_tree", "median", MEDIAN_TREE_M, "median_lift"),
+                                  ("median_shrub", None, MEDIAN_SHRUB_M, "median_lift")):
+        P = SITES[key]
+        m = (P[:, 0] >= w) & (P[:, 0] < e) & (P[:, 1] >= s) & (P[:, 1] < n)
+        k_ = int(m.sum())
+        if not k_:
+            continue
+        ids = rng.choice(S["mix"][zone][0], k_, p=S["mix"][zone][1]) if zone else np.full(k_, SPECIES["shrub"])
+        if tall is None:
+            lo = np.array([FLORA["species"][q]["height_m"][0] for q in ids])
+            hi = np.array([FLORA["species"][q]["height_m"][1] for q in ids])
+            h = lo + (hi - lo) * rng.random(k_)
+        else:
+            h = rng.uniform(*tall, k_)
+        lngs.append(P[m, 0]), lats.append(P[m, 1]), sp.append(ids), hs.append(h), lifts.append(np.full(k_, float(SITES[lift])))
     if not lngs:
         return None
-    lng, lat, sp, h = np.concatenate(lngs), np.concatenate(lats), np.concatenate(sp), np.concatenate(hs)
+    lng, lat, sp, h, lift = (np.concatenate(v) for v in (lngs, lats, sp, hs, lifts))
     order = rng.permutation(len(lng))
-    lng, lat, sp, h = lng[order], lat[order], sp[order], h[order]
+    lng, lat, sp, h, lift = lng[order], lat[order], sp[order], h[order], lift[order]
     # the tile frame: metres east and north of the tile centre at its own Mercator scale (as the runtime places it)
     clng, clat = (w + e) / 2, (s + n) / 2
     k_t = C * math.cos(math.radians(clat))
     mx = lambda a: (np.asarray(a) + 180) / 360
     my = lambda a: np.arcsinh(np.tan(np.radians(np.asarray(a)))) / (2 * math.pi)
     ex, ny = (mx(lng) - mx(clng)) * k_t, (my(lat) - my(clat)) * k_t
-    ground = S["ground"](lng, lat) * EXAG
+    ground = S["ground"](lng, lat) * EXAG + lift
     e0 = math.floor(ground.min() * 20) / 20
     rec = np.zeros(len(lng), dtype=[("x", "<u2"), ("y", "<u2"), ("e", "<u2"), ("s", "u1"), ("h", "u1")])
     rec["x"] = np.clip(np.round((ex + 400) * 80), 0, 65535)
@@ -279,7 +300,7 @@ def main():
     tiles = [r[0] for r in out]
     per_arch = np.sum([r[1] for r in out], axis=0)
     glb, meshes = archetypes_glb()
-    index = {"z": Z, "archetypes": f"/models/flora/{glb}", "meshes": meshes,
+    index = {"z": Z, "archetypes": f"/models/flora/{glb}", "meshes": meshes, "far": ARCH.index("person"),   # drawn far: those before
              "ref": [FLORA["archetypes"][k]["ref_height_m"] for k in ARCH],
              "species": [[ARCH.index(s["archetype"]), *(s.get("bloom") or s["foliage"])] for s in FLORA["species"]],
              "tiles": tiles}

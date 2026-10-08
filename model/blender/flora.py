@@ -1,12 +1,14 @@
 """The landscape's plant and stone archetypes (owner 2026-10-07: "Baguio City must be filled with different kinds of
-trees, not just pine trees"), modelled low-poly in Blender for GPU instancing. Each archetype is one mesh at a
+trees, not just pine trees"), and a pedestrian (owner 2026-10-08: "add people"), modelled low-poly in Blender for GPU
+instancing. Each archetype is one mesh at a
 reference height; an instance scales it to its species' height and tints it (model/flora.json):
 - vertex colour alpha 255 marks the tinted parts (foliage, or a flowering tree's blossom), alpha 0 the parts that keep
   their own colour (bark, a flowering tree's leaves);
 - the tinted parts are near-white, shaded per tier, so the instance colour reads true.
 Archetypes, in model/flora.json order: Benguet pine (open crown in tiers on a tall trunk), cypress (a narrow flame),
 araucaria (whorls of level branches), round broadleaf (lumpy dome), flowering broadleaf (blossom on the crown's top
-faces), tall broadleaf (eucalyptus and agoho: a pale trunk, a high, thin crown), shrub, and rock.
+faces), tall broadleaf (eucalyptus and agoho: a pale trunk, a high, thin crown), person (the jacket tinted), shrub, and
+rock.
 Output: model/data/flora/archetypes.npz (per archetype: positions in metres, x east, y north, z up; RGBA colours;
 triangles) and the review render model/data/renders/flora.png.
 Run: /Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup --python model/blender/flora.py"""
@@ -23,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 FLORA = json.loads((ROOT / "model" / "flora.json").read_text())
 OUT = ROOT / "model" / "data" / "flora" / "archetypes.npz"
 BARK, PALE_BARK, LEAF = (92, 70, 54), (196, 186, 170), (64, 104, 52)   # sRGB; a flowering tree's leaves stay LEAF
+SKIN, HAIR, JEANS = (172, 124, 92), (30, 26, 24), (54, 62, 84)    # a pedestrian's fixed parts (ESTIMATEs)
 
 
 def part(make, rgb, alpha, shade=1.0):
@@ -40,6 +43,15 @@ def jitter(bm, rng, amount, keep_z=False):
     for v in bm.verts:
         d = rng.uniform(-amount, amount, 3)
         v.co += Vector((d[0], d[1], 0.0 if keep_z else d[2]))
+
+
+def block(x0, x1, y0, y1, z0, z1):
+    """A box, x across the body, y forward."""
+    def make(bm):
+        bmesh.ops.create_cube(bm, size=1.0)
+        bmesh.ops.transform(bm, matrix=Matrix.Translation(((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2))
+                            @ Matrix.Diagonal((x1 - x0, y1 - y0, z1 - z0, 1)), verts=bm.verts)
+    return make
 
 
 def ico(c, r, squash=1.0, sub=1, rng=None, jit=0.0):
@@ -130,6 +142,15 @@ def archetypes():
                    part(trunk(10.0, 15.0, 0.1, 0.06, 4, (-1.2, 0.6)), PALE_BARK, 0)]
     for (x, y, z, r, sh) in ((0.6, 0.3, 15.0, 2.0, 0.95), (-1.1, 0.7, 13.6, 1.7, 0.85), (1.2, -0.6, 12.4, 1.6, 0.8)):
         out["tall"].append(part(bipyramid((x, y, z), r, 1.6, 1.3, 6, rng, 0.25), W, 255, sh))
+    # Person [flora.json S5]: legs in jeans, a jacket and its sleeves (tinted), a head with its top faces in hair; 1.63 m,
+    # 80 triangles
+    head, _ = part(ico((0, 0.01, 1.525), 0.11, 1.1, 0), SKIN, 0)
+    nz = np.cross(head[:, 1] - head[:, 0], head[:, 2] - head[:, 0])
+    hair = (nz[:, 2] / np.linalg.norm(nz, axis=1) > 0.2) | (nz[:, 1] / np.linalg.norm(nz, axis=1) < -0.5)   # crown and back
+    out["person"] = [part(block(-0.16, -0.03, -0.07, 0.07, 0.0, 0.84), JEANS, 0), part(block(0.03, 0.16, -0.07, 0.07, 0.0, 0.84), JEANS, 0),
+                     part(block(-0.2, 0.2, -0.11, 0.11, 0.8, 1.4), W, 255, 0.95),
+                     part(block(-0.28, -0.2, -0.07, 0.07, 0.84, 1.37), W, 255, 0.82), part(block(0.2, 0.28, -0.07, 0.07, 0.84, 1.37), W, 255, 0.82),
+                     (head[~hair], (*SKIN, 0)), (head[hair], (*HAIR, 0))]
     # Shrub: two low blobs
     out["shrub"] = [part(bipyramid((0, 0, 0.45), 0.8, 0.6, 0.45, 5, rng, 0.15), W, 255, 0.95),
                     part(bipyramid((0.55, 0.3, 0.35), 0.6, 0.45, 0.35, 5, rng, 0.12), W, 255, 0.85)]

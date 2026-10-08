@@ -383,7 +383,7 @@ def build(only=None):
             doc[lod].append(entry)
     for lod in ("near", "far"):
         doc[lod].sort(key=lambda t: t["id"])
-    (PUBLIC / "index.json").write_text(json.dumps(doc, indent=1) + "\n")
+    (PUBLIC / "index.json").write_text(json.dumps(doc, separators=(",", ":")) + "\n")   # compact: every visit fetches it (C6)
     for lod in [only] if only else ("near", "far"):
         sizes = np.array([t["bytes"] for t in doc[lod]])
         print(f"{lod}: {len(sizes)} tiles, bytes p50 {np.percentile(sizes, 50):,.0f} p95 {np.percentile(sizes, 95):,.0f} max {sizes.max():,}, "

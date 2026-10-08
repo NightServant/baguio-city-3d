@@ -1,7 +1,7 @@
 # session-road
 
 ## Scope
-The Session Road corridor within 220 m of the destination: both one-way carriageways with lane markings, the planted median with trees and lamp posts, the sidewalks, and runs of awnings over them. The frontage buildings stay in the city's building massing: the exclusion ring covers the carriageways only (a 4 m corridor around the centrelines, no extra buffer).
+Since 2026-10-08, the shops' awnings and the traffic. The street itself (carriageways, markings, crossings, the planted median with its lamps and trees, and the sidewalks) is drawn by the city's road tiles, `build_roads.py`, as on every street (see "City road tiles take the street" below). The frontage buildings stay in the city's building massing and in the `session-road-buildings` districts: the exclusion ring covers the carriageways only (a 4 m corridor around the centrelines, no extra buffer).
 
 OSM: five `highway=primary`, `oneway=yes` centreline parts within 220 m. The main pair is `way/79386888` (305 m, 2 lanes) and `way/333000200` (310 m, 2 lanes); the connectors are `way/940671846`, `way/940671847` and `way/956652532` (3 lanes). The pair's centrelines run 6 to 8 m apart.
 
@@ -61,3 +61,15 @@ The cross-sections now sit 0.15 m above the map's own terrain (contract C2, grou
 - **Vehicles:** jeepneys in red, blue and yellow liveries, and white taxis and silver cars, in about half the median's tree and lamp stations. Each sits in one of the two lanes on either carriageway, heading with the traffic (right-hand). Sizes are ESTIMATEs: a jeepney 6.1 × 1.9 × 2.0 m, a car 4.4 × 1.8 × 1.45 m. They are vertex-coloured meshes under the trees' material, instanced by gltfpack.
 - **Surfaces:** in the app the asphalt and the sidewalk pavers take the CC0 Poly Haven scans that the city's road tiles use (`asphalt_06`, `concrete_pavers_02`, `fetch_road_textures.py`), tiled at real size in this model's colours.
 - **Budget:** geometry 59.2 KB (tier-1 cap 60 KiB), after cutting the vehicle variants to three jeepneys and two cars, with five-sided wheels.
+
+## City road tiles take the street (owner request, 2026-10-08)
+The owner found the fault: "Session Road landmark overlaps with the City-Wide Road Mode." The model's own street and the road tiles could never line up. The owner saw rounded cut ends, overlap and z-fighting, and the model dropping out at close zoom.
+
+The fix, as the owner asked ("Remove the landmark roads and sidewalks (Session Road) and rebuild the sidewalks city-wide"):
+- **Removed from this model:** the asphalt, sidewalks, median, crossings, dashes, median trees and lamps, and the road tiles' `road_exclusion` for it.
+- **Kept here:** the awnings and the vehicles.
+- **Drawn by the road tiles (`build_roads.py`) from the same OSM data:**
+  - the carriageways, lane dashes and zebra crossings;
+  - the median, as a centre island: a concrete kerb ring, planted inside, OSM's trees and lamps on it, else a tree and a twin-arm lamp in turn every 12 m, with shrubs between;
+  - the sidewalks, 5.57 m from the kerb (this street's measured kerb-to-building-line width, now the city's sidewalk width) to the building fronts.
+- **Sidewalk paving** follows the owner's walk video (youtube.com/watch?v=_6sBS3FvTKo, model/flora.json S5): hexagonal concrete pavers here and on every trunk and primary road (1:15 to 4:00), a concrete kerb, yellow tactile pads at the crossings (0:30), and people on the sidewalks.

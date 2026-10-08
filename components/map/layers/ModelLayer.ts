@@ -18,6 +18,9 @@ const LAYER_ID = "model-3d";
 const INDEX_URL = "/models/landmarks/index.json";
 const TILE_INDEX_URL = "/models/buildings/index.json";
 const ROAD_INDEX_URL = "/models/roads/index.json"; // the city's roads (build_roads.py), near zoom only
+// Road tiles within this of the map centre (ESTIMATE; session bytes, C6): a pitched view reaches the horizon, and past it
+// a sidewalk is under a pixel while the basemap's own road lines carry on.
+const ROAD_REACH_M = 900;
 const FLORA_INDEX_URL = "/models/flora/index.json"; // trees, shrubs and rocks (build_flora.py), near zoom only
 // Flora detail by distance from the camera's ground point: full archetypes within FLORA_NEAR_M, far versions (no shrubs
 // or rocks) to FLORA_THIN_M, half of them beyond; nothing past FLORA_REACH_M from the map centre (triangle budget, C6).
@@ -41,6 +44,7 @@ interface FloraIndex {
   ref: number[];
   species: [number, number, number, number][];
   tiles: [number, number, number, number, string][];
+  far: number; // archetypes before this index have far versions; the rest (people, shrubs, rocks) draw near only
 }
 // onGround: a landmark, set on the terrain under its anchor. Otherwise a massing tile, whose Y is already metres
 // above sea level on the stretched ground (build_massing.py), so its anchor sits at altitude 0.
@@ -118,22 +122,23 @@ const mercY = (lat: number) => (1 - Math.asinh(Math.tan((lat * Math.PI) / 180)) 
 const EARTH_M = 40_075_016.686;
 const HEMI = 2.2, SUN = 1.6; // the models' daylight
 
-// Road surfaces (owner 2026-10-07: "restore the asphalt texture ... with proper markings"): CC0 photo scans from Poly
-// Haven (model/scripts/fetch_road_textures.py), tiled in world space at their real size, divided by their mean so the
-// road keeps its own colour and gains the scan's grain; a slow second sample breaks up the repeat.
-type SurfaceName = "asphalt" | "pavers";
-const SURFACES: SurfaceName[] = ["asphalt", "pavers"];
+// Road surfaces (owner 2026-10-07: "restore the asphalt texture ... with proper markings"; 2026-10-08: sidewalks with
+// "richer textures"): CC0 photo scans from Poly Haven (model/scripts/fetch_road_textures.py), tiled in world space at
+// their real size, divided by their mean so each surface keeps its own colour and gains the scan's grain; a slow second
+// sample breaks up the repeat.
+type SurfaceName = "asphalt" | "pavers" | "hex" | "brick" | "concrete";
+const SURFACES: SurfaceName[] = ["asphalt", "pavers", "hex", "brick", "concrete"];
 const surfaceUniforms = Object.fromEntries(SURFACES.flatMap((n) => [
   [`uTex_${n}`, { value: null as unknown }],
   [`uTexMean_${n}`, { value: [1, 1, 1] }],
   [`uTexM_${n}`, { value: 1 }],
 ])) as Record<string, { value: unknown }>;
 const surfacesOn = { value: 0 };
-// World-anchored texture coordinates (owner 2026-10-07, upper Session Road): each scene's local metres scaled to one
-// common metre (at the city's latitude) and offset from the city centre, so Session Road's model and the city's tiles
-// lay the scan identically where they meet or overlap. The offset wraps every 822 m, a multiple of every texture period.
+// World-anchored texture coordinates (owner 2026-10-07, upper Session Road): each tile's local metres scaled to one
+// common metre (at the city's latitude) and offset from the city centre, so neighbouring tiles lay the scans seamlessly.
+// The offset wraps every 816 m, a whole number of every texture's tile (3, 2 and 1.6 m).
 const surfaceWorld = { value: [0, 0, 1] };
-const WORLD_WRAP_M = 822;
+const WORLD_WRAP_M = 816;
 const CITY_LNG = 120.596, CITY_LAT = 16.4023; // lib/constants BAGUIO_CENTER
 function placeSurfaces(lng: number, lat: number) {
   const k0 = EARTH_M * Math.cos((CITY_LAT * Math.PI) / 180);
@@ -188,11 +193,21 @@ function withSurfaces(sh: { uniforms: Record<string, unknown> }) {
 }
 const WORLD_XZ = "(vPosM.xz * uSurfWorld.z + uSurfWorld.xy)";
 
-// Road tiles look like Session Road (owner 2026-10-07: "use texture of session to City-Wide Roads"): every carriageway,
-// asphalt or OSM's concrete, in Session Road's asphalt colour and scan, and the paved walkways in its pavers; markings,
-// poles, lamps, signs, trails and walls keep their colours (build_roads.py: ASPHALT, CONCRETE, PAVING, SETTS, STEP_STONE).
-const ROAD_RGB: [number, number, number] = [62, 62, 64]; // session_road.py ROAD
-const PAVER_RGB: [number, number, number] = [168, 163, 153]; // session_road.py PAVER
+// Road tiles (build_roads.py) take the scans by vertex colour: every carriageway, asphalt or OSM's concrete, in Session
+// Road's asphalt colour (owner 2026-10-07: "use texture of session to City-Wide Roads"), the walkways in its pavers, and
+// the sidewalks (owner 2026-10-08) in hexagonal pavers, red brick or concrete, kerbs in concrete, each in its own colour.
+// Markings, poles, lamps, signs, trails, walls and the islands' planting keep their colours. Each triangle is one colour,
+// so a 2x2 pixel quad never splits between branches and the samples' derivatives stay sound.
+const ROAD_RGB: [number, number, number] = [62, 62, 64];
+const PAVER_RGB: [number, number, number] = [168, 163, 153];
+const OWN_COLOUR = "vColor.rgb";
+const ROAD_SURFACES: [SurfaceName, [number, number, number][], string][] = [
+  ["asphalt", [[66, 66, 68], [150, 150, 146]], `vec3(${linear(...ROAD_RGB)})`], // ASPHALT, CONCRETE
+  ["pavers", [[188, 184, 174], [176, 160, 144], [170, 166, 156]], `vec3(${linear(...PAVER_RGB)})`], // PAVING, SETTS, STEP_STONE
+  ["hex", [[178, 170, 156]], OWN_COLOUR], // HEX
+  ["brick", [[156, 92, 72]], OWN_COLOUR], // BRICK
+  ["concrete", [[176, 174, 166], [204, 202, 196]], OWN_COLOUR], // CONC, KERB
+];
 // Pavements are lit as level ground (the scene's up, not each draped triangle's tilt): flat-shaded 10 m triangles on a
 // slope each caught the sun differently and the road looked shattered (owner 2026-10-07).
 const UP_VERTEX = (vs: string) =>
@@ -213,45 +228,25 @@ function roadMaterial(m: MeshStandardMaterial) {
                            step(distance(color.rgb, vec3(${linear(242, 186, 32)})), 0.02)) * 4e-5 * gl_Position.w;
 #endif`,
     );
+    const branches = ROAD_SURFACES.map(([n, keys, rgb]) =>
+      `if (${keys.map((k) => `${isColour(k)} > 0.5`).join(" || ")}) diffuseColor.rgb = ${rgb} * ${SURF(n, "p")};`).join("\n          else ");
     sh.fragmentShader = sh.fragmentShader
       .replace("#include <common>", `#include <common>\nvarying vec3 vPosM;\nvarying vec3 vUpV;\n${SURFACE_PARS}`)
       .replace(
         "#include <color_fragment>",
         `#include <color_fragment>
-        float pave = 0.0;
+        float pave = 1.0;
 #ifdef USE_COLOR_ALPHA
         {
           vec2 p = ${WORLD_XZ};
-          float a = max(${isColour([66, 66, 68])}, ${isColour([150, 150, 146])});
-          float w = max(${isColour([188, 184, 174])}, max(${isColour([176, 160, 144])}, ${isColour([170, 166, 156])}));
-          diffuseColor.rgb = a * vec3(${linear(...ROAD_RGB)}) * ${SURF("asphalt", "p")}
-            + w * vec3(${linear(...PAVER_RGB)}) * ${SURF("pavers", "p")} + (1.0 - a - w) * diffuseColor.rgb;
-          pave = max(a, max(w, max(${isColour([232, 232, 226])}, ${isColour([242, 186, 32])})));
+          ${branches}
+          else pave = max(${isColour([232, 232, 226])}, max(${isColour([242, 186, 32])}, max(${isColour([84, 104, 60])}, ${isColour([214, 170, 48])})));
         }
 #endif`,
       )
       .replace("#include <normal_fragment_begin>", UP_NORMAL("pave"));
   };
   m.customProgramCacheKey = () => "road-surfaces";
-  m.needsUpdate = true;
-}
-
-// A landmark's own street surfaces (Session Road's asphalt and sidewalk pavers): the same scans, in the colours the
-// landmark gives them (session_road.py ROAD, PAVER; its GLB carries white x a texture, so the colour is restated here).
-const SURFACE_MATERIALS: Record<string, [SurfaceName, [number, number, number]]> = {
-  MAT_session_road: ["asphalt", ROAD_RGB],
-  MAT_session_paver: ["pavers", PAVER_RGB],
-};
-function surfaceMaterial(m: MeshStandardMaterial, [n, rgb]: [SurfaceName, [number, number, number]]) {
-  m.onBeforeCompile = (sh) => {
-    withSurfaces(sh);
-    sh.vertexShader = UP_VERTEX(sh.vertexShader);
-    sh.fragmentShader = sh.fragmentShader
-      .replace("#include <common>", `#include <common>\nvarying vec3 vPosM;\nvarying vec3 vUpV;\n${SURFACE_PARS}`)
-      .replace("#include <color_fragment>", `#include <color_fragment>\n  diffuseColor.rgb = vec3(${linear(...rgb)}) * ${SURF(n, WORLD_XZ)};`)
-      .replace("#include <normal_fragment_begin>", UP_NORMAL("1.0"));
-  };
-  m.customProgramCacheKey = () => `surface-${n}`;
   m.needsUpdate = true;
 }
 
@@ -435,8 +430,7 @@ export function useModelLayer(map: MapLibreMap) {
           const mat = (m as Mesh).isMesh ? ((m as Mesh).material as MeshStandardMaterial) : null;
           if (!mat || done.has(mat)) return;
           done.add(mat);
-          if (SURFACE_MATERIALS[mat.name]) surfaceMaterial(mat, SURFACE_MATERIALS[mat.name]);
-          else if (isGroundMaterial(mat.name)) imageryGround(mat);
+          if (isGroundMaterial(mat.name)) imageryGround(mat);
         });
       });
     }
@@ -514,7 +508,7 @@ export function useModelLayer(map: MapLibreMap) {
         const take = w.d >= FLORA_THIN_M ? count >> 1 : count;
         for (let r = 0; r < take; r++) {
           const a = idx.species[buf[r * 8 + 6]][0];
-          if (!near && a >= A - 2) continue; // shrubs and rocks, near only (the last two archetypes)
+          if (!near && a >= idx.far) continue; // people, shrubs and rocks: near only
           lists[near ? a : A + a].push(i, r);
         }
       });
@@ -599,6 +593,9 @@ export function useModelLayer(map: MapLibreMap) {
         for (const t of await loadRoadIndex()) {
           const [w, s, e, n] = t.bbox;
           if (e < b.getWest() || w > b.getEast() || n < b.getSouth() || s > b.getNorth()) continue;
+          const dx = (Math.max(w, Math.min(c.lng, e)) - c.lng) * kx;
+          const dy = (Math.max(s, Math.min(c.lat, n)) - c.lat) * 110_574;
+          if (Math.hypot(dx, dy) > ROAD_REACH_M) continue;
           visible.add(`tile:road:${t.id}@${t.url}`);
           void wantTile(t, true);
         }

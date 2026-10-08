@@ -284,7 +284,7 @@
     "url": "https://polyhaven.com/a/asphalt_06",
     "file": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/asphalt_06/asphalt_06_diff_1k.jpg",
     "md5": "3d92683ec4481c35a43b4034f8363bc3",
-    "retrieved": "2026-10-07",
+    "retrieved": "2026-10-08",
     "licence": "CC0 1.0",
     "attribution": "Poly Haven (polyhaven.com), CC0",
     "shipped": "public/models/textures/asphalt.137a6bf7.webp"
@@ -293,9 +293,36 @@
     "url": "https://polyhaven.com/a/concrete_pavers_02",
     "file": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_pavers_02/concrete_pavers_02_diff_1k.jpg",
     "md5": "a0669d6bb1ef8db865b7c05795761c5b",
-    "retrieved": "2026-10-07",
+    "retrieved": "2026-10-08",
     "licence": "CC0 1.0",
     "attribution": "Poly Haven (polyhaven.com), CC0",
     "shipped": "public/models/textures/pavers.aa956249.webp"
+  },
+  "polyhaven-hexagonal_concrete_paving": {
+    "url": "https://polyhaven.com/a/hexagonal_concrete_paving",
+    "file": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/hexagonal_concrete_paving/hexagonal_concrete_paving_diff_1k.jpg",
+    "md5": "0b7615a440c026ae5ed24f9e3acaec48",
+    "retrieved": "2026-10-08",
+    "licence": "CC0 1.0",
+    "attribution": "Poly Haven (polyhaven.com), CC0",
+    "shipped": "public/models/textures/hex.5ab35bf4.webp"
+  },
+  "polyhaven-short_bricks_floor": {
+    "url": "https://polyhaven.com/a/short_bricks_floor",
+    "file": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/short_bricks_floor/short_bricks_floor_diff_1k.jpg",
+    "md5": "abf2baa52547054e2c4dcff97d1dc647",
+    "retrieved": "2026-10-08",
+    "licence": "CC0 1.0",
+    "attribution": "Poly Haven (polyhaven.com), CC0",
+    "shipped": "public/models/textures/brick.9fa245dc.webp"
+  },
+  "polyhaven-concrete_floor_01": {
+    "url": "https://polyhaven.com/a/concrete_floor_01",
+    "file": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_floor_01/concrete_floor_01_diff_1k.jpg",
+    "md5": "187065cfc20a35eb421eac6d4f38c58f",
+    "retrieved": "2026-10-08",
+    "licence": "CC0 1.0",
+    "attribution": "Poly Haven (polyhaven.com), CC0",
+    "shipped": "public/models/textures/concrete.dfd2889a.webp"
   }
 }

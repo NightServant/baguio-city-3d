@@ -16,5 +16,32 @@
    0.11856,
    0.0813
   ]
+ },
+ "hex": {
+  "url": "/models/textures/hex.5ab35bf4.webp",
+  "metres": 1.6,
+  "mean": [
+   0.40652,
+   0.33135,
+   0.2389
+  ]
+ },
+ "brick": {
+  "url": "/models/textures/brick.9fa245dc.webp",
+  "metres": 2.0,
+  "mean": [
+   0.163,
+   0.09546,
+   0.06248
+  ]
+ },
+ "concrete": {
+  "url": "/models/textures/concrete.dfd2889a.webp",
+  "metres": 2.0,
+  "mean": [
+   0.19207,
+   0.15659,
+   0.10646
+  ]
  }
 }
