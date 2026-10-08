@@ -78,7 +78,7 @@ Why the two use different terrain sources: landmarks are single points and the s
 
 ## C6. Budgets (from the 1 Oct addendum, unchanged)
 
-0 bytes of 3D on `/map` first load · runtime ≤ 180 KiB · tile ≤ 100 KiB · default view ≤ 1 MiB · landmark ≤ 150 KiB with textures (tier-1 geometry ≤ 60 KiB) · session ≤ 6 MiB · ≥ 30 fps on a Galaxy A51-class phone, starting knobs ≤ 500k triangles and ≤ 100 draw calls. All sizes compressed, over the wire.
+0 bytes of 3D on `/map` first load · runtime ≤ 180 KiB · tile ≤ 100 KiB · default view ≤ 1 MiB · landmark ≤ 150 KiB with textures (tier-1 geometry ≤ 60 KiB) · session ≤ 10 MiB (raised from 6 MiB by the owner on 2026-10-08, with the performance budgets unchanged: city-wide sidewalks, centre islands, people, districts and hotels) · ≥ 30 fps on a Galaxy A51-class phone, starting knobs ≤ 500k triangles and ≤ 100 draw calls. All sizes compressed, over the wire.
 
 A unit test (M3 creates it, every later milestone keeps it green) reads `public/models/**` and fails on any per-file budget breach.
 

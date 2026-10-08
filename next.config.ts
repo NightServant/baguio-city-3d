@@ -36,8 +36,9 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   async headers() {
     return [
-      // 3D model files are content-hashed, so they never change (contract C4); their indexes do.
-      { source: "/models/:file(.*\\.glb)", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      // 3D model files (GLBs, flora tiles, surface scans) are content-hashed, so they never change (contract C4); their
+      // indexes do.
+      { source: "/models/:file(.*\\.(?:glb|bin|webp))", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       { source: "/models/:dir/index.json", headers: [{ key: "Cache-Control", value: "public, max-age=300" }] },
       { source: "/:path*", headers: securityHeaders },
     ];

@@ -353,6 +353,8 @@ function createLayer(map: MapLibreMap, { THREE }: Kit, shown: Map<string, Shown>
       // works in world pixels (maplibre-gl-dev.js getProjectionDataForCustomLayer, 5.24).
       const mvp = new THREE.Matrix4().fromArray(options.defaultProjectionData.mainMatrix as unknown as number[]);
       renderer.resetState();
+      renderer.info.autoReset = false; // count the whole frame (every scene), not the last render call
+      renderer.info.reset();
       // night: the models' lights dim with the imagery (basemapTheme NIGHT); the photograph on them is toned in its shader
       const light = document.documentElement.dataset.theme === "dark" ? 0.45 : 1;
       for (const s of shown.values()) {
@@ -369,6 +371,10 @@ function createLayer(map: MapLibreMap, { THREE }: Kit, shown: Map<string, Shown>
         renderer.render(s.scene, camera);
       }
       renderer.resetState(); // hand the shared context back clean, as MapLibre's three.js-on-terrain example does
+      if (process.env.NODE_ENV !== "production") { // dev inspection (model/scripts/map_shot.mjs): this frame's load, C6
+        const { calls, triangles } = renderer.info.render;
+        (window as unknown as { __renderInfo?: unknown }).__renderInfo = { calls, triangles };
+      }
     },
   };
 }

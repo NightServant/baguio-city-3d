@@ -19,5 +19,7 @@ test("the 3D runtime and a landmark visit stay within budget", async ({ page }) 
   // C6: the runtime is <= 180 KiB gzip. Measured 2026-10-06 (named imports, lib/map/threeKit.ts): 669,642 bytes decoded =
   // 167,202 gzip -9, a ratio of 4.0, so 180 KiB gzip is about 180 KiB x 4.0 decoded.
   expect(sum(js), "3D runtime, decoded bytes (x4.0 of gzip)").toBeLessThanOrEqual(180 * 1024 * 4.0);
-  expect(sum(models), "session bytes for this visit").toBeLessThanOrEqual(6 * 1024 * 1024);
+  // C6 session: 10 MiB (the owner raised it from 6 MiB on 2026-10-08, performance budgets unchanged). Measured then on this
+  // visit: 8.6 to 9.4 MB decoded (massing 4.3, roads 2.7 with their index, landmarks 2.0, flora and textures 0.4).
+  expect(sum(models), "session bytes for this visit").toBeLessThanOrEqual(10 * 1024 * 1024);
 });

@@ -647,7 +647,7 @@ Changes since this spec was written. The execution order now lives in Phase 9 of
    | One building tile | **≤ 100 KiB** | About 0.5 s each, so the first buildings show about 1 s after the map goes idle |
    | All tiles for `DEFAULT_CAMERA` | **≤ 1 MiB**, nearest tiles first | About 5 s for everything at 1.6 Mbps (Russell's 5 s P75 scale). At his 7.2 Mbps P75 network it is about 1.2 s |
    | One landmark, textures included (KTX2) | **≤ 150 KiB**; tier-1 geometry stays ≤ 60 KiB inside that | Shows within about 1 s of opening its sheet |
-   | Total 3D in a session | **≤ 6 MiB** soft cap | Panning streams tiles. Files have content-hashed names and are cached forever, so a second visit downloads nothing |
+   | Total 3D in a session | **≤ 10 MiB** soft cap (6 MiB until the owner raised it on 2026-10-08) | Panning streams tiles. Files have content-hashed names and are cached forever, so a second visit downloads nothing |
    | GPU (measured gate, not bytes) | **≥ 30 fps** while panning at the default view on a Galaxy A51 class phone | Starting settings: ≤ 500 k triangles and ≤ 100 draw calls for the 3D layer, textures in KTX2 only. These are tuning settings, adjusted on the phone at M8 |
 
    Everything 3D in the default view is about 1.35 MiB (180 KiB runtime, 1 MiB of tiles, one 150 KiB landmark), loaded after the map is usable.
