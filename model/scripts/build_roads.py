@@ -206,6 +206,18 @@ def frame_at(ln, q):
     return d, np.array((c.x, c.y)), float(np.dot(np.subtract(q, (c.x, c.y)), (-d[1], d[0])))
 
 
+def runs_along(stair, road, road_half, max_deg=30.0):
+    """A stairway that runs beside a street, within max_deg of its direction and within the sidewalk's reach of its
+    kerb. The sidewalk band would swallow it, so it is carved out of the sidewalk instead of clipped at it."""
+    mid = stair.interpolate(0.5, normalized=True)
+    if road.distance(mid) > road_half + SIDEWALK_M:
+        return False
+    a, b = np.array(stair.coords[0]), np.array(stair.coords[-1])
+    u = (b - a) / max(np.linalg.norm(b - a), 1e-9)
+    d, _, _ = frame_at(road, (mid.x, mid.y))
+    return math.degrees(math.acos(min(1.0, abs(float(np.dot(u, d)))))) <= max_deg
+
+
 def sidewalk_bands(ways, bridges, blds, btree):
     """Each street's sidewalk bands as (polygon, paving): per CHUNK_M of its centreline and side, from the carriageway's
     edge out SIDEWALK_M, kept where a building stands within BUILT_M beyond it on that side."""
@@ -405,6 +417,7 @@ def build():
     every_lamp = nodes["street_lamp"] + [q[:2] for q in m_lamps]
     lamp_tree = STRtree([shapely.Point(p) for p in every_lamp]) if every_lamp else None
     people = []                                          # model frame (x, y), from every finished tile
+    along_count = []                                     # stairways carved out of a sidewalk (walk indices, per tile)
     (x0, y1), (x1, y0) = slippy(PADDED[0], PADDED[3], 15), slippy(PADDED[2], PADDED[1], 15)   # the map's box (its terrain)
     (px0, py0), (px1, py1) = fwd.transform(PADDED[0], PADDED[1]), fwd.transform(PADDED[2], PADDED[3])
     padded = box(px0, py0, px1, py1)
@@ -560,8 +573,19 @@ def build():
             paved_by[colour] = g
         walked = unary_union(list(paved_by.values())) if paved_by else Polygon()
         kerb = areas(walked.intersection(roads_here.buffer(KERB_W, join_style="mitre"))) if paved_by else Polygon()
+        beside = []                                  # stairs beside a street: the sidewalk gives way to them
+        for i in widx:
+            kind, ln, half, colour, per_m = walks[i]
+            if kind != "steps":
+                continue
+            j = int(ltree.nearest(ln.interpolate(0.5, normalized=True)))
+            if runs_along(ln, ways[j][2], ways[j][3]):
+                beside.append(i)
+        cut_out = unary_union([walk_polys[i] for i in beside]) if beside else Polygon()
+        kerb = areas(kerb.difference(cut_out))
+        along_count.extend(beside)
         for colour, g in paved_by.items():
-            paved_by[colour] = areas(g.difference(kerb))
+            paved_by[colour] = areas(g.difference(kerb).difference(cut_out))
             add(mesh(paved_by[colour]), heights, colour, 0.7, WALK_LIFT)
         add(mesh(kerb), heights, KERB, 0.7, WALK_LIFT)
         # walkways by colour, off the carriageways and sidewalks and out of every landmark (parks included: they draw their
@@ -583,7 +607,8 @@ def build():
             kind, ln, half, colour, per_m = walks[i]
             if kind != "steps":
                 continue
-            piece = ln.intersection(cell).difference(taken)
+            clip = areas(unary_union([roads_here, med])) if i in beside else taken
+            piece = ln.intersection(cell).difference(clip)
             for part in getattr(piece, "geoms", [piece]):
                 if part.geom_type != "LineString" or part.length < 1.0 or every_ring.contains(part.centroid):
                     continue
@@ -761,6 +786,7 @@ def build():
     np.savez_compressed(WORK / "sites.npz", person=ll(people), median_tree=ll(m_trees), median_shrub=ll(m_shrubs),
                         person_lift=WALK_LIFT, median_lift=LIFT_M + MEDIAN_LIFT - 0.05,
                         paved=np.frombuffer(shapely.to_wkb(paved), np.uint8))
+    print(f"stairs carved out of a sidewalk: {len(set(along_count)):,} of {sum(1 for w in walks if w[0] == 'steps'):,}")
     print(f"sites: {len(people):,} people, {len(m_trees)} median trees, {len(m_shrubs)} median shrubs -> {WORK / 'sites.npz'}")
     PUBLIC.mkdir(parents=True, exist_ok=True)
     for old in PUBLIC.glob("*.glb"):
