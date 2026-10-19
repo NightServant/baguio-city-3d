@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { MercatorCoordinate, type CustomLayerInterface, type Map as MapLibreMap } from "maplibre-gl";
 import type { BufferGeometry, Camera, Mesh, MeshStandardMaterial, Object3D, Scene, WebGLRenderer } from "three";
 import type { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { modelMatrix } from "@/lib/map/modelTransform";
+import { modelMatrix, tmScale, WEB_MERCATOR_SCALE } from "@/lib/map/modelTransform";
 import { useMapStore } from "@/stores/useMapStore";
 import { IMAGERY_APPLY, IMAGERY_PARS, imageryGround, isGroundMaterial, placeImagery, setMaxAnisotropy, updateAtlas, VPOS_VERTEX, withImageryUniforms } from "./imageryAtlas";
 import { isTornDown } from "./teardown";
@@ -48,7 +48,8 @@ interface FloraIndex {
 }
 // onGround: a landmark, set on the terrain under its anchor. Otherwise a massing tile, whose Y is already metres
 // above sea level on the stretched ground (build_massing.py), so its anchor sits at altitude 0.
-interface Shown { lng: number; lat: number; altitudeM: number; rotationDeg: number; onGround: boolean; scene: Scene }
+// webMercator: built in Web Mercator metres (the flora); everything else in the city's transverse Mercator (tmScale).
+interface Shown { lng: number; lat: number; altitudeM: number; rotationDeg: number; onGround: boolean; webMercator?: boolean; scene: Scene }
 
 type Kit = { THREE: typeof import("@/lib/map/threeKit"); loader: GLTFLoader };
 let kit: Promise<Kit> | null = null;
@@ -364,7 +365,8 @@ function createLayer(map: MapLibreMap, { THREE }: Kit, shown: Map<string, Shown>
         const ground = s.onGround ? map.queryTerrainElevation([s.lng, s.lat]) : 0;
         if (ground == null) continue; // terrain tiles not in yet; try again next frame
         const anchor = MercatorCoordinate.fromLngLat([s.lng, s.lat], ground + s.altitudeM);
-        const local = new THREE.Matrix4().fromArray(modelMatrix(anchor, anchor.meterInMercatorCoordinateUnits(), s.rotationDeg));
+        const k = s.webMercator ? { east: WEB_MERCATOR_SCALE, north: WEB_MERCATOR_SCALE } : tmScale(s.lat);
+        const local = new THREE.Matrix4().fromArray(modelMatrix(anchor, anchor.meterInMercatorCoordinateUnits(), s.rotationDeg, k.east, k.north));
         camera.projectionMatrix.copy(mvp).multiply(local);
         placeImagery(s.lng, s.lat, s.rotationDeg);
         placeSurfaces(s.lng, s.lat);
@@ -555,7 +557,7 @@ export function useModelLayer(map: MapLibreMap) {
         };
       }
       if (!group.children.length) return;
-      present("flora", group, { lng: c.lng, lat: c.lat, altitudeM: 0, rotationDeg: 0, onGround: false }, k);
+      present("flora", group, { lng: c.lng, lat: c.lat, altitudeM: 0, rotationDeg: 0, onGround: false, webMercator: true }, k);
       map.triggerRepaint();
     }
 

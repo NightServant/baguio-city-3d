@@ -6,6 +6,7 @@
 // as the ground around it. Outside the texture, or before a tile arrives, a surface keeps its own colour.
 import type { CanvasTexture, Material, MeshStandardMaterial } from "three";
 import { IMAGERY_SOURCE } from "@/lib/map/sources";
+import { tmScale, WEB_MERCATOR_SCALE } from "@/lib/map/modelTransform";
 
 type ThreeKit = typeof import("@/lib/map/threeKit");
 
@@ -22,6 +23,7 @@ export const imageryUniforms = {
   uImg2: { value: null as CanvasTexture | null }, // the coarse, city-wide texture, and its placement
   uImgXf2: { value: [0, 0, 0, 0] },
   uImgRot: { value: [1, 0] },
+  uImgAniso: { value: [1, 1] }, // the scene's WGS84 metres, east and south, in the placement's Web Mercator metres
   uImgTone: { value: [1, 0] },
 };
 
@@ -100,6 +102,8 @@ export function placeImagery(lng: number, lat: number, rotationDeg: number) {
   imageryUniforms.uImgXf2.value = placement(city, lng, lat);
   const t = (rotationDeg * Math.PI) / 180;
   imageryUniforms.uImgRot.value = [Math.cos(t), Math.sin(t)];
+  const k = tmScale(lat); // the draped scenes are built in the city's transverse Mercator
+  imageryUniforms.uImgAniso.value = [k.east / WEB_MERCATOR_SCALE, k.north / WEB_MERCATOR_SCALE];
 }
 
 // Fragment helpers. vPosM is the fragment in the scene's metres (x east, y up, z south before the scene's rotation).
@@ -109,6 +113,7 @@ uniform vec4 uImgXf;
 uniform sampler2D uImg2;
 uniform vec4 uImgXf2;
 uniform vec2 uImgRot;
+uniform vec2 uImgAniso;
 uniform vec2 uImgTone;
 vec4 imagerySample(sampler2D t, vec4 xf, vec2 es) {
   vec2 uv = xf.xy + es * xf.z;
@@ -116,7 +121,7 @@ vec4 imagerySample(sampler2D t, vec4 xf, vec2 es) {
   return texture2D(t, uv);
 }
 vec4 imageryAt(vec3 p) {
-  vec2 es = vec2(uImgRot.x * p.x - uImgRot.y * p.z, uImgRot.y * p.x + uImgRot.x * p.z);
+  vec2 es = vec2(uImgRot.x * p.x - uImgRot.y * p.z, uImgRot.y * p.x + uImgRot.x * p.z) * uImgAniso;
   vec4 c = imagerySample(uImg, uImgXf, es);
   if (c.a < 0.99) c = imagerySample(uImg2, uImgXf2, es);
   vec3 l = vec3(dot(c.rgb, vec3(0.299, 0.587, 0.114)));
