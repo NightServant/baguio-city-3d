@@ -62,7 +62,9 @@ const controlButton =
 
 export function MapControls() {
   const unavailable = useMapStore((s) => s.mapUnavailable);
-  // The destination sheet covers the right edge (desktop) or the lower 60% (phones); keep the stack clear of it.
+  // The destination sheet covers the right edge (desktop) or up to 60dvh from the bottom (phones); keep the stack
+  // clear of it. On a phone the stack becomes a row resting on the sheet's top: a column at a fixed top ran under the
+  // sheet on short screens.
   const sheetOpen = useActiveSheet() === "destination";
 
   if (unavailable) return null;
@@ -93,7 +95,7 @@ export function MapControls() {
         className={cn(
           "absolute z-hud flex flex-col gap-2 transition-[right,top] duration-200 ease-out motion-reduce:transition-none",
           sheetOpen
-            ? "right-3 top-20 sm:right-[calc(22rem+1.5rem)] sm:top-1/2 sm:-translate-y-1/2"
+            ? "right-3 max-sm:bottom-[calc(60dvh+0.75rem)] max-sm:flex-row sm:right-[calc(22rem+1.5rem)] sm:top-1/2 sm:-translate-y-1/2"
             : "right-3 top-1/2 -translate-y-1/2",
         )}
       >

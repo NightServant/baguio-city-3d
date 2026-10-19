@@ -398,6 +398,14 @@
 [data-theme="dark"] .maplibregl-ctrl-attrib-button {
   filter: invert(1);
 }
+/* Phones: PanelChrome's mode dock owns the map's bottom 3.25rem (bottom-3 + h-10), so MapLibre's corner sits above
+   it. Under 640px the attribution goes compact and opens on load; down there it lay over the dock's buttons.
+   Scoped under .maplibregl-map to outrank maplibre-gl.css, which MapView imports after this file. */
+@media (width < 40rem) {
+  .maplibregl-map .maplibregl-ctrl-bottom-right {
+    bottom: 3.25rem;
+  }
+}
 
 /* Dark accents split in two, because no single madder is both calm as a fill
    and readable as text on walnut. Fills (buttons, bands, badges) take a deep
