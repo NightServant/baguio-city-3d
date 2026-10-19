@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { MercatorCoordinate, type CustomLayerInterface, type Map as MapLibreMap } from "maplibre-gl";
 import type { BufferGeometry, Camera, Mesh, MeshStandardMaterial, Object3D, Scene, WebGLRenderer } from "three";
 import type { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { landmarksInReach } from "@/lib/map/landmarks";
 import { modelMatrix, tmScale, WEB_MERCATOR_SCALE } from "@/lib/map/modelTransform";
 import { useMapStore } from "@/stores/useMapStore";
 import { IMAGERY_APPLY, IMAGERY_PARS, imageryGround, isGroundMaterial, placeImagery, setMaxAnisotropy, updateAtlas, VPOS_VERTEX, withImageryUniforms } from "./imageryAtlas";
@@ -566,13 +567,11 @@ export function useModelLayer(map: MapLibreMap) {
       if (cancelled || isTornDown(map)) return;
       const selected = useMapStore.getState().ui.selectedSlug;
       const near = map.getZoom() >= NEAR_ZOOM ? map.getBounds() : null;
-      for (const e of entries) {
-        // a landmark spans up to a few hundred metres from its anchor (Session Road: 440 m of street), so it loads when the
-        // anchor is within LANDMARK_PAD_DEG of the view, not only on screen (its far end vanished at close zoom)
-        const inView = near && e.lng >= near.getWest() - LANDMARK_PAD_DEG && e.lng <= near.getEast() + LANDMARK_PAD_DEG
-          && e.lat >= near.getSouth() - LANDMARK_PAD_DEG && e.lat <= near.getNorth() + LANDMARK_PAD_DEG;
-        if (e.slug === selected || inView) void want(e);
-      }
+      // a landmark spans up to a few hundred metres from its anchor (Session Road: 440 m of street), so it loads when the
+      // anchor is within LANDMARK_PAD_DEG of the view, not only on screen (its far end vanished at close zoom)
+      const inReach = landmarksInReach(entries, near && { west: near.getWest(), south: near.getSouth(), east: near.getEast(),
+        north: near.getNorth() }, selected, LANDMARK_PAD_DEG);
+      for (const e of entries) if (inReach.has(e.slug)) void want(e);
       const tiles = await loadTileIndex();
       if (cancelled || isTornDown(map)) return;
       const b = map.getBounds();
@@ -612,6 +611,9 @@ export function useModelLayer(map: MapLibreMap) {
       // ponytail: tiles out of view are dropped from the draw list; their parsed meshes stay cached in `models`
       // (add an LRU if M7's device test shows memory pressure)
       for (const key of [...shown.keys()]) if (key.startsWith("tile:") && !visible.has(key)) shown.delete(key); // out of view, or the other LOD
+      // landmarks out of reach leave too: panning had piled up all 67 (with the districts and hotels), all drawn every
+      // frame, the default view included (C6 draw calls)
+      for (const key of [...shown.keys()]) if (!key.startsWith("tile:") && key !== "flora" && !inReach.has(key)) shown.delete(key);
       map.triggerRepaint();
     }
 
