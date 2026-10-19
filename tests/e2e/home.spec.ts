@@ -142,24 +142,30 @@ test("the live map follows a theme toggle, standing still or mid-flight", async 
   await expect(figure.locator("img")).toHaveClass(/opacity-0/, { timeout: 45_000 });
   const map = figure.locator(".maplibregl-map");
 
-  // Standing still: the ground is drawn into cached terrain textures that a
-  // paint change didn't refresh, so only the labels used to change.
+  // The map is a satellite photograph in both themes (owner 2026-10-07), dimmed to 0.48 brightness at night
+  // (basemapTheme.ts NIGHT), so the check is relative: day must be clearly brighter than the night beside it. A skipped
+  // recolour leaves the two equal.
+  // Standing still: the ground is drawn into cached terrain textures that a paint change didn't refresh, so only the
+  // labels used to change.
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
   await page.waitForTimeout(3000);
-  expect(await luminance(page, await map.screenshot())).toBeLessThan(110);
+  const night = await luminance(page, await map.screenshot());
   await page.getByRole("button", { name: "Switch to light theme" }).click();
   await page.waitForTimeout(3000);
-  expect(await luminance(page, await map.screenshot())).toBeGreaterThan(150);
+  const day = await luminance(page, await map.screenshot());
+  expect(day, `day ${day} vs night ${night}`).toBeGreaterThan(night * 1.4);
 
-  // Toggle while the map is flying and loading tiles: the recolour used to be
-  // skipped then, leaving a night map on a light page (and vice versa).
+  // Toggle while the map is flying and loading tiles: the recolour used to be skipped then, leaving a night map on a
+  // light page (and vice versa).
   await how.getByRole("button", { name: "Next destination" }).click();
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
   await page.waitForTimeout(4000);
-  expect(await luminance(page, await map.screenshot())).toBeLessThan(110);
+  const nightFlying = await luminance(page, await map.screenshot());
+  expect(nightFlying, `night ${nightFlying} vs day ${day}`).toBeLessThan(day / 1.4);
 
   await how.getByRole("button", { name: "Next destination" }).click();
   await page.getByRole("button", { name: "Switch to light theme" }).click();
   await page.waitForTimeout(4000);
-  expect(await luminance(page, await map.screenshot())).toBeGreaterThan(150);
+  const dayFlying = await luminance(page, await map.screenshot());
+  expect(dayFlying, `day ${dayFlying} vs night ${nightFlying}`).toBeGreaterThan(nightFlying * 1.4);
 });
