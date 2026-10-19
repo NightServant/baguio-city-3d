@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Page transition.
@@ -18,22 +18,18 @@ import { useEffect, useRef, useState } from "react";
  */
 export function RouteTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [stage, setStage] = useState<"in" | "settled">("settled");
-  const first = useRef(true);
+  const [shown, setShown] = useState(pathname); // the path that has settled; differs for one beat after a navigation
+  const entering = shown !== pathname;
 
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setStage("in");
-    const t = setTimeout(() => setStage("settled"), 20);
+    if (!entering) return;
+    const t = setTimeout(() => setShown(pathname), 20);
     return () => clearTimeout(t);
-  }, [pathname]);
+  }, [entering, pathname]);
 
+  const reduced = entering && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   return (
-    <div data-route-stage={stage} className="route-transition">
+    <div data-route-stage={entering && !reduced ? "in" : "settled"} className="route-transition">
       {children}
     </div>
   );

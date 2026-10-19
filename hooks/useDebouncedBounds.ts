@@ -1,7 +1,7 @@
 "use client";
 
 // Debounce helpers for viewport-driven fetching.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMapStore, type Bounds } from "@/stores/useMapStore";
 
 /** Returns `value` after it has stayed unchanged for `delay` ms. */
@@ -36,12 +36,9 @@ export function useDebouncedBounds(delay = 250): ViewportKey {
   const debouncedKey = useDebouncedValue(key, delay);
   const debouncedZoom = useDebouncedValue(Math.round(zoom * 10) / 10, delay);
 
-  const last = useRef<ViewportKey>({ bounds: null, zoom });
-  if (debouncedKey !== (last.current.bounds?.join(",") ?? "") || debouncedZoom !== last.current.zoom) {
-    last.current = {
-      bounds: debouncedKey ? (debouncedKey.split(",").map(Number) as Bounds) : null,
-      zoom: debouncedZoom,
-    };
-  }
-  return last.current;
+  // a new object only when the debounced key or zoom changes, so consumers' effect deps stay quiet
+  return useMemo<ViewportKey>(
+    () => ({ bounds: debouncedKey ? (debouncedKey.split(",").map(Number) as Bounds) : null, zoom: debouncedZoom }),
+    [debouncedKey, debouncedZoom],
+  );
 }

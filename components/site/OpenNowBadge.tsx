@@ -3,7 +3,7 @@
 // Open-now indicator computed on the client so statically prerendered pages
 // still show a live answer. Renders the hours text on the server; the
 // open/closed state appears after mount (Asia/Manila clock — Baguio, UTC+8).
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import type { OpeningHours } from "@/types/geo";
 
@@ -34,6 +34,12 @@ function computeOpen(hours: OpeningHours | null): boolean {
   return now >= open || now < close;
 }
 
+/** Ticks every minute, so long-lived tabs stay honest. */
+function subscribeMinute(onChange: () => void) {
+  const id = setInterval(onChange, 60_000);
+  return () => clearInterval(id);
+}
+
 export function OpenNowBadge({
   hours,
   className,
@@ -41,14 +47,8 @@ export function OpenNowBadge({
   hours: OpeningHours | null;
   className?: string;
 }) {
-  const [open, setOpen] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setOpen(computeOpen(hours));
-    // Refresh every minute so long-lived tabs stay honest.
-    const id = setInterval(() => setOpen(computeOpen(hours)), 60_000);
-    return () => clearInterval(id);
-  }, [hours]);
+  // null on the server: the open/closed state appears after hydration
+  const open = useSyncExternalStore(subscribeMinute, () => computeOpen(hours), () => null);
 
   const label = hours ? `${hours.open} to ${hours.close}` : "24 hours";
 

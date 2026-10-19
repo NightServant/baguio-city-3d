@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 import { iconButton } from "./controlStyles";
 
 interface DetailState {
+  slug: string | null; // the slug `feature`/`error` belong to; loading = open on another slug
   feature: DestinationFeature | null;
-  loading: boolean;
   error: boolean;
 }
 
@@ -21,25 +21,26 @@ export function DestinationSheet() {
   const slug = useSelectedSlug();
   const activeSheet = useActiveSheet();
   const { setSelectedSlug, closeSheet } = useMapActions();
-  const [state, setState] = useState<DetailState>({ feature: null, loading: false, error: false });
+  const [state, setState] = useState<DetailState>({ slug: null, feature: null, error: false });
 
   const open = activeSheet === "destination" && slug !== null;
+  const current = state.slug === slug;
+  const loading = open && !current;
 
   useEffect(() => {
     if (!open || !slug) return;
     const controller = new AbortController();
-    setState({ feature: null, loading: true, error: false });
     fetch(`/api/geo/destinations/${encodeURIComponent(slug)}`, { signal: controller.signal })
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return (await res.json()) as DestinationFeature;
       })
       .then((feature) => {
-        setState({ feature, loading: false, error: false });
+        setState({ slug, feature, error: false });
       })
       .catch((err) => {
         if (controller.signal.aborted || err?.name === "AbortError") return;
-        setState({ feature: null, loading: false, error: true });
+        setState({ slug, feature: null, error: true });
       });
     return () => controller.abort();
   }, [open, slug]);
@@ -51,7 +52,7 @@ export function DestinationSheet() {
     closeSheet();
   };
 
-  const props = state.feature?.properties;
+  const props = current ? state.feature?.properties : undefined;
 
   return (
     <aside
@@ -71,7 +72,7 @@ export function DestinationSheet() {
 
       <div className="flex items-start justify-between gap-3 px-5 pb-3 pt-3 sm:pt-5">
         <div className="min-w-0">
-          {state.loading && <div className="h-6 w-40 animate-pulse bg-muted" />}
+          {loading && <div className="h-6 w-40 animate-pulse bg-muted" />}
           {props && (
             <>
               <h2 className="font-heading truncate text-lg font-medium text-foreground">
@@ -95,7 +96,7 @@ export function DestinationSheet() {
               </div>
             </>
           )}
-          {state.error && (
+          {current && state.error && (
             <h2 className="font-heading text-base font-medium text-foreground">
               Couldn’t load this place
             </h2>
@@ -107,7 +108,7 @@ export function DestinationSheet() {
       </div>
 
       <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">
-        {state.loading && (
+        {loading && (
           <div className="flex flex-col gap-2" aria-hidden>
             <div className="h-32 animate-pulse bg-muted" />
             <div className="h-4 w-full animate-pulse rounded bg-muted" />
@@ -116,7 +117,7 @@ export function DestinationSheet() {
           </div>
         )}
 
-        {state.error && (
+        {current && state.error && (
           <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
             The details service isn’t answering. Close this card and tap the pin again in a
             moment.

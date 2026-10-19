@@ -14,9 +14,10 @@ import { cn } from "@/lib/utils";
 import { focusRing } from "./controlStyles";
 
 interface VenueListState {
+  key: string | null; // the filterKey the items belong to
   items: VenueListItem[];
   nextCursor: string | null;
-  loading: boolean;
+  more: boolean; // a "load more" request in flight
   error: boolean;
 }
 
@@ -37,32 +38,25 @@ function buildParams(
 export function VenueList({ venueCategory }: { venueCategory: VenueCategory | null }) {
   const filters = useFilters();
   const q = useDebouncedValue(filters.q, 300);
-  const [state, setState] = useState<VenueListState>({
-    items: [],
-    nextCursor: null,
-    loading: true,
-    error: false,
-  });
+  const [state, setState] = useState<VenueListState>({ key: null, items: [], nextCursor: null, more: false, error: false });
   const popupRef = useRef<Popup | null>(null);
 
   const filterKey = JSON.stringify([venueCategory, filters.priceMax, filters.openNow, q]);
+  const loading = state.key !== filterKey || state.more;
 
   // Fresh page whenever filters change.
   useEffect(() => {
     const controller = new AbortController();
-    setState((s) => ({ ...s, loading: true, error: false }));
     const params = buildParams({ priceMax: filters.priceMax, openNow: filters.openNow, q }, venueCategory, null);
     fetch(`/api/venues?${params.toString()}`, { signal: controller.signal })
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return (await res.json()) as VenuesResponse;
       })
-      .then((data) =>
-        setState({ items: data.items, nextCursor: data.nextCursor, loading: false, error: false }),
-      )
+      .then((data) => setState({ key: filterKey, items: data.items, nextCursor: data.nextCursor, more: false, error: false }))
       .catch((err) => {
         if (controller.signal.aborted || err?.name === "AbortError") return;
-        setState({ items: [], nextCursor: null, loading: false, error: true });
+        setState({ key: filterKey, items: [], nextCursor: null, more: false, error: true });
       });
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -76,8 +70,8 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
   }, []);
 
   const loadMore = () => {
-    if (!state.nextCursor || state.loading) return;
-    setState((s) => ({ ...s, loading: true }));
+    if (!state.nextCursor || loading) return;
+    setState((s) => ({ ...s, more: true }));
     const params = buildParams(
       { priceMax: filters.priceMax, openNow: filters.openNow, q },
       venueCategory,
@@ -89,14 +83,9 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
         return (await res.json()) as VenuesResponse;
       })
       .then((data) =>
-        setState((s) => ({
-          items: [...s.items, ...data.items],
-          nextCursor: data.nextCursor,
-          loading: false,
-          error: false,
-        })),
+        setState((s) => ({ ...s, items: [...s.items, ...data.items], nextCursor: data.nextCursor, more: false, error: false })),
       )
-      .catch(() => setState((s) => ({ ...s, loading: false, error: true })));
+      .catch(() => setState((s) => ({ ...s, more: false, error: true })));
   };
 
   const showVenue = (venue: VenueListItem) => {
@@ -121,13 +110,13 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
 
   return (
     <section className="flex flex-col gap-2">
-      {state.error && (
+      {!loading && state.error && (
         <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
           Venues aren’t loading right now. The map still works. Try again in a moment.
         </p>
       )}
 
-      {!state.error && !state.loading && state.items.length === 0 && (
+      {!state.error && !loading && state.items.length === 0 && (
         <p className="bg-muted px-3 py-2.5 text-xs text-muted-foreground">
           Nothing matches these filters yet. Loosen one and more places will appear.
         </p>
@@ -159,7 +148,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
         ))}
       </ul>
 
-      {state.loading && (
+      {loading && (
         <div className="flex flex-col gap-1.5" aria-hidden>
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-12 animate-pulse bg-muted" />
@@ -167,7 +156,7 @@ export function VenueList({ venueCategory }: { venueCategory: VenueCategory | nu
         </div>
       )}
 
-      {state.nextCursor && !state.loading && (
+      {state.nextCursor && !loading && (
         <button
           type="button"
           onClick={loadMore}

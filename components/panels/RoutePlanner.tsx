@@ -182,12 +182,17 @@ export function FareCalculator({ activeRoute }: { activeRoute: TransitRouteFeatu
   const result = transit.fareResult;
 
   // Reset stop picks when the route changes.
-  useEffect(() => {
+  const routeCode = activeRoute?.properties.code;
+  const [picksFor, setPicksFor] = useState(routeCode);
+  if (picksFor !== routeCode) {
+    setPicksFor(routeCode);
     setFromStop("");
     setToStop("");
-    setFareResult(null);
+  }
+  useEffect(() => {
+    setFareResult(null); // the store's result (zustand), not component state
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeRoute?.properties.code]);
+  }, [routeCode]);
 
   const stops = activeRoute?.properties.stops ?? [];
 
