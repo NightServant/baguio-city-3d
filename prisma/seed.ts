@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- reads the repo's own data/geojson files, whose shapes the seed walks loosely */
 // Idempotent database seed for Baguio City 3D.
 //
 // Reads the GeoJSON/JSON files produced by the data agent under
