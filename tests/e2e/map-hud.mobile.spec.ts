@@ -20,6 +20,21 @@ test("the attribution stays clear of the mode dock, open or closed", async ({ pa
   }
 });
 
+test.describe("on a narrow phone", () => {
+  // 360 px wide: the commonest budget Android width in the Philippines (ESTIMATE).
+  test.use({ viewport: { width: 360, height: 800 } });
+
+  test("every preset chip is whole and on screen", async ({ page }) => {
+    await page.goto("/map");
+    for (const name of ["Burnham", "Session Rd", "Mines View", "Camp John Hay", "Kennon Rd"]) {
+      const chip = page.getByRole("button", { name, exact: true });
+      const b = await box(chip);
+      expect(b.x >= 0 && b.x + b.width <= 360, `${name} on screen`).toBe(true);
+      expect(await chip.locator("..").evaluate((e) => e.scrollWidth <= e.clientWidth), `${name} not cut by a scrolling row`).toBe(true);
+    }
+  });
+});
+
 test.describe("on a short phone", () => {
   // About an iPhone SE's viewport in Safari with its toolbars showing (ESTIMATE).
   test.use({ viewport: { width: 375, height: 548 } });

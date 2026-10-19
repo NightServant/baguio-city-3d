@@ -224,7 +224,7 @@ export function MapView() {
       {tileError && (
         <div
           role="status"
-          className="absolute left-1/2 top-16 z-hud flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 items-center gap-3 bg-card/95 px-4 py-2.5 shadow-lg ring-1 ring-foreground/10 backdrop-blur animate-in fade-in slide-in-from-top-2 duration-200 ease-out motion-reduce:animate-none"
+          className="absolute left-1/2 top-28 z-hud flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 items-center gap-3 bg-card/95 px-4 py-2.5 shadow-lg ring-1 ring-foreground/10 backdrop-blur animate-in fade-in slide-in-from-top-2 duration-200 ease-out motion-reduce:animate-none xl:top-16"
         >
           <div className="flex min-w-0 flex-col">
             <span className="readout text-muted-foreground">Map tiles</span>

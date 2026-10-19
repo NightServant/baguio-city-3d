@@ -70,16 +70,17 @@ export function MapControls() {
   if (unavailable) return null;
   return (
     <>
-      {/* Preset chips — top center, horizontally scrollable on small screens */}
-      <div className="pointer-events-none absolute inset-x-0 top-3 z-hud flex justify-center px-3">
-        <div className="scrollbar-none pointer-events-auto flex max-w-full gap-px overflow-x-auto border border-border bg-border/60 backdrop-blur">
+      {/* Preset chips. Phones: top centre, wrapping, so none is cut off (the dock is at the bottom). sm to xl: a second
+          row under the mode dock, which lay over the first chips when they shared the top row. xl: top centre. */}
+      <div className="pointer-events-none absolute inset-x-0 top-3 z-hud flex justify-center px-3 sm:max-xl:top-[3.625rem] sm:max-xl:justify-start">
+        <div className="pointer-events-auto flex max-w-full flex-wrap justify-center gap-1.5">
           {Object.keys(CAMERA_PRESETS).map((key) => (
             <button
               key={key}
               type="button"
               onClick={() => flyToPreset(key)}
               className={cn(
-                "h-9 shrink-0 bg-background/92 px-3.5 text-xs font-medium text-foreground",
+                "h-9 border border-border bg-background/92 px-3.5 text-xs font-medium text-foreground backdrop-blur",
                 "transition-colors hover:bg-primary hover:text-primary-foreground active:translate-y-px",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               )}

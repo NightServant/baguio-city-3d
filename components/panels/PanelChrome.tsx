@@ -60,8 +60,8 @@ export function PanelChrome() {
         className={cn(
           "absolute z-panel flex gap-1.5",
           "max-sm:inset-x-3 max-sm:bottom-3 max-sm:justify-center",
-          // A row, not a column: the panel opens at top-16, so a stacked dock
-          // left its lower buttons under the open panel.
+          // A row, not a column: the panel opens just below the top rows, so a
+          // stacked dock left its lower buttons under the open panel.
           "sm:left-3 sm:top-3",
         )}
       >
@@ -94,7 +94,7 @@ export function PanelChrome() {
           className={cn(
             "weave-edge absolute z-panel flex flex-col overflow-hidden border-y border-r border-border bg-background/96 backdrop-blur",
             "max-sm:inset-x-0 max-sm:bottom-16 max-sm:mx-2 max-sm:max-h-[55dvh]",
-            "sm:left-3 sm:top-16 sm:bottom-3 sm:w-[21rem]",
+            "sm:left-3 sm:top-28 sm:bottom-3 sm:w-[21rem] xl:top-16",
             "animate-in fade-in duration-200 ease-out motion-reduce:animate-none",
             "max-sm:slide-in-from-bottom-4 sm:slide-in-from-left-4",
           )}

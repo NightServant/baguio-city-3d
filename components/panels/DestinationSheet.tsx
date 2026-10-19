@@ -60,7 +60,7 @@ export function DestinationSheet() {
       className={cn(
         "weave-edge absolute z-sheet flex flex-col overflow-hidden border-y border-r border-border bg-background/96 backdrop-blur",
         "max-sm:inset-x-0 max-sm:bottom-0 max-sm:max-h-[60dvh]",
-        "sm:right-3 sm:top-16 sm:bottom-3 sm:w-[22rem]",
+        "sm:right-3 sm:top-28 sm:bottom-3 sm:w-[22rem] xl:top-16",
         "animate-in fade-in duration-200 ease-out motion-reduce:animate-none",
         "max-sm:slide-in-from-bottom-4 sm:slide-in-from-right-4",
       )}
