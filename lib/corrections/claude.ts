@@ -67,7 +67,8 @@ export function claudeVerdicter(model: string, client: Pick<Anthropic, "messages
     ];
     for (let step = 0; step < MAX_STEPS; step++) {
       const r = await client.messages.create(
-        { model, max_tokens: 8000, system: SYSTEM, tools: [search, FIND_VENUE_TOOL, VERDICT_TOOL], messages },
+        { model, max_tokens: 8000, system: SYSTEM, tools: [search, FIND_VENUE_TOOL, VERDICT_TOOL], messages,
+          output_config: { effort: "medium" } }, // explicit: Haiku 5.5's default, below Sonnet 5.5's high
         { signal, maxRetries: 1 },
       );
       if (r.stop_reason === "refusal") return { outcome: "held", note: "The model declined to check this report." };

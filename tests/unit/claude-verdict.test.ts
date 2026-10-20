@@ -36,6 +36,7 @@ describe("claudeVerdicter", () => {
       const c = client([{ stop_reason: "tool_use", content: [use("submit_verdict", { ...VERDICT, outcome: "held", note: "No page." })] }]);
       await claudeVerdicter(model, c)(report, async () => []);
       expect(c.calls[0].model).toBe(model);
+      expect(c.calls[0].output_config?.effort).toBe("medium"); // Sonnet 5.5 defaults to high; medium for multistep tool use
       expect(c.calls[0].tools?.map((t) => ("type" in t ? t.type : t.name))).toContain(type);
     }
   });

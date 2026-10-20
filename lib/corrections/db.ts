@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { SITE_NAME } from "@/lib/site";
 import { DAILY_CHECK_CAP, MAX_ATTEMPTS, type CheckDeps, type Verdicter } from "./check";
 import { claudeVerdicter } from "./claude";
+import { routedVerdicter } from "./route";
 import type { ReplyDeps, ReplyRow } from "./reply";
 import { fetchSourceText } from "./source-check";
 
@@ -30,11 +31,15 @@ export const dbDeps: CheckDeps = {
   async fail(id, error) { await prisma.$executeRaw(Prisma.sql`SELECT fail_correction(${id}, ${error}, ${MAX_ATTEMPTS})`); },
 };
 
-/** The checker from CORRECTIONS_MODEL (an Anthropic model id, e.g. claude-haiku-5-5) and ANTHROPIC_API_KEY, or null
- *  while either is unset: reports then wait for the owner. */
+/** The checker: the decision node (lib/corrections/route.ts) over two Anthropic models, the cheap one from
+ *  CORRECTIONS_MODEL (claude-haiku-5-5) and the strong one from CORRECTIONS_MODEL_HARD (default claude-sonnet-5-5).
+ *  Null while CORRECTIONS_MODEL or ANTHROPIC_API_KEY is unset: reports then wait for the owner. Each decision is
+ *  logged, so the Vercel function logs show which model decided and why. */
 export function correctionsVerdicter(): Verdicter | null {
-  const model = process.env.CORRECTIONS_MODEL?.trim();
-  return model && process.env.ANTHROPIC_API_KEY?.trim() ? claudeVerdicter(model) : null;
+  const cheap = process.env.CORRECTIONS_MODEL?.trim();
+  if (!cheap || !process.env.ANTHROPIC_API_KEY?.trim()) return null;
+  const strong = process.env.CORRECTIONS_MODEL_HARD?.trim() || "claude-sonnet-5-5";
+  return routedVerdicter(claudeVerdicter(cheap), claudeVerdicter(strong), (route) => console.info(`corrections route: ${route}`));
 }
 
 // The reply goes out from the owner's Gmail (owner, 2026-10-20), over Gmail's SMTP with an app password. Unset (local
