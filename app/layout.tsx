@@ -11,7 +11,7 @@ import { SITE_URL } from "@/lib/site";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { RouteTransition } from "@/components/site/RouteTransition";
-import { Analytics } from "@vercel/analytics/next";
+import { SiteAnalytics } from "@/components/site/SiteAnalytics";
 
 // One family, worked at two extremes. Archivo is variable on BOTH weight and
 // width, so the width axis becomes an active design element: display type is
@@ -92,7 +92,7 @@ export default function RootLayout({
             <SiteFooter />
           </ThemeProvider>
           {/* Vercel Web Analytics: cookieless page views, so no consent banner (owner, 2026-10-20). */}
-          <Analytics />
+          <SiteAnalytics />
         </AppRouterCacheProvider>
       </body>
     </html>

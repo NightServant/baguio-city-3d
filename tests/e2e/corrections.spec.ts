@@ -26,12 +26,18 @@ test("the thanks page names the real response window", async ({ page }) => {
   await expect(page.getByText(/7 days\./)).toBeVisible();
 });
 
-test("a valid report lands on the thank-you page", async ({ page }) => {
+test("a valid report lands on its private status page", async ({ page }) => {
   test.skip(!process.env.E2E_DB, "needs a reachable database: set E2E_DB=1");
   await page.goto("/corrections");
   await page.waitForTimeout(3200);
   await page.getByLabel("What's wrong?").fill("E2E check: please delete this row.");
   await page.getByRole("button", { name: "Send report" }).click();
-  await expect(page).toHaveURL("/corrections/thanks");
-  await expect(page.getByRole("heading", { name: "Thanks, your report is in." })).toBeVisible();
+  await expect(page).toHaveURL(/\/corrections\/status\/[0-9a-f-]{36}$/);
+  await expect(page.getByRole("heading", { name: "Your report" })).toBeVisible();
+});
+
+test("an unknown or malformed status link is a 404", async ({ page }) => {
+  // Reads only (correction_status by token), so it runs against the live database too.
+  expect((await page.goto("/corrections/status/not-a-token"))?.status()).toBe(404);
+  expect((await page.goto("/corrections/status/00000000-0000-4000-8000-000000000000"))?.status()).toBe(404);
 });

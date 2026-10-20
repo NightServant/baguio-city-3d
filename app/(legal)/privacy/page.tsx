@@ -66,6 +66,16 @@ export default function PrivacyPage() {
           email, as a record of what changed. We don’t store your IP address with it. Reports are
           stored in a database hosted by Supabase.
         </p>
+        <p>
+          To check a report automatically, we send its text and the page it’s about, never your email, through
+          {" "}{HOST}’s AI Gateway to an AI model, Anthropic’s Claude Haiku 5.5, which may search the web for a public
+          source with Perplexity search, run by the gateway. Anthropic doesn’t train its models on what we send.
+          A change goes into the guide only if a public page states it word for word.
+        </p>
+        <p>
+          After you send a report you get a private status page. Anyone with its address can see whether the report
+          was checked, but not what you wrote.
+        </p>
 
         <h2>AI</h2>
         <p>

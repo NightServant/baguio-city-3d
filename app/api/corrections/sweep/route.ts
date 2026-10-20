@@ -1,0 +1,22 @@
+// The backstop for the automated corrections (Clover's pattern): an external cron POSTs here every 15 minutes with
+// Authorization: Bearer CORRECTIONS_SWEEP_TOKEN. Stuck checks go back to "received" (or are held after MAX_ATTEMPTS),
+// then a few waiting reports are checked. The response carries counts only, never report text.
+import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/db";
+import { bearerOk } from "@/lib/corrections/bearer";
+import { checkCorrection, MAX_ATTEMPTS } from "@/lib/corrections/check";
+import { correctionsModel, dbDeps } from "@/lib/corrections/db";
+
+export const maxDuration = 300;
+const PER_SWEEP = 3; // ESTIMATE: three checks of up to 90 s fit in 300 s
+
+export async function POST(req: Request) {
+  if (!bearerOk(req.headers.get("authorization"), process.env.CORRECTIONS_SWEEP_TOKEN)) return new Response(null, { status: 401 });
+  const model = correctionsModel();
+  if (!model) return Response.json({ released: 0, checked: 0, results: [] });
+  const [{ n }] = await prisma.$queryRaw<[{ n: number }]>(Prisma.sql`SELECT release_stuck_corrections(15, ${MAX_ATTEMPTS}) AS n`);
+  const ids = await prisma.$queryRaw<{ id: bigint }[]>(Prisma.sql`SELECT received_corrections(${PER_SWEEP}) AS id`);
+  const results: string[] = [];
+  for (const { id } of ids) results.push(await checkCorrection(id, dbDeps, model));
+  return Response.json({ released: n, checked: ids.length, results });
+}

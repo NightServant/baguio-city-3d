@@ -3,6 +3,9 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { CORRECTIONS_RESPONSE_DAYS } from "@/lib/site";
 import { CorrectionForm } from "./CorrectionForm";
 
+// The form's Server Action checks the report in after() (lib/corrections/check.ts: up to 90 s with the model).
+export const maxDuration = 120;
+
 export const metadata: Metadata = {
   title: "Suggest a correction",
   description: "Found a wrong opening time, fare or pin on Baguio 3D? Tell us what changed and we'll fix the guide.",
