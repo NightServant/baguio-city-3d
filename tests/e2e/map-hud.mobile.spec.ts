@@ -53,3 +53,13 @@ test.describe("on a short phone", () => {
     }
   });
 });
+
+// Fill rate on phones (owner, 2026-10-20: "optimize it for mobile"): the map and its 3D layer share one canvas, drawn at
+// no more than 2 device pixels per CSS pixel. The Pixel 7 profile is 2.625; a Galaxy A51 is about 2.6.
+test("the map draws at most 2 device pixels per CSS pixel", async ({ page }) => {
+  await page.goto("/map");
+  const canvas = page.locator("canvas.maplibregl-canvas");
+  await expect(canvas).toBeVisible();
+  const ratio = await canvas.evaluate((c: HTMLCanvasElement) => c.width / c.clientWidth);
+  expect(ratio).toBeLessThanOrEqual(2.01);
+});

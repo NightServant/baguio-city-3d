@@ -62,6 +62,9 @@ export function MapView() {
         maxBounds: expandBounds(BAGUIO_BOUNDS),
         maxPitch: 80,
         cooperativeGestures: false,
+        // At most 2 device pixels per CSS pixel: phones at 2.6x or 3x draw the map and its 3D layer (one canvas) at
+        // about 58% or 44% of the pixels, with no change on 2x screens.
+        pixelRatio: Math.min(window.devicePixelRatio, 2),
       });
     } catch {
       // MapLibre throws here when no WebGL context can be created (disabled,
