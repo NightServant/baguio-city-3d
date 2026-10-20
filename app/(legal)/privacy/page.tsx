@@ -68,9 +68,10 @@ export default function PrivacyPage() {
           a database hosted by Supabase.
         </p>
         <p>
-          To check a report automatically, we send its text and the page it’s about, never your email or name, to an
-          AI model, Anthropic’s Claude, which may search the web for a public source with Anthropic’s web search.
-          Anthropic doesn’t train its models on what we send.
+          If you give a link to a source, we check the report automatically: we read that page and send it, with
+          your report’s text and the page it’s about (never your email or name), through OpenRouter to a free AI
+          model (Google’s Gemma or NVIDIA’s Nemotron). The companies running these free models may keep or learn from
+          what we send them. Without a link, a person reads your report instead.
           A change goes into the guide only if a public page states it word for word. No decision about you is made
           automatically: the check decides only whether the guide changes.
         </p>
@@ -83,8 +84,8 @@ export default function PrivacyPage() {
         <p>
           We store and check a report, and email you its result, because you send it to us to fix the guide, and we count visits because we
           have a legitimate interest in knowing how the site is used (Data Privacy Act, Section 12). The services
-          named on this page run outside the Philippines: the database in Singapore, and the host, the AI model
-          and its search, and Gmail mostly in the United States. We stay responsible for your information wherever they hold
+          named on this page run outside the Philippines: the database in Singapore, and the host, OpenRouter
+          and the AI models, and Gmail mostly in the United States. We stay responsible for your information wherever they hold
           it.
         </p>
 

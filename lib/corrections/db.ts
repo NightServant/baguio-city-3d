@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { SITE_NAME } from "@/lib/site";
 import { DAILY_CHECK_CAP, MAX_ATTEMPTS, type CheckDeps, type Verdicter } from "./check";
 import { claudeVerdicter } from "./claude";
+import { openrouterVerdicter } from "./openrouter";
 import { personVerdicter, routedVerdicter } from "./route";
 import type { ReplyDeps, ReplyRow } from "./reply";
 import { fetchSourceText } from "./source-check";
@@ -16,8 +17,9 @@ export const dbDeps: CheckDeps = {
     return r?.ok === true;
   },
   async report(id) {
-    const [r] = await prisma.$queryRaw<{ page_path: string; message: string }[]>(Prisma.sql`SELECT * FROM correction_for_check(${id})`);
-    return r ? { page: r.page_path, message: r.message } : null;
+    const [r] = await prisma.$queryRaw<{ page_path: string; message: string; source_link: string | null }[]>(
+      Prisma.sql`SELECT * FROM correction_for_check(${id})`);
+    return r ? { page: r.page_path, message: r.message, link: r.source_link } : null;
   },
   findVenue: (name) => prisma.$queryRaw<{ slug: string; name: string }[]>(
     Prisma.sql`SELECT slug, name FROM venues WHERE name ILIKE ${"%" + name.replace(/[%_]/g, "") + "%"} ORDER BY name LIMIT 5`),
@@ -36,10 +38,19 @@ export const dbDeps: CheckDeps = {
  *  While CORRECTIONS_MODEL or ANTHROPIC_API_KEY is unset, every report is held for the owner at once (its reply still
  *  goes out). Each decision is logged, so the Vercel function logs show which model decided and why. */
 export function correctionsVerdicter(): Verdicter {
+  const log = (route: string) => console.info(`corrections route: ${route}`);
+  // OpenRouter's free models first, when its key is set (owner, 2026-10-20: no card for Anthropic credit); they read
+  // only the reader's link (openrouter.ts). The same decision node picks the model.
+  const openrouter = process.env.OPENROUTER_API_KEY?.trim();
+  if (openrouter) {
+    const simple = process.env.OPENROUTER_MODEL?.trim() || "google/gemma-4-31b-it:free";
+    const hard = process.env.OPENROUTER_MODEL_HARD?.trim() || "nvidia/nemotron-3-ultra-550b-a55b:free";
+    return routedVerdicter(openrouterVerdicter(simple, openrouter), openrouterVerdicter(hard, openrouter), log);
+  }
   const cheap = process.env.CORRECTIONS_MODEL?.trim();
   if (!cheap || !process.env.ANTHROPIC_API_KEY?.trim()) return personVerdicter;
   const strong = process.env.CORRECTIONS_MODEL_HARD?.trim() || "claude-sonnet-5-5";
-  return routedVerdicter(claudeVerdicter(cheap), claudeVerdicter(strong), (route) => console.info(`corrections route: ${route}`));
+  return routedVerdicter(claudeVerdicter(cheap), claudeVerdicter(strong), log);
 }
 
 // The reply goes out from the owner's Gmail (owner, 2026-10-20), over Gmail's SMTP with an app password. Unset (local

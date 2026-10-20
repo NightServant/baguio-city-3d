@@ -25,10 +25,12 @@ BEGIN
                  AND command LIKE '%reply_email = null%' AND command LIKE '%reporter_name = null%') THEN
     RAISE EXCEPTION 'no daily job clears emails and names';
   END IF;
-  INSERT INTO corrections (page_path, message, reply_email) VALUES ('/eat-stay', 'Cafe by the Ruins now opens at 8 and closes at 9 pm.', 'reader@example.test') RETURNING id, token INTO rid, tok;
+  INSERT INTO corrections (page_path, message, reply_email, source_link) VALUES ('/eat-stay', 'Cafe by the Ruins now opens at 8 and closes at 9 pm.', 'reader@example.test', 'https://example.org/cafe') RETURNING id, token INTO rid, tok;
   IF claim_correction(rid, 60) IS NOT TRUE THEN RAISE EXCEPTION 'claim failed'; END IF;
   IF claim_correction(rid, 60) IS TRUE THEN RAISE EXCEPTION 'claimed twice'; END IF;
   IF (SELECT message FROM correction_for_check(rid)) IS NULL THEN RAISE EXCEPTION 'report not readable while checking'; END IF;
+  IF (SELECT source_link FROM correction_for_check(rid)) IS DISTINCT FROM 'https://example.org/cafe' THEN RAISE EXCEPTION 'the link is not handed to the checker'; END IF;
+  IF NOT has_column_privilege('baguio_app', 'public.corrections', 'source_link', 'INSERT') THEN RAISE EXCEPTION 'the app cannot store a link'; END IF;
   out := apply_correction(rid, 'venues', 'cafe-by-the-ruins', 'hours', '{"open":"08:00","close":"21:00"}', 'https://example.org/cafe', 'We are open daily from 8:00 am to 9:00 pm.');
   IF out <> 'applied' THEN RAISE EXCEPTION 'expected applied, got %', out; END IF;
   IF (SELECT hours->>'open' FROM venues WHERE slug = 'cafe-by-the-ruins') <> '08:00' THEN RAISE EXCEPTION 'venue not updated'; END IF;

@@ -4,7 +4,7 @@ import { MIN_FILL_MS, parseCorrection } from "@/lib/corrections";
 const NOW = 1_000_000;
 function form(fields: Record<string, string>) {
   const fd = new FormData();
-  const base = { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", email: "reader@example.test", name: "", website: "", startedAt: String(NOW - MIN_FILL_MS - 1) };
+  const base = { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", email: "reader@example.test", name: "", link: "", website: "", startedAt: String(NOW - MIN_FILL_MS - 1) };
   for (const [k, v] of Object.entries({ ...base, ...fields })) fd.set(k, v);
   return fd;
 }
@@ -13,7 +13,7 @@ describe("parseCorrection", () => {
   it("accepts a real report", () => {
     expect(parseCorrection(form({}), NOW)).toEqual({
       kind: "valid",
-      data: { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", email: "reader@example.test", name: null },
+      data: { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", email: "reader@example.test", name: null, link: null },
     });
   });
   it("asks for a longer message and keeps what was typed", () => {
@@ -38,6 +38,17 @@ describe("parseCorrection", () => {
     const out = parseCorrection(form({ email: "" }), NOW);
     expect(out.kind === "invalid" && out.state.errors?.email).toMatch(/email/i);
     expect(out.kind === "invalid" && out.state.fields?.message).toBe("The boat rental closes at 5 pm now.");
+  });
+  // An optional source link (owner, 2026-10-20): the free checker reads only the page the reader points to.
+  it("keeps an optional https source link", () => {
+    const out = parseCorrection(form({ link: " https://example.org/hours " }), NOW);
+    expect(out.kind === "valid" && out.data.link).toBe("https://example.org/hours");
+  });
+  it("refuses a link that isn't an https page address", () => {
+    for (const link of ["example.org/hours", "http://example.org/hours", "javascript:alert(1)", `https://example.org/${"x".repeat(2000)}`]) {
+      const out = parseCorrection(form({ link }), NOW);
+      expect(out.kind === "invalid" && out.state.errors?.link, link).toBeTruthy();
+    }
   });
   it("rejects an incomplete email", () => {
     const out = parseCorrection(form({ email: "someone@" }), NOW);

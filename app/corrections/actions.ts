@@ -20,8 +20,8 @@ export async function submitCorrection(_prev: CorrectionState, form: FormData): 
 
   let token: string | null = null;
   if (parsed.kind === "valid") {
-    const { page, message, email, name } = parsed.data;
-    const fields = { page, message, email, name: name ?? "" };
+    const { page, message, email, name, link } = parsed.data;
+    const fields = { page, message, email, name: name ?? "", link: link ?? "" };
     try {
       const [{ recent }] = await prisma.$queryRaw<[{ recent: number }]>(Prisma.sql`
         SELECT count(created_at)::int AS recent FROM corrections
@@ -34,7 +34,8 @@ export async function submitCorrection(_prev: CorrectionState, form: FormData): 
         };
       }
       const [row] = await prisma.$queryRaw<[{ id: bigint; token: string }]>(Prisma.sql`
-        INSERT INTO corrections (page_path, message, reply_email, reporter_name) VALUES (${page}, ${message}, ${email}, ${name})
+        INSERT INTO corrections (page_path, message, reply_email, reporter_name, source_link)
+        VALUES (${page}, ${message}, ${email}, ${name}, ${link})
         RETURNING id, token`);
       token = row.token;
       // The automatic check runs once the visitor has their status page (page.tsx sets maxDuration for it); the

@@ -25,11 +25,13 @@ export type Verdict = z.infer<typeof Verdict>;
 export type Proposal = Extract<Verdict, { outcome: "proposed" }>;
 
 /** The model's side of a check: read one report (looking venues up as needed) and return a verdict. */
-export type Verdicter = (report: { page: string; message: string }, findVenue: CheckDeps["findVenue"]) => Promise<Verdict>;
+export type Verdicter = (report: Report, findVenue: CheckDeps["findVenue"]) => Promise<Verdict>;
+/** One report as the checker sees it: never the reporter's email or name. */
+export interface Report { page: string; message: string; link?: string | null }
 
 export interface CheckDeps {
   claim(id: bigint): Promise<boolean>;
-  report(id: bigint): Promise<{ page: string; message: string } | null>;
+  report(id: bigint): Promise<Report | null>;
   findVenue(name: string): Promise<{ slug: string; name: string }[]>;
   source(url: string): Promise<string | null>;
   apply(id: bigint, p: Proposal): Promise<string>;

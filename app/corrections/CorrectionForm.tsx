@@ -50,6 +50,13 @@ export function CorrectionForm({ page, startedAt, responseDays }: { page: string
       </div>
 
       <div>
+        <label htmlFor="link" className="font-medium">Link to a source <span className="font-normal text-muted-foreground">(optional)</span></label>
+        <input id="link" name="link" type="url" inputMode="url" placeholder="https://" defaultValue={f?.link} aria-invalid={!!e.link} aria-describedby={e.link ? "link-error" : "link-hint"} className={input} />
+        <p id="link-hint" className="mt-1.5 text-sm text-muted-foreground">A page that shows the change, like the place’s own website. With a link we can often fix the guide automatically; without one, a person reads your report.</p>
+        {e.link ? <p id="link-error" className="mt-1.5 text-sm text-primary">{e.link}</p> : null}
+      </div>
+
+      <div>
         <label htmlFor="email" className="font-medium">Your email</label>
         <input id="email" name="email" type="email" autoComplete="email" required defaultValue={f?.email} aria-invalid={!!e.email} aria-describedby={e.email ? "email-error" : "email-hint"} className={input} />
         <p id="email-hint" className="mt-1.5 text-sm text-muted-foreground">We email you what happened to your report, and use it for nothing else. We delete it once the report is resolved, or after 90 days.</p>
