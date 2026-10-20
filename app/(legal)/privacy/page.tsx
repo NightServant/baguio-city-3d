@@ -60,37 +60,50 @@ export default function PrivacyPage() {
 
         <h2>Correction reports</h2>
         <p>
-          If you send a correction, we store what you wrote and the page it’s about, plus your email
-          only if you give one. We use the email only to reply about that report; it’s cleared by a
-          daily job once the report is resolved, or once it’s 90 days old. The report stays without the
-          email, as a record of what changed. We don’t store your IP address with it. Reports are
-          stored in a database hosted by Supabase.
+          If you send a correction, we store what you wrote and the page it’s about, plus your name only if
+          you give one, so the person who reads the report knows who sent it. We don’t ask for your email.
+          Only that person sees your name; a daily job clears it once the report is resolved, or once it’s 90
+          days old. The report stays without
+          the name, as a record of what changed. We don’t store your IP address with it. Reports are stored in
+          a database hosted by Supabase.
         </p>
         <p>
-          To check a report automatically, we send its text and the page it’s about, never your email, through
+          To check a report automatically, we send its text and the page it’s about, never your name, through
           {" "}{HOST}’s AI Gateway to an AI model, Anthropic’s Claude Haiku 5.5, which may search the web for a public
           source with Perplexity search, run by the gateway. Anthropic doesn’t train its models on what we send.
-          A change goes into the guide only if a public page states it word for word.
+          A change goes into the guide only if a public page states it word for word. No decision about you is made
+          automatically: the check decides only whether the guide changes.
         </p>
         <p>
           After you send a report you get a private status page. Anyone with its address can see whether the report
           was checked, but not what you wrote.
         </p>
 
+        <h2>Why we may use it, and where it goes</h2>
+        <p>
+          We store and check a report because you send it to us to fix the guide, and we count visits because we
+          have a legitimate interest in knowing how the site is used (Data Privacy Act, Section 12). The services
+          named on this page run outside the Philippines: the database in Singapore, and the host, the AI model
+          and the search mostly in the United States. We stay responsible for your information wherever they hold
+          it.
+        </p>
+
         <h2>AI</h2>
         <p>
-          The site doesn’t use AI to process anything you send or do. Some place descriptions were drafted
-          with AI assistance and edited by hand.
+          A correction you send is checked by an AI model, as described above; it can change only opening hours
+          and price ranges, and only when a public page states the change. Nothing else you send or do is
+          processed by AI. Some place descriptions were drafted with AI assistance and edited by hand.
         </p>
 
         <h2>Your rights</h2>
         <p>
-          Under the Philippine Data Privacy Act of 2012 (Republic Act No. 10173) you can ask what we hold about
-          you, ask us to correct or delete it, and object to its use.
+          Under the Philippine Data Privacy Act of 2012 (Republic Act No. 10173) you have the right to be informed,
+          to see what we hold about you, to have it corrected, deleted or blocked, to object to its use, to get a
+          copy you can take elsewhere, and to be compensated for damage from its misuse.
           {CONTACT_EMAIL ? (
             <> Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</>
           ) : (
-            <> Use the <a href="/corrections">correction form</a> and leave an email so we can reply.</>
+            <> Use the <a href="/corrections">correction form</a>; until a contact address is listed here, we can’t write back to you.</>
           )}{" "}
           If you’re not satisfied with our answer, you can complain to the{" "}
           <a href="https://privacy.gov.ph">National Privacy Commission</a>.

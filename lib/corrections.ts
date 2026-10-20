@@ -4,7 +4,8 @@
 export interface CorrectionFields {
   page: string;
   message: string;
-  email: string;
+  /** Optional. The form asks for a name, not an email (owner, 2026-10-20): no reply is ever emailed. */
+  name: string;
 }
 export type FieldErrors = Partial<Record<keyof CorrectionFields, string>>;
 export interface CorrectionState {
@@ -18,10 +19,10 @@ export const initialCorrectionState: CorrectionState = { status: "idle" };
 /** A person takes longer than this to read the page and type a report. */
 export const MIN_FILL_MS = 3000;
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_NAME = 80;
 
 export type ParseResult =
-  | { kind: "valid"; data: { page: string; message: string; email: string | null } }
+  | { kind: "valid"; data: { page: string; message: string; name: string | null } }
   | { kind: "invalid"; state: CorrectionState }
   | { kind: "spam" };
 
@@ -32,17 +33,15 @@ export function parseCorrection(form: FormData, now: number): ParseResult {
   const started = Number(str("startedAt"));
   if (!Number.isFinite(started) || now - started < MIN_FILL_MS) return { kind: "spam" };
 
-  const fields: CorrectionFields = { page: str("page") || "/", message: str("message"), email: str("email") };
+  const fields: CorrectionFields = { page: str("page") || "/", message: str("message"), name: str("name") };
   const errors: FieldErrors = {};
   if (!fields.page.startsWith("/") || fields.page.length > 200) {
     errors.page = "Use an address from this site, starting with /.";
   }
   if (fields.message.length < 10) errors.message = "Tell us what's wrong in at least 10 characters.";
   else if (fields.message.length > 2000) errors.message = "Keep it under 2,000 characters.";
-  if (fields.email && (fields.email.length > 254 || !EMAIL.test(fields.email))) {
-    errors.email = "That email address looks incomplete.";
-  }
+  if (fields.name.length > MAX_NAME) errors.name = `Keep your name to ${MAX_NAME} characters or fewer.`;
 
   if (Object.keys(errors).length > 0) return { kind: "invalid", state: { status: "error", errors, fields } };
-  return { kind: "valid", data: { page: fields.page, message: fields.message, email: fields.email || null } };
+  return { kind: "valid", data: { page: fields.page, message: fields.message, name: fields.name || null } };
 }

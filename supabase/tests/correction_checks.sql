@@ -16,6 +16,17 @@ BEGIN
                AND (has_function_privilege('anon', p.oid, 'execute') OR has_function_privilege('authenticated', p.oid, 'execute'))) THEN
     RAISE EXCEPTION 'anon or authenticated can run a correction function';
   END IF;
+  -- The form asks for an optional name, not an email (owner, 2026-10-20); the daily job clears names like it did emails.
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_schema = 'public' AND table_name = 'corrections' AND column_name = 'reply_email') THEN
+    RAISE EXCEPTION 'corrections still has reply_email';
+  END IF;
+  IF NOT has_column_privilege('baguio_app', 'public.corrections', 'reporter_name', 'INSERT') THEN
+    RAISE EXCEPTION 'the app cannot store a name';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'expire-correction-names' AND command LIKE '%reporter_name = null%') THEN
+    RAISE EXCEPTION 'no daily job clears names';
+  END IF;
   INSERT INTO corrections (page_path, message) VALUES ('/eat-stay', 'Cafe by the Ruins now opens at 8 and closes at 9 pm.') RETURNING id, token INTO rid, tok;
   IF claim_correction(rid, 60) IS NOT TRUE THEN RAISE EXCEPTION 'claim failed'; END IF;
   IF claim_correction(rid, 60) IS TRUE THEN RAISE EXCEPTION 'claimed twice'; END IF;
