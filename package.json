@@ -12,6 +12,7 @@
     "seed:supabase:generate": "node scripts/generate-supabase-seed.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -21,7 +22,6 @@
     "@prisma/client": "^7.10.1",
     "@turf/turf": "^7.3.5",
     "@vercel/analytics": "^2.0.1",
-    "ai": "^7.0.145",
     "clsx": "^2.1.1",
     "ioredis": "^5.11.1",
     "lucide-react": "^1.24.0",

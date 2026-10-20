@@ -1,15 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { MockLanguageModelV4 } from "ai/test";
-import { checkCorrection, type CheckDeps } from "@/lib/corrections/check";
+import { checkCorrection, type CheckDeps, type Verdict, type Verdicter } from "@/lib/corrections/check";
 
-const model = (verdict: unknown) => new MockLanguageModelV4({
-  doGenerate: async () => ({
-    content: [{ type: "text", text: JSON.stringify({ verdict }) }],
-    finishReason: { unified: "stop", raw: undefined },
-    usage: { inputTokens: { total: 10, noCache: 10, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 20, text: 20, reasoning: undefined } },
-    warnings: [],
-  }),
-});
+// The model's side is injected as a verdicter (lib/corrections/claude.ts makes the real one).
+const model = (verdict: unknown): Verdicter => async () => verdict as Verdict;
 const QUOTE = "We are open daily from 8:00 am to 9:00 pm.";
 const PROPOSED = { outcome: "proposed", table: "venues", slug: "cafe-by-the-ruins", field: "hours",
   value: { open: "08:00", close: "21:00" }, sourceUrl: "https://example.org/cafe", quote: QUOTE };
@@ -32,28 +25,28 @@ function deps(over: Partial<CheckDeps> = {}) {
 describe("checkCorrection", () => {
   it("applies a proposal whose quote the re-fetched page shows", async () => {
     const { d, log } = deps();
-    expect(await checkCorrection(BigInt(1), d, model(PROPOSED), false)).toBe("applied");
+    expect(await checkCorrection(BigInt(1), d, model(PROPOSED))).toBe("applied");
     expect(log).toEqual(["apply"]);
   });
   it("holds a proposal whose page doesn't show the quote", async () => {
     const { d, log } = deps({ source: async () => "<p>Closed for renovation.</p>" });
-    expect(await checkCorrection(BigInt(1), d, model(PROPOSED), false)).toBe("held: quote");
+    expect(await checkCorrection(BigInt(1), d, model(PROPOSED))).toBe("held: quote");
     expect(log).toEqual(["hold:The cited page does not show the quote"]);
   });
   it("holds when the model finds no source", async () => {
     const { d, log } = deps();
-    expect(await checkCorrection(BigInt(1), d, model({ outcome: "held", note: "No public page confirms it." }), false)).toBe("held");
+    expect(await checkCorrection(BigInt(1), d, model({ outcome: "held", note: "No public page confirms it." }))).toBe("held");
     expect(log).toEqual(["hold:No public page confirms it."]);
   });
   it("does nothing when another run holds the claim", async () => {
     const { d, log } = deps({ claim: async () => false });
-    expect(await checkCorrection(BigInt(1), d, model(PROPOSED), false)).toBe("not claimed");
+    expect(await checkCorrection(BigInt(1), d, model(PROPOSED))).toBe("not claimed");
     expect(log).toEqual([]);
   });
   it("records a failure for the sweep to retry", async () => {
     const { d, log } = deps();
-    const broken = new MockLanguageModelV4({ doGenerate: async () => { throw new Error("gateway timeout"); } });
-    expect(await checkCorrection(BigInt(1), d, broken, false)).toBe("failed");
+    const broken: Verdicter = async () => { throw new Error("API timeout"); };
+    expect(await checkCorrection(BigInt(1), d, broken)).toBe("failed");
     expect(log[0]).toMatch(/^fail:/);
   });
 });

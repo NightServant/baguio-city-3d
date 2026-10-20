@@ -4,7 +4,8 @@ import { Prisma } from "@prisma/client";
 import nodemailer, { type Transporter } from "nodemailer";
 import { prisma } from "@/lib/db";
 import { SITE_NAME } from "@/lib/site";
-import { DAILY_CHECK_CAP, MAX_ATTEMPTS, type CheckDeps } from "./check";
+import { DAILY_CHECK_CAP, MAX_ATTEMPTS, type CheckDeps, type Verdicter } from "./check";
+import { claudeVerdicter } from "./claude";
 import type { ReplyDeps, ReplyRow } from "./reply";
 import { fetchSourceText } from "./source-check";
 
@@ -29,8 +30,12 @@ export const dbDeps: CheckDeps = {
   async fail(id, error) { await prisma.$executeRaw(Prisma.sql`SELECT fail_correction(${id}, ${error}, ${MAX_ATTEMPTS})`); },
 };
 
-/** The model from CORRECTIONS_MODEL (a gateway "provider/model" id), or null when unset: reports then wait for the owner. */
-export const correctionsModel = () => process.env.CORRECTIONS_MODEL?.trim() || null;
+/** The checker from CORRECTIONS_MODEL (an Anthropic model id, e.g. claude-haiku-5-5) and ANTHROPIC_API_KEY, or null
+ *  while either is unset: reports then wait for the owner. */
+export function correctionsVerdicter(): Verdicter | null {
+  const model = process.env.CORRECTIONS_MODEL?.trim();
+  return model && process.env.ANTHROPIC_API_KEY?.trim() ? claudeVerdicter(model) : null;
+}
 
 // The reply goes out from the owner's Gmail (owner, 2026-10-20), over Gmail's SMTP with an app password. Unset (local
 // runs): no reply is claimed, so the sweep sends it once both are set.

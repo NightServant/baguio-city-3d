@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { parseCorrection, type CorrectionState } from "@/lib/corrections";
 import { checkCorrection } from "@/lib/corrections/check";
-import { correctionsModel, dbDeps, dbReplyDeps } from "@/lib/corrections/db";
+import { correctionsVerdicter, dbDeps, dbReplyDeps } from "@/lib/corrections/db";
 import { sendReply } from "@/lib/corrections/reply";
 import { SITE_URL } from "@/lib/site";
 
@@ -40,8 +40,8 @@ export async function submitCorrection(_prev: CorrectionState, form: FormData): 
       // The automatic check runs once the visitor has their status page (page.tsx sets maxDuration for it); the
       // sweep (app/api/corrections/sweep) retries anything this misses.
       after(async () => {
-        const model = correctionsModel();
-        if (model) await checkCorrection(row.id, dbDeps, model);
+        const verdicter = correctionsVerdicter();
+        if (verdicter) await checkCorrection(row.id, dbDeps, verdicter);
         const reply = dbReplyDeps(); // the result goes to the reader's email once the check has one
         if (reply) await sendReply(row.id, reply, SITE_URL);
       });
