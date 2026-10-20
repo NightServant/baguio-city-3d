@@ -27,15 +27,16 @@ No accounts, payments, uploads, location requests, advertising or cookies. The o
 | (d) Scope and method | Covered |
 | (e) Recipients | Covered; transfers outside the Philippines added on 20 Oct (Section 21 accountability) |
 | (f) Automated processing | Covered: the AI check, its limits, and that no decision is made about the person |
-| (g) Identity and contact details of the controller | Contact set (baguioadmin@gmail.com, 20 Oct); **the controller's name is still missing** (finding 1) |
+| (g) Identity and contact details of the controller | Contact by the correction form, answered by email (no address published, owner's choice, 20 Oct); **the controller's name is still missing** (finding 1) |
 | (h) Retention period | Covered: names (resolved or 90 days), report text (12 months), analytics (Vercel) |
 | (i) Rights, including a complaint to the NPC | Covered; the full list added on 20 Oct |
 
 ## Findings
 
-1. **Say who runs the site.** The contact is set: `NEXT_PUBLIC_CONTACT_EMAIL` = baguioadmin@gmail.com in Vercel
-   (production, 20 Oct), shown in the footer and in the privacy and terms pages. The page still names no controller.
-   *Owner:* choose the name to publish (yourself or an organisation); it is one sentence.
+1. **Say who runs the site.** No contact address is published (owner's choice, 20 Oct; the earlier address belonged to a
+   deleted account). People reach the site through the correction form, which now asks for an email and answers there,
+   and the privacy page says so. The page still names no controller. *Owner:* choose the name to publish (yourself or
+   an organisation); it is one sentence. A lawyer may still want a published address for rights requests.
 2. **Ask the NPC whether registration applies.** NPC Circular 2022-04 requires registration from controllers with 250 or
    more employees or processing sensitive personal information of 1,000 or more people, which this site isn't. It also
    names processing that is "likely to pose a risk" or "not occasional", and secondary sources disagree on whether

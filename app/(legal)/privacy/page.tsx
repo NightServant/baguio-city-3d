@@ -103,7 +103,7 @@ export default function PrivacyPage() {
           {CONTACT_EMAIL ? (
             <> Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</>
           ) : (
-            <> Use the <a href="/corrections">correction form</a>; until a contact address is listed here, we can’t write back to you.</>
+            <> Use the <a href="/corrections">correction form</a>: say what you’re asking for, and we answer by email to the address you give there.</>
           )}{" "}
           If you’re not satisfied with our answer, you can complain to the{" "}
           <a href="https://privacy.gov.ph">National Privacy Commission</a>.
