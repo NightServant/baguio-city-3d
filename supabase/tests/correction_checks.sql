@@ -34,9 +34,13 @@ BEGIN
   IF (SELECT hours->>'open' FROM venues WHERE slug = 'cafe-by-the-ruins') <> '08:00' THEN RAISE EXCEPTION 'venue not updated'; END IF;
   IF (SELECT status FROM correction_status(tok)) <> 'applied' THEN RAISE EXCEPTION 'status not applied'; END IF;
   IF (SELECT count(*) FROM correction_for_check(rid)) <> 0 THEN RAISE EXCEPTION 'report readable after the check'; END IF;
-  -- the reply: claimed once, with the address and the outcome; never again
-  IF (SELECT email FROM claim_correction_reply(rid)) IS DISTINCT FROM 'reader@example.test' THEN RAISE EXCEPTION 'reply not claimable'; END IF;
+  -- the reply: waiting, claimed once with the address, page and outcome; released after a failed send; then gone
+  IF rid NOT IN (SELECT pending_correction_replies(100)) THEN RAISE EXCEPTION 'reply not listed as waiting'; END IF;
+  IF (SELECT page_path FROM claim_correction_reply(rid)) IS DISTINCT FROM '/eat-stay' THEN RAISE EXCEPTION 'reply not claimable'; END IF;
   IF (SELECT count(*) FROM claim_correction_reply(rid)) <> 0 THEN RAISE EXCEPTION 'reply claimed twice'; END IF;
+  PERFORM release_correction_reply(rid);
+  IF (SELECT email FROM claim_correction_reply(rid)) IS DISTINCT FROM 'reader@example.test' THEN RAISE EXCEPTION 'released reply not claimable'; END IF;
+  IF rid IN (SELECT pending_correction_replies(100)) THEN RAISE EXCEPTION 'answered reply still waiting'; END IF;
   SELECT id INTO chg FROM correction_changes WHERE correction_id = rid;
   -- the same field again within 7 days: held
   INSERT INTO corrections (page_path, message) VALUES ('/eat-stay', 'Cafe by the Ruins closes at 10 pm on weekends.') RETURNING id INTO rid2;

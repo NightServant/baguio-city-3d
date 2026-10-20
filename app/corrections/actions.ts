@@ -6,7 +6,9 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { parseCorrection, type CorrectionState } from "@/lib/corrections";
 import { checkCorrection } from "@/lib/corrections/check";
-import { correctionsModel, dbDeps } from "@/lib/corrections/db";
+import { correctionsModel, dbDeps, dbReplyDeps } from "@/lib/corrections/db";
+import { sendReply } from "@/lib/corrections/reply";
+import { SITE_URL } from "@/lib/site";
 
 // ponytail: one global hourly cap instead of per-visitor limits, so no IP is
 // stored. Switch to per-client limiting if the form gets abused.
@@ -40,6 +42,8 @@ export async function submitCorrection(_prev: CorrectionState, form: FormData): 
       after(async () => {
         const model = correctionsModel();
         if (model) await checkCorrection(row.id, dbDeps, model);
+        const reply = dbReplyDeps(); // the result goes to the reader's email once the check has one
+        if (reply) await sendReply(row.id, reply, SITE_URL);
       });
     } catch {
       return { status: "error", fields, formError: "Your report didn't save, and nothing was sent. Try again in a minute." };

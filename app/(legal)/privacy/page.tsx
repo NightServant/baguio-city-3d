@@ -62,7 +62,7 @@ export default function PrivacyPage() {
         <p>
           If you send a correction, we store what you wrote, the page it’s about and your email, plus your name
           only if you give one, so the person who reads the report knows who sent it. We use the email only to
-          tell you what happened to your report. Only the people who run the site see the email and the name; a
+          tell you what happened to your report, in one email sent through Google’s Gmail. Only the people who run the site see the email and the name; a
           daily job clears both once the report is resolved and answered, or once it’s 90 days old. We delete what you wrote 12 months
           after you send it; the record of any change it made stays. We don’t store your IP address with it. Reports are stored in
           a database hosted by Supabase.
@@ -83,8 +83,8 @@ export default function PrivacyPage() {
         <p>
           We store and check a report, and email you its result, because you send it to us to fix the guide, and we count visits because we
           have a legitimate interest in knowing how the site is used (Data Privacy Act, Section 12). The services
-          named on this page run outside the Philippines: the database in Singapore, and the host, the AI model
-          and the search mostly in the United States. We stay responsible for your information wherever they hold
+          named on this page run outside the Philippines: the database in Singapore, and the host, the AI model,
+          the search and Gmail mostly in the United States. We stay responsible for your information wherever they hold
           it.
         </p>
 

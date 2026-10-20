@@ -10,12 +10,12 @@ its Implementing Rules (IRR), as the site stands on commit `4d82ff4`. Hand it to
 |---|---|---|---|
 | Report text and page | Anyone who sends a correction | Supabase (Singapore); text and page sent to Vercel AI Gateway, Anthropic (Claude Haiku 5.5) and Perplexity search for the automatic check | Text deleted 12 months after sending (daily job, finding 4) |
 | Name (optional) | Reporters who give one | Supabase only; never sent to the model | Until the report is resolved, at most 90 days (daily job) |
-| Email (required since 20 Oct, later the same day) | Every reporter | Supabase; the reply email's provider once chosen; never sent to the model | Until the report is resolved and answered, at most 90 days (daily job) |
+| Email (required since 20 Oct, later the same day) | Every reporter | Supabase; Google (Gmail) to send the one reply; never sent to the model | Until the report is resolved and answered, at most 90 days (daily job) |
 | Visit counts | Every visitor | Vercel Web Analytics: page, referrer, approximate location, device, OS, browser; no cookies; request hash discarded after 24 hours | Vercel's retention |
 | IP address and the map area viewed | Every visitor of the map | OpenFreeMap, AWS, Esri (tile requests); Vercel request logs | Their retention |
 | Theme choice | Visitors who switch it | The visitor's own browser (local storage) | Until cleared |
 
-No accounts, payments, uploads, location requests, advertising or cookies. The owner reinstated a required email on 20 Oct so the check's result can be emailed back; the privacy page says so. **Open:** once an email provider is chosen, name it on the privacy page as a recipient.
+No accounts, payments, uploads, location requests, advertising or cookies. The owner reinstated a required email on 20 Oct so the check's result can be emailed back; the privacy page says so. The reply goes through the owner's Gmail, named on the privacy page.
 
 ## Privacy notice contents (IRR Section 34(a)(2))
 
