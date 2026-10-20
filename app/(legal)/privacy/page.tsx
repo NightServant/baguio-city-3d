@@ -8,9 +8,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const UPDATED = "7 October 2026";
+const UPDATED = "20 October 2026";
 const HOST = "Vercel"; // Phase 0, D7
-const analytics = Boolean(process.env.NEXT_PUBLIC_GA_ID);
 
 export default function PrivacyPage() {
   return (
@@ -45,35 +44,19 @@ export default function PrivacyPage() {
           <li>
             Esri, for the satellite imagery the 3D city stands on (<code>server.arcgisonline.com</code>)
           </li>
-          {analytics ? (
-            <li>
-              Google, only if you allow analytics, for Google Analytics (<code>www.googletagmanager.com</code>
-              and <code>google-analytics.com</code>)
-            </li>
-          ) : null}
         </ul>
         <p>{HOST} hosts this site and keeps standard request logs.</p>
         <p>Fonts are served from this site, so your browser doesn’t contact Google Fonts.</p>
 
         <h2 id="analytics">Analytics</h2>
-        {analytics ? (
-          <>
-            <p>
-              Analytics is off until you turn it on. Only if you choose “Allow analytics” does
-              this site load Google Analytics 4, which sets cookies and records the pages you view, how you
-              arrived, your device and browser, and your approximate location from your IP address. That
-              data goes to Google.
-            </p>
-            <p>
-              If you choose “No thanks”, or don’t choose, the analytics code never loads. Your
-              choice is saved in your browser’s local storage. To withdraw, use “Cookie
-              settings” at the bottom of every page: it clears the analytics cookies and reloads the
-              page without the analytics code.
-            </p>
-          </>
-        ) : (
-          <p>This site doesn’t use analytics or advertising cookies.</p>
-        )}
+        <p>
+          This site counts visits with Vercel Web Analytics, run by {HOST}, which hosts it. It sets no cookies and
+          stores nothing in your browser. For each page view it records the page, the site you came from, your
+          approximate location (country, region and city), and your device type, operating system and browser. It tells visits apart by a hash
+          of the request, which it discards after 24 hours, and it doesn’t keep your IP address. We see only
+          totals.
+        </p>
+        <p>This site uses no advertising and no advertising cookies.</p>
 
         <h2>Correction reports</h2>
         <p>

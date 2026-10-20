@@ -1,18 +1,17 @@
 import type { NextConfig } from "next";
 
 const TILE_HOSTS = "https://tiles.openfreemap.org https://s3.amazonaws.com https://server.arcgisonline.com";
-const GA_HOSTS = "https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com";
 
 // Report-only until the browser console on /, /map and /corrections shows no
 // violations across a week of normal use (Phase 10). MapLibre runs its
 // workers from blob: URLs; Emotion and MapLibre inject inline styles.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: ${TILE_HOSTS} ${GA_HOSTS}`,
+  `img-src 'self' data: blob: ${TILE_HOSTS}`,
   "font-src 'self'",
-  `connect-src 'self' ${TILE_HOSTS} ${GA_HOSTS}`,
+  `connect-src 'self' ${TILE_HOSTS}`,
   "worker-src 'self' blob:",
   "frame-ancestors 'none'",
   "base-uri 'self'",

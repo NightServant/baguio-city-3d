@@ -30,7 +30,7 @@ Geodata lives in PostgreSQL + PostGIS (hosted on Supabase) and is served through
 - **Eat and stay, destinations, history.** Open-now badges in Baguio time, price glyphs, a scrubbable history timeline that flies the camera to each event, and per-destination pages with "Getting here" links.
 - **Corrections (`/corrections`).** Visitors report wrong data through a form stored in Supabase. The optional reply email is cleared by a daily `pg_cron` job once the report is resolved, or after 90 days.
 - **Light and dark.** The dark theme is walnut brown, the weave's natural brown dye, not black, navy or purple. The toggle recolours the whole site live: chrome, basemap, sky and wireframe. The choice follows the system until changed.
-- **Privacy.** Google Analytics 4 loads only after an explicit consent choice, which can be changed at any time. The privacy and terms pages (`/privacy`, `/terms`) and `/about` list every data source.
+- **Privacy.** Vercel Web Analytics counts page views without cookies, so there is no consent banner. The privacy and terms pages (`/privacy`, `/terms`) and `/about` list every data source.
 - **SEO and sharing.** Canonical URLs, a sitemap and robots.txt, JSON-LD structured data, and generated Open Graph and apple icons.
 - **Accessibility.** Visible focus rings, a skip link, labelled carousel controls, reduced-motion paths for every animation and camera move, and no layout overflow at 360 px.
 
@@ -45,7 +45,7 @@ Geodata lives in PostgreSQL + PostGIS (hosted on Supabase) and is served through
 | Database | PostgreSQL + [PostGIS](https://postgis.net) on [Supabase](https://supabase.com), or local via Docker; Prisma 7 with raw SQL for spatial queries |
 | Cache | Redis 7 via ioredis |
 | Geospatial | Turf.js, curated GeoJSON in `data/geojson` |
-| Analytics | GA4 via `@next/third-parties`, consent-gated |
+| Analytics | Vercel Web Analytics (`@vercel/analytics`), cookieless |
 | Tests | Vitest (unit), Playwright (desktop + Pixel 7) |
 | Hosting | Vercel |
 
@@ -84,7 +84,6 @@ The content pages render without the database. The map's data layers (`/api/geo/
 | `REDIS_URL` | Cache; the app degrades gracefully if it's unreachable |
 | `NEXT_PUBLIC_SITE_URL` | Canonical origin; on Vercel, leave unset to use the production URL |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | Shown in the footer and privacy policy; hidden while unset |
-| `NEXT_PUBLIC_GA_ID` | GA4 measurement ID; analytics stays off while unset |
 
 ### Supabase
 
