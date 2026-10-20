@@ -57,6 +57,12 @@ BEGIN
   -- undo puts the old value back
   PERFORM undo_correction(chg);
   IF (SELECT hours->>'open' FROM venues WHERE slug = 'cafe-by-the-ruins') = '08:00' THEN RAISE EXCEPTION 'undo did not restore'; END IF;
+  -- Report text is deleted 12 months after it was sent (owner, 2026-10-20); the row keeps its page, status and dates.
+  INSERT INTO corrections (page_path, message, created_at)
+    VALUES ('/eat-stay', 'An old report whose text should be gone.', now() - interval '13 months') RETURNING id INTO rid2;
+  EXECUTE (SELECT command FROM cron.job WHERE jobname = 'expire-correction-text');
+  IF (SELECT message FROM corrections WHERE id = rid2) <> '(deleted after 12 months)' THEN RAISE EXCEPTION 'old report text kept'; END IF;
+  IF (SELECT message FROM corrections WHERE id = rid) = '(deleted after 12 months)' THEN RAISE EXCEPTION 'a recent report lost its text'; END IF;
   RAISE NOTICE 'correction_checks: all passed';
 END $$;
 ROLLBACK;

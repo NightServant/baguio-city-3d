@@ -63,8 +63,8 @@ export default function PrivacyPage() {
           If you send a correction, we store what you wrote and the page it’s about, plus your name only if
           you give one, so the person who reads the report knows who sent it. We don’t ask for your email.
           Only that person sees your name; a daily job clears it once the report is resolved, or once it’s 90
-          days old. The report stays without
-          the name, as a record of what changed. We don’t store your IP address with it. Reports are stored in
+          days old. We delete what you wrote 12 months
+          after you send it; the record of any change it made stays. We don’t store your IP address with it. Reports are stored in
           a database hosted by Supabase.
         </p>
         <p>
