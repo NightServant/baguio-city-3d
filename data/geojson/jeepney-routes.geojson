@@ -508,8 +508,8 @@
         "code": "PLZ-MVP",
         "name": "Plaza - Mines View Park",
         "kind": "JEEPNEY",
-        "fareBase": 13,
-        "farePerKm": 1.8,
+        "fareBase": 14,
+        "farePerKm": 2,
         "stops": [
           {
             "name": "City Plaza Terminal",
@@ -972,8 +972,8 @@
         "code": "PLZ-CJH",
         "name": "Plaza - Camp John Hay (Scout Barrio)",
         "kind": "JEEPNEY",
-        "fareBase": 13,
-        "farePerKm": 1.8,
+        "fareBase": 14,
+        "farePerKm": 2,
         "stops": [
           {
             "name": "City Plaza Terminal",
@@ -1160,8 +1160,8 @@
         "code": "PLZ-SES",
         "name": "Plaza - Session Road / Cathedral Loop",
         "kind": "JEEPNEY",
-        "fareBase": 13,
-        "farePerKm": 1.8,
+        "fareBase": 14,
+        "farePerKm": 2,
         "stops": [
           {
             "name": "City Plaza Terminal",
@@ -1559,8 +1559,8 @@
         "code": "PLZ-LTR",
         "name": "Plaza - La Trinidad",
         "kind": "JEEPNEY",
-        "fareBase": 13,
-        "farePerKm": 1.8,
+        "fareBase": 14,
+        "farePerKm": 2,
         "stops": [
           {
             "name": "City Plaza Terminal",
@@ -1885,8 +1885,8 @@
         "code": "PLZ-LDS",
         "name": "Plaza - Lourdes Grotto / Dominican Hill",
         "kind": "JEEPNEY",
-        "fareBase": 13,
-        "farePerKm": 1.8,
+        "fareBase": 14,
+        "farePerKm": 2,
         "stops": [
           {
             "name": "City Plaza Terminal",
@@ -2112,8 +2112,8 @@
         "code": "PLZ-AUR",
         "name": "Plaza - Aurora Hill",
         "kind": "JEEPNEY",
-        "fareBase": 13,
-        "farePerKm": 1.8,
+        "fareBase": 14,
+        "farePerKm": 2,
         "stops": [
           {
             "name": "City Plaza Terminal",

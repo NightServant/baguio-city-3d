@@ -12,12 +12,12 @@ import {
 import { moneyEntries } from "@/components/panels/RoutePlanner";
 
 describe("fareAccuracyNote", () => {
-  it("matches FARE_SOURCE while the guide is in date: modern verified, traditional and taxi not", () => {
+  it("matches FARE_SOURCE while the guide is in date: modern and traditional verified, taxi not", () => {
     expect(fareAccuracyNote(FARE_SOURCE, new Date("2026-06-30T12:00:00Z"))).toBe(
       "Modern jeepney fares follow the LTFRB Non-Aircon Modern and Electric PUJ General Fare " +
         "Guide, effective 19 March 2026, which was issued as valid until 30 June 2026. " +
-        "Traditional jeepney and taxi fares haven't been checked against a current LTFRB " +
-        "issuance.",
+        "Traditional jeepney fares follow the LTFRB PUJ General Fare Guide, effective " +
+        "28 September 2026. Taxi fares haven't been checked against a current LTFRB issuance.",
     );
   });
 
@@ -31,18 +31,27 @@ describe("fareAccuracyNote", () => {
   it("names modern fares among the unchecked ones if modern.verified ever flips false, instead of dropping them silently (R-T16h)", () => {
     const flipped = { ...FARE_SOURCE, modern: { ...FARE_SOURCE.modern, verified: false } };
     expect(fareAccuracyNote(flipped)).toBe(
-      "Modern jeepney, traditional jeepney and taxi fares haven't been checked against a " +
+      "Traditional jeepney fares follow the LTFRB PUJ General Fare Guide, effective " +
+        "28 September 2026. Modern jeepney and taxi fares haven't been checked against a " +
         "current LTFRB issuance.",
     );
   });
 });
 
+// The LTFRB PUJ General Fare Guide, effective 2026-09-28 (FARE_SOURCE.traditional): ₱14 for the first 4 km, ₱2 a km
+// after, "rounded off to the nearest 25 centavos"; its table is keyed by whole kilometres.
 describe("jeepneyFare", () => {
-  it("charges only the base fare inside the first 4 km", () => {
-    expect(jeepneyFare(3.2, 13, 1.8).fare).toBe(13);
+  it("matches the guide's regular column", () => {
+    expect(jeepneyFare(3.2, 14, 2).fare).toBe(14);
+    expect(jeepneyFare(5, 14, 2).fare).toBe(16);
+    expect(jeepneyFare(25, 14, 2).fare).toBe(56);
+    expect(jeepneyFare(50, 14, 2).fare).toBe(106);
   });
-  it("adds the per-km rate beyond 4 km", () => {
-    expect(jeepneyFare(6, 13, 1.8).fare).toBe(16.6);
+  it("rounds to the nearest 25 centavos, as the guide's old column shows (₱13 + ₱1.80 a km: 5 km is ₱14.75)", () => {
+    expect(jeepneyFare(5, 13, 1.8).fare).toBe(14.75);
+  });
+  it("charges a part-kilometre as a whole one, as modernJeepneyFare does", () => {
+    expect(jeepneyFare(4.3, 14, 2).fare).toBe(16);
   });
 });
 

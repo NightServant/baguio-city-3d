@@ -34,8 +34,8 @@ export default async function TransitPage() {
   const sample = taxiFare(SAMPLE_KM);
   // The six routes all currently share the same traditional rate; read it
   // from the data rather than duplicating the figure as a literal.
-  const traditionalBase = routes[0]?.fareBase ?? 13;
-  const traditionalPerKm = routes[0]?.farePerKm ?? 1.8;
+  const traditionalBase = routes[0]?.fareBase ?? 14;
+  const traditionalPerKm = routes[0]?.farePerKm ?? 2;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
@@ -48,7 +48,7 @@ export default async function TransitPage() {
         Traditional jeepney: {peso(traditionalBase)} for the first {JEEPNEY_BASE_KM} km, then{" "}
         {peso(traditionalPerKm)} per km
         {FARE_SOURCE.traditional.verified
-          ? ""
+          ? `, per the ${FARE_SOURCE.traditional.label} effective ${formatLongDate(FARE_SOURCE.traditional.effective)}`
           : ", not yet checked against a current LTFRB issuance"}
         .
       </p>

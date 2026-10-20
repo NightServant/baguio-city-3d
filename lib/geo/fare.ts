@@ -43,27 +43,35 @@ export interface FareResult {
   breakdown: FareBreakdown;
 }
 
+/** LTFRB fare guides: fares are "rounded off to the nearest 25 centavos". */
+const FARE_ROUNDING_PHP = 0.25;
+
+function roundToQuarterPeso(n: number): number {
+  return Math.round(n / FARE_ROUNDING_PHP) * FARE_ROUNDING_PHP;
+}
+
 /**
- * Jeepney fare: `fareBase` for the first 4 km, then `farePerKm` for each km
- * beyond. Fares come from the transit route row.
+ * Traditional jeepney fare, the LTFRB PUJ General Fare Guide's add-on method (FARE_SOURCE.traditional): `fareBase` for
+ * the first 4 km, then `farePerKm` for each km beyond. Fares come from the transit route row. As in modernJeepneyFare,
+ * a part-kilometre is charged as a whole one (the guide's table is keyed by whole kilometres) and the total is rounded
+ * to the nearest 25 centavos, which reproduces the guide's table, old and new columns.
  */
 export function jeepneyFare(
   distanceKm: number,
   fareBase: number,
   farePerKm: number,
 ): FareResult {
-  const extraKm = Math.max(0, distanceKm - JEEPNEY_BASE_KM);
-  const distanceCharge = round2(extraKm * farePerKm);
-  const fare = round2(fareBase + distanceCharge);
+  const extraKm = Math.max(0, Math.ceil(distanceKm) - JEEPNEY_BASE_KM);
+  const fare = roundToQuarterPeso(fareBase + extraKm * farePerKm);
   return {
     distanceKm: round2(distanceKm),
     fare,
     breakdown: {
       base: round2(fareBase),
       baseCoversKm: JEEPNEY_BASE_KM,
-      extraKm: round2(extraKm),
+      extraKm,
       perKm: round2(farePerKm),
-      distanceCharge,
+      distanceCharge: round2(fare - fareBase),
     },
   };
 }
@@ -102,11 +110,6 @@ export const MODERN_JEEPNEY_BASE_PHP = 17.0;
 export const MODERN_JEEPNEY_PER_KM_PHP = 2.0;
 export const MODERN_JEEPNEY_DISCOUNTED_BASE_PHP = 13.6; // student/elderly/PWD, 20% off
 export const MODERN_JEEPNEY_DISCOUNTED_PER_KM_PHP = 1.6;
-const MODERN_JEEPNEY_ROUNDING_PHP = 0.25; // the guide: "rounded off to the nearest 25 centavos"
-
-function roundToQuarterPeso(n: number): number {
-  return Math.round(n / MODERN_JEEPNEY_ROUNDING_PHP) * MODERN_JEEPNEY_ROUNDING_PHP;
-}
 
 /**
  * Modern/electric jeepney fare per the LTFRB guide: `MODERN_JEEPNEY_BASE_PHP`
@@ -161,13 +164,14 @@ export function formatLongDate(iso: string): string {
  * document) on `checkedOn` — a news report or a memory of an announced rate
  * doesn't count.
  *
- * `traditional` (the six routes' generic ₱13/₱1.80 DB rate): 2026-09-24
- * check — ltfrb.gov.ph (home, /fare-rates/, /car/, and the www. variant)
- * returned Cloudflare's "Performing security verification" 403 to automated
- * access on every attempt, so this figure could not be confirmed on an
- * official page. Kept as-is rather than adopting unverified numbers from
- * news coverage of a reported March 2026 fare order. See the ledger's fare research (docs/superpowers/plans/2026-09-24-ledger.md)
- * for the full research ledger.
+ * `traditional` (the routes' DB rate, ₱14 for the first 4 km and ₱2.00 a km
+ * after): verified 2026-10-20 against the LTFRB PUJ General Fare Guide,
+ * effective 28 September 2026 (LTFRB, East Avenue, Quezon City), which the
+ * owner supplied directly as an image. Its regular column reads ₱14.00 for 1
+ * to 4 km, ₱16.00 for 5 km, ₱56.00 for 25 km and ₱106.00 for 50 km; its "old
+ * fare rate" column is the ₱13/₱1.80 the site showed before. It prints no
+ * expiry date. ltfrb.gov.ph returned Cloudflare 403s to automated access on
+ * 2026-09-24, so, as for `modern`, `source` records the real provenance.
  *
  * `modern`: verified 2026-09-24 against the LTFRB Non-Aircon Modern and
  * Electric PUJ General Fare Guide the owner supplied directly (PDF), which
@@ -179,11 +183,12 @@ export function formatLongDate(iso: string): string {
  * from.
  */
 export const FARE_SOURCE = {
-  checkedOn: "2026-09-24",
+  checkedOn: "2026-10-20",
   traditional: {
-    label: "LTFRB fare matrix",
-    url: "https://ltfrb.gov.ph/fare-rates/",
-    verified: false,
+    label: "LTFRB PUJ General Fare Guide",
+    source: "Image of the guide supplied directly by the site owner on 2026-10-20 (no confirmed public LTFRB URL)",
+    verified: true,
+    effective: "2026-09-28",
   },
   modern: {
     label: "LTFRB Non-Aircon Modern and Electric PUJ General Fare Guide",
@@ -198,7 +203,7 @@ export const FARE_SOURCE = {
 /** The subset of FARE_SOURCE's shape that fareAccuracyNote reads. */
 interface FareVerificationSource {
   modern: { verified: boolean; label: string; effective: string; validUntil: string };
-  traditional: { verified: boolean };
+  traditional: { verified: boolean; label: string; effective: string };
   taxi: { verified: boolean };
 }
 
@@ -245,6 +250,12 @@ export function fareAccuracyNote(
     if (modernGuideLapsed(source, today)) {
       sentences.push("That date has passed, and no newer issuance has been checked yet.");
     }
+  }
+  if (source.traditional.verified) {
+    sentences.push(
+      `Traditional jeepney fares follow the ${source.traditional.label}, effective ` +
+        `${formatLongDate(source.traditional.effective)}.`,
+    );
   }
   const unverified = [
     !source.modern.verified && "modern jeepney",
