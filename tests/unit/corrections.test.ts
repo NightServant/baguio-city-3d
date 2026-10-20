@@ -4,7 +4,7 @@ import { MIN_FILL_MS, parseCorrection } from "@/lib/corrections";
 const NOW = 1_000_000;
 function form(fields: Record<string, string>) {
   const fd = new FormData();
-  const base = { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", name: "", website: "", startedAt: String(NOW - MIN_FILL_MS - 1) };
+  const base = { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", email: "reader@example.test", name: "", website: "", startedAt: String(NOW - MIN_FILL_MS - 1) };
   for (const [k, v] of Object.entries({ ...base, ...fields })) fd.set(k, v);
   return fd;
 }
@@ -13,7 +13,7 @@ describe("parseCorrection", () => {
   it("accepts a real report", () => {
     expect(parseCorrection(form({}), NOW)).toEqual({
       kind: "valid",
-      data: { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", name: null },
+      data: { page: "/destinations/burnham-park", message: "The boat rental closes at 5 pm now.", email: "reader@example.test", name: null },
     });
   });
   it("asks for a longer message and keeps what was typed", () => {
@@ -33,9 +33,15 @@ describe("parseCorrection", () => {
     const out = parseCorrection(form({ name: "x".repeat(81) }), NOW);
     expect(out.kind === "invalid" && out.state.errors?.name).toBeTruthy();
   });
-  it("takes no email, even from a stale form that still sends one", () => {
-    const out = parseCorrection(form({ email: "someone@example.test" }), NOW);
-    expect(out.kind === "valid" && Object.keys(out.data)).toEqual(["page", "message", "name"]);
+  // The email is required again (owner, 2026-10-20): the check's result is emailed to the reader.
+  it("asks for an email and keeps what was typed", () => {
+    const out = parseCorrection(form({ email: "" }), NOW);
+    expect(out.kind === "invalid" && out.state.errors?.email).toMatch(/email/i);
+    expect(out.kind === "invalid" && out.state.fields?.message).toBe("The boat rental closes at 5 pm now.");
+  });
+  it("rejects an incomplete email", () => {
+    const out = parseCorrection(form({ email: "someone@" }), NOW);
+    expect(out.kind === "invalid" && out.state.errors?.email).toBeTruthy();
   });
   it("treats a filled honeypot as spam", () => {
     expect(parseCorrection(form({ website: "http://spam" }), NOW).kind).toBe("spam");

@@ -60,15 +60,15 @@ export default function PrivacyPage() {
 
         <h2>Correction reports</h2>
         <p>
-          If you send a correction, we store what you wrote and the page it’s about, plus your name only if
-          you give one, so the person who reads the report knows who sent it. We don’t ask for your email.
-          Only that person sees your name; a daily job clears it once the report is resolved, or once it’s 90
-          days old. We delete what you wrote 12 months
+          If you send a correction, we store what you wrote, the page it’s about and your email, plus your name
+          only if you give one, so the person who reads the report knows who sent it. We use the email only to
+          tell you what happened to your report. Only the people who run the site see the email and the name; a
+          daily job clears both once the report is resolved and answered, or once it’s 90 days old. We delete what you wrote 12 months
           after you send it; the record of any change it made stays. We don’t store your IP address with it. Reports are stored in
           a database hosted by Supabase.
         </p>
         <p>
-          To check a report automatically, we send its text and the page it’s about, never your name, through
+          To check a report automatically, we send its text and the page it’s about, never your email or name, through
           {" "}{HOST}’s AI Gateway to an AI model, Anthropic’s Claude Haiku 5.5, which may search the web for a public
           source with Perplexity search, run by the gateway. Anthropic doesn’t train its models on what we send.
           A change goes into the guide only if a public page states it word for word. No decision about you is made
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
 
         <h2>Why we may use it, and where it goes</h2>
         <p>
-          We store and check a report because you send it to us to fix the guide, and we count visits because we
+          We store and check a report, and email you its result, because you send it to us to fix the guide, and we count visits because we
           have a legitimate interest in knowing how the site is used (Data Privacy Act, Section 12). The services
           named on this page run outside the Philippines: the database in Singapore, and the host, the AI model
           and the search mostly in the United States. We stay responsible for your information wherever they hold

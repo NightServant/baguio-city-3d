@@ -187,6 +187,8 @@ model Correction {
   createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   pagePath     String             @map("page_path")
   message      String
+  replyEmail   String?            @map("reply_email")
+  repliedAt    DateTime?          @map("replied_at") @db.Timestamptz(6)
   reporterName String?            @map("reporter_name")
   resolvedAt   DateTime?          @map("resolved_at") @db.Timestamptz(6)
   // The automated check (migration *_correction_checks.sql): received -> checking -> applied | held.

@@ -16,18 +16,16 @@ BEGIN
                AND (has_function_privilege('anon', p.oid, 'execute') OR has_function_privilege('authenticated', p.oid, 'execute'))) THEN
     RAISE EXCEPTION 'anon or authenticated can run a correction function';
   END IF;
-  -- The form asks for an optional name, not an email (owner, 2026-10-20); the daily job clears names like it did emails.
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_schema = 'public' AND table_name = 'corrections' AND column_name = 'reply_email') THEN
-    RAISE EXCEPTION 'corrections still has reply_email';
+  -- The form asks for an email (required) and a name (optional) (owner, 2026-10-20); the daily job clears both.
+  IF NOT has_column_privilege('baguio_app', 'public.corrections', 'reply_email', 'INSERT')
+     OR NOT has_column_privilege('baguio_app', 'public.corrections', 'reporter_name', 'INSERT') THEN
+    RAISE EXCEPTION 'the app cannot store an email and a name';
   END IF;
-  IF NOT has_column_privilege('baguio_app', 'public.corrections', 'reporter_name', 'INSERT') THEN
-    RAISE EXCEPTION 'the app cannot store a name';
+  IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'expire-correction-contact'
+                 AND command LIKE '%reply_email = null%' AND command LIKE '%reporter_name = null%') THEN
+    RAISE EXCEPTION 'no daily job clears emails and names';
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'expire-correction-names' AND command LIKE '%reporter_name = null%') THEN
-    RAISE EXCEPTION 'no daily job clears names';
-  END IF;
-  INSERT INTO corrections (page_path, message) VALUES ('/eat-stay', 'Cafe by the Ruins now opens at 8 and closes at 9 pm.') RETURNING id, token INTO rid, tok;
+  INSERT INTO corrections (page_path, message, reply_email) VALUES ('/eat-stay', 'Cafe by the Ruins now opens at 8 and closes at 9 pm.', 'reader@example.test') RETURNING id, token INTO rid, tok;
   IF claim_correction(rid, 60) IS NOT TRUE THEN RAISE EXCEPTION 'claim failed'; END IF;
   IF claim_correction(rid, 60) IS TRUE THEN RAISE EXCEPTION 'claimed twice'; END IF;
   IF (SELECT message FROM correction_for_check(rid)) IS NULL THEN RAISE EXCEPTION 'report not readable while checking'; END IF;
@@ -36,6 +34,9 @@ BEGIN
   IF (SELECT hours->>'open' FROM venues WHERE slug = 'cafe-by-the-ruins') <> '08:00' THEN RAISE EXCEPTION 'venue not updated'; END IF;
   IF (SELECT status FROM correction_status(tok)) <> 'applied' THEN RAISE EXCEPTION 'status not applied'; END IF;
   IF (SELECT count(*) FROM correction_for_check(rid)) <> 0 THEN RAISE EXCEPTION 'report readable after the check'; END IF;
+  -- the reply: claimed once, with the address and the outcome; never again
+  IF (SELECT email FROM claim_correction_reply(rid)) IS DISTINCT FROM 'reader@example.test' THEN RAISE EXCEPTION 'reply not claimable'; END IF;
+  IF (SELECT count(*) FROM claim_correction_reply(rid)) <> 0 THEN RAISE EXCEPTION 'reply claimed twice'; END IF;
   SELECT id INTO chg FROM correction_changes WHERE correction_id = rid;
   -- the same field again within 7 days: held
   INSERT INTO corrections (page_path, message) VALUES ('/eat-stay', 'Cafe by the Ruins closes at 10 pm on weekends.') RETURNING id INTO rid2;

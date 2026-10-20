@@ -7,6 +7,7 @@ test("a too-short report shows an error and keeps the text", async ({ page }) =>
   await page.getByLabel("What's wrong?").fill("closed");
   await page.getByRole("button", { name: "Send report" }).click();
   await expect(page.getByText("Tell us what's wrong in at least 10 characters.")).toBeVisible();
+  await expect(page.getByText("Add your email so we can tell you what happened to your report.")).toBeVisible();
   await expect(page.getByLabel("What's wrong?")).toHaveValue("closed");
 });
 
@@ -31,6 +32,7 @@ test("a valid report lands on its private status page", async ({ page }) => {
   await page.goto("/corrections");
   await page.waitForTimeout(3200);
   await page.getByLabel("What's wrong?").fill("E2E check: please delete this row.");
+  await page.getByLabel("Your email").fill("e2e@example.test");
   await page.getByRole("button", { name: "Send report" }).click();
   await expect(page).toHaveURL(/\/corrections\/status\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("heading", { name: "Your report" })).toBeVisible();

@@ -50,6 +50,13 @@ export function CorrectionForm({ page, startedAt, responseDays }: { page: string
       </div>
 
       <div>
+        <label htmlFor="email" className="font-medium">Your email</label>
+        <input id="email" name="email" type="email" autoComplete="email" required defaultValue={f?.email} aria-invalid={!!e.email} aria-describedby={e.email ? "email-error" : "email-hint"} className={input} />
+        <p id="email-hint" className="mt-1.5 text-sm text-muted-foreground">We email you what happened to your report, and use it for nothing else. We delete it once the report is resolved, or after 90 days.</p>
+        {e.email ? <p id="email-error" className="mt-1.5 text-sm text-primary">{e.email}</p> : null}
+      </div>
+
+      <div>
         <label htmlFor="name" className="font-medium">Your name <span className="font-normal text-muted-foreground">(optional)</span></label>
         <input id="name" name="name" autoComplete="name" maxLength={80} defaultValue={f?.name} aria-invalid={!!e.name} aria-describedby={e.name ? "name-error" : "name-hint"} className={input} />
         <p id="name-hint" className="mt-1.5 text-sm text-muted-foreground">Only the person who reads your report sees it. We delete it once the report is resolved or after 90 days.</p>
