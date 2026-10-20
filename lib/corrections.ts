@@ -8,6 +8,8 @@ export interface CorrectionFields {
   email: string;
   /** Optional. */
   name: string;
+  /** Optional: a page that states the change (owner, 2026-10-20); the free checker reads only this page. */
+  link: string;
 }
 export type FieldErrors = Partial<Record<keyof CorrectionFields, string>>;
 export interface CorrectionState {
@@ -23,9 +25,18 @@ export const MIN_FILL_MS = 3000;
 
 const MAX_NAME = 80;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_LINK = 2000;
+
+function httpsUrl(s: string): boolean {
+  try {
+    return new URL(s).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 export type ParseResult =
-  | { kind: "valid"; data: { page: string; message: string; email: string; name: string | null } }
+  | { kind: "valid"; data: { page: string; message: string; email: string; name: string | null; link: string | null } }
   | { kind: "invalid"; state: CorrectionState }
   | { kind: "spam" };
 
@@ -36,7 +47,7 @@ export function parseCorrection(form: FormData, now: number): ParseResult {
   const started = Number(str("startedAt"));
   if (!Number.isFinite(started) || now - started < MIN_FILL_MS) return { kind: "spam" };
 
-  const fields: CorrectionFields = { page: str("page") || "/", message: str("message"), email: str("email"), name: str("name") };
+  const fields: CorrectionFields = { page: str("page") || "/", message: str("message"), email: str("email"), name: str("name"), link: str("link") };
   const errors: FieldErrors = {};
   if (!fields.page.startsWith("/") || fields.page.length > 200) {
     errors.page = "Use an address from this site, starting with /.";
@@ -45,8 +56,11 @@ export function parseCorrection(form: FormData, now: number): ParseResult {
   else if (fields.message.length > 2000) errors.message = "Keep it under 2,000 characters.";
   if (!fields.email) errors.email = "Add your email so we can tell you what happened to your report.";
   else if (fields.email.length > 254 || !EMAIL.test(fields.email)) errors.email = "That email address looks incomplete.";
+  if (fields.link && (fields.link.length > MAX_LINK || !httpsUrl(fields.link))) {
+    errors.link = "Paste the page's full address, starting with https://";
+  }
   if (fields.name.length > MAX_NAME) errors.name = `Keep your name to ${MAX_NAME} characters or fewer.`;
 
   if (Object.keys(errors).length > 0) return { kind: "invalid", state: { status: "error", errors, fields } };
-  return { kind: "valid", data: { page: fields.page, message: fields.message, email: fields.email, name: fields.name || null } };
+  return { kind: "valid", data: { page: fields.page, message: fields.message, email: fields.email, name: fields.name || null, link: fields.link || null } };
 }
