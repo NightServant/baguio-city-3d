@@ -48,20 +48,20 @@ enum VenueCategory {
 }
 
 model Destination {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String                               @id @default(cuid())
+  slug        String                               @unique
   name        String
   description String
   category    Category
-  elevationM  Float?   @map("elevation_m")
+  elevationM  Float?                               @map("elevation_m")
   hours       Json?
-  eraKey      EraKey?  @map("era_key")
+  eraKey      EraKey?                              @map("era_key")
   // geometry(Point, 4326)
   geom        Unsupported("geometry(Point, 4326)")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime                             @default(now()) @map("created_at")
+  updatedAt   DateTime                             @updatedAt @map("updated_at")
 
-  era    HistoricalEra? @relation(fields: [eraKey], references: [key])
+  era         HistoricalEra? @relation(fields: [eraKey], references: [key])
   landmarks   Landmark[]
   mediaAssets MediaAsset[]
 
@@ -82,10 +82,10 @@ model Landmark {
 }
 
 model HistoricalEra {
-  key       EraKey  @id
+  key       EraKey @id
   name      String
-  startYear Int     @map("start_year")
-  endYear   Int?    @map("end_year")
+  startYear Int    @map("start_year")
+  endYear   Int?   @map("end_year")
   summary   String
 
   destinations Destination[]
@@ -95,8 +95,8 @@ model HistoricalEra {
 }
 
 model HistoricalEvent {
-  id          String  @id @default(cuid())
-  eraKey      EraKey  @map("era_key")
+  id          String                                @id @default(cuid())
+  eraKey      EraKey                                @map("era_key")
   title       String
   year        Int
   description String
@@ -109,12 +109,12 @@ model HistoricalEvent {
 }
 
 model TransitRoute {
-  id        String      @id @default(cuid())
-  code      String      @unique
+  id        String                                     @id @default(cuid())
+  code      String                                     @unique
   name      String
   kind      TransitKind
-  fareBase  Decimal     @map("fare_base") @db.Decimal(10, 2)
-  farePerKm Decimal     @map("fare_per_km") @db.Decimal(10, 2)
+  fareBase  Decimal                                    @map("fare_base") @db.Decimal(10, 2)
+  farePerKm Decimal                                    @map("fare_per_km") @db.Decimal(10, 2)
   // geometry(LineString, 4326) + simplified variants populated by the seed
   geom      Unsupported("geometry(LineString, 4326)")
   geomZ12   Unsupported("geometry(LineString, 4326)")? @map("geom_z12")
@@ -126,8 +126,8 @@ model TransitRoute {
 }
 
 model TransitStop {
-  id      String @id @default(cuid())
-  routeId String @map("route_id")
+  id      String                               @id @default(cuid())
+  routeId String                               @map("route_id")
   seq     Int
   name    String
   // geometry(Point, 4326)
@@ -139,20 +139,20 @@ model TransitStop {
 }
 
 model Venue {
-  id          String        @id @default(cuid())
-  slug        String        @unique
+  id          String                               @id @default(cuid())
+  slug        String                               @unique
   name        String
   category    VenueCategory
-  priceRange  Int           @map("price_range")
+  priceRange  Int                                  @map("price_range")
   amenities   Json?
   hours       Json?
   description String
   // geometry(Point, 4326)
   geom        Unsupported("geometry(Point, 4326)")
   // tsvector generated column (name + description); GIN indexed in migration
-  searchTsv   Unsupported("tsvector")?  @map("search_tsv")
-  createdAt   DateTime      @default(now()) @map("created_at")
-  updatedAt   DateTime      @updatedAt @map("updated_at")
+  searchTsv   Unsupported("tsvector")?             @map("search_tsv")
+  createdAt   DateTime                             @default(now()) @map("created_at")
+  updatedAt   DateTime                             @updatedAt @map("updated_at")
 
   mediaAssets MediaAsset[]
 
@@ -174,7 +174,7 @@ model MediaAsset {
 }
 
 model District {
-  id   String @id @default(cuid())
+  id   String                                 @id @default(cuid())
   name String
   // geometry(Polygon, 4326)
   geom Unsupported("geometry(Polygon, 4326)")
@@ -183,13 +183,40 @@ model District {
 }
 
 model Correction {
-  id         BigInt    @id @default(autoincrement())
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  pagePath   String    @map("page_path")
+  id         BigInt             @id @default(autoincrement())
+  createdAt  DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  pagePath   String             @map("page_path")
   message    String
-  replyEmail String?   @map("reply_email")
-  resolvedAt DateTime? @map("resolved_at") @db.Timestamptz(6)
+  replyEmail String?            @map("reply_email")
+  resolvedAt DateTime?          @map("resolved_at") @db.Timestamptz(6)
+  // The automated check (migration *_correction_checks.sql): received -> checking -> applied | held.
+  status     String             @default("received")
+  token      String             @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  statusNote String?            @map("status_note")
+  checkedAt  DateTime?          @map("checked_at") @db.Timestamptz(6)
+  attempts   Int                @default(0)
+  lastError  String?            @map("last_error")
+  changes    CorrectionChange[]
 
   @@index([createdAt])
+  @@index([status, createdAt])
   @@map("corrections")
+}
+
+// An applied correction, with the value it replaced, for undo_correction. The app never reads it.
+model CorrectionChange {
+  id           BigInt     @id @default(autoincrement())
+  correctionId BigInt     @map("correction_id")
+  correction   Correction @relation(fields: [correctionId], references: [id])
+  targetTable  String     @map("target_table")
+  slug         String
+  field        String
+  oldValue     Json?      @map("old_value")
+  newValue     Json       @map("new_value")
+  sourceUrl    String     @map("source_url")
+  quote        String
+  appliedAt    DateTime   @default(now()) @map("applied_at") @db.Timestamptz(6)
+  undoneAt     DateTime?  @map("undone_at") @db.Timestamptz(6)
+
+  @@map("correction_changes")
 }
