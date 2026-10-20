@@ -31,7 +31,7 @@ export const DEM_SOURCE = "terrain-dem";
 /** Drawn taller than life so slopes read on a phone screen. The terrain API reports this value. */
 export const TERRAIN_EXAGGERATION = 1.35;
 
-export function applyTerrain(m: MapLibreMap, exaggeration = TERRAIN_EXAGGERATION) {
+export function applyTerrain(m: MapLibreMap, exaggeration = TERRAIN_EXAGGERATION, meshSize?: number) {
   if (!m.getSource(DEM_SOURCE)) {
     // AWS Open Data Terrain Tiles (Terrarium encoding) — free, keyless.
     m.addSource(DEM_SOURCE, {
@@ -49,6 +49,10 @@ export function applyTerrain(m: MapLibreMap, exaggeration = TERRAIN_EXAGGERATION
     });
   }
   m.setTerrain({ source: DEM_SOURCE, exaggeration });
+  // The terrain mesh per tile (MapLibre's Terrain.meshSize, 128 by default; internal, hence the guard): phones use 64
+  // (lib/map/profile.ts). setTerrain makes a new Terrain each time, and its meshes are built on first draw.
+  const terrain = (m as unknown as { terrain?: { meshSize: number } }).terrain;
+  if (meshSize && terrain) terrain.meshSize = meshSize;
   applySky(m);
 }
 

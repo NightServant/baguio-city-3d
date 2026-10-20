@@ -18,6 +18,7 @@ import type { TerrainConfig } from "@/types/api";
 import { MapLayers } from "./MapLayers";
 import { applyEarthBasemap, blankMissingIcons } from "./basemapTheme";
 import { BASEMAP_STYLE, TERRAIN_EXAGGERATION, applyTerrain, applySky } from "@/lib/map/sources";
+import { deviceMapProfile, lazyUnproject } from "@/lib/map/profile";
 
 /** Expand [minLng,minLat,maxLng,maxLat] outward so panning has a little slack. */
 function expandBounds(
@@ -51,6 +52,7 @@ export function MapView() {
     if (!containerRef.current || mapRef.current) return;
 
     let map: MapLibreMap;
+    const profile = deviceMapProfile();
     try {
       map = new maplibregl.Map({
         container: containerRef.current,
@@ -62,9 +64,9 @@ export function MapView() {
         maxBounds: expandBounds(BAGUIO_BOUNDS),
         maxPitch: 80,
         cooperativeGestures: false,
-        // At most 2 device pixels per CSS pixel: phones at 2.6x or 3x draw the map and its 3D layer (one canvas) at
-        // about 58% or 44% of the pixels, with no change on 2x screens.
-        pixelRatio: Math.min(window.devicePixelRatio, 2),
+        // At most 2 device pixels per CSS pixel, 1.5 on touch phones (lib/map/profile.ts): the map and its 3D layer
+        // share this one canvas.
+        pixelRatio: profile.pixelRatio,
       });
     } catch {
       // MapLibre throws here when no WebGL context can be created (disabled,
@@ -74,6 +76,7 @@ export function MapView() {
       return;
     }
     mapRef.current = map;
+    lazyUnproject(map); // no GPU read-back per pointer event while panning on terrain (lib/map/profile.ts)
     useMapStore.getState().setMap(map);
 
     // applyTerrain (lib/map/sources) sets up the 3D relief on style.load and again after the /api/geo/terrain fetch.
@@ -89,7 +92,7 @@ export function MapView() {
       .catch(() => {})
       .finally(() => {
         if (!map.isStyleLoaded()) return;
-        applyTerrain(map, exaggeration);
+        applyTerrain(map, exaggeration, profile.terrainMesh);
       });
 
     // The satellite imagery under the 3D city (owner 2026-10-07: "used the satellite view to combine with the
@@ -98,7 +101,7 @@ export function MapView() {
     // flag addSource's _checkLoaded asserts.
     const onStyleLoad = () => {
       styleInFlightRef.current = false;
-      applyTerrain(map, exaggeration);
+      applyTerrain(map, exaggeration, profile.terrainMesh);
       applyEarthBasemap(map);
       useMapStore.getState().bumpStyleGeneration();
       setReady(true);

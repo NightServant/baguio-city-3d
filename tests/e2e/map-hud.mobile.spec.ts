@@ -54,12 +54,15 @@ test.describe("on a short phone", () => {
   });
 });
 
-// Fill rate on phones (owner, 2026-10-20: "optimize it for mobile"): the map and its 3D layer share one canvas, drawn at
-// no more than 2 device pixels per CSS pixel. The Pixel 7 profile is 2.625; a Galaxy A51 is about 2.6.
-test("the map draws at most 2 device pixels per CSS pixel", async ({ page }) => {
-  await page.goto("/map");
-  const canvas = page.locator("canvas.maplibregl-canvas");
-  await expect(canvas).toBeVisible();
-  const ratio = await canvas.evaluate((c: HTMLCanvasElement) => c.width / c.clientWidth);
-  expect(ratio).toBeLessThanOrEqual(2.01);
-});
+// Fill rate on phones (owner, 2026-10-20: frame drops on a Realme 10 4G): the map and its 3D layer share one canvas,
+// drawn at 1.5 device pixels per CSS pixel on a touch phone (lib/map/profile.ts), 2 with ?quality=high.
+for (const [query, max] of [["", 1.51], ["?quality=high", 2.01]] as const) {
+  test(`the map draws at most ${max.toFixed(1)} device pixels per CSS pixel${query ? ` with ${query}` : ""}`, async ({ page }) => {
+    await page.goto(`/map${query}`);
+    const canvas = page.locator("canvas.maplibregl-canvas");
+    await expect(canvas).toBeVisible();
+    const ratio = await canvas.evaluate((c: HTMLCanvasElement) => c.width / c.clientWidth);
+    expect(ratio).toBeLessThanOrEqual(max);
+    expect(ratio).toBeGreaterThan(max - 0.6);
+  });
+}
