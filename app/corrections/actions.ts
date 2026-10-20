@@ -40,8 +40,7 @@ export async function submitCorrection(_prev: CorrectionState, form: FormData): 
       // The automatic check runs once the visitor has their status page (page.tsx sets maxDuration for it); the
       // sweep (app/api/corrections/sweep) retries anything this misses.
       after(async () => {
-        const verdicter = correctionsVerdicter();
-        if (verdicter) await checkCorrection(row.id, dbDeps, verdicter);
+        await checkCorrection(row.id, dbDeps, correctionsVerdicter());
         const reply = dbReplyDeps(); // the result goes to the reader's email once the check has one
         if (reply) await sendReply(row.id, reply, SITE_URL);
       });

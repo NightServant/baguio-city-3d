@@ -55,3 +55,10 @@ describe("routedVerdicter", () => {
     expect(routes).toEqual(["strong: not one place's page"]);
   });
 });
+
+describe("personVerdicter (the AI check is off)", () => {
+  it("holds every report for a person at once, so the reply goes out", async () => {
+    const { personVerdicter } = await import("@/lib/corrections/route");
+    expect(await personVerdicter(simple, async () => [])).toEqual({ outcome: "held", note: "Waiting for a person to read it." });
+  });
+});

@@ -15,13 +15,10 @@ const PER_SWEEP = 3; // ESTIMATE: three checks of up to 90 s fit in 300 s
 export async function POST(req: Request) {
   if (!bearerOk(req.headers.get("authorization"), process.env.CORRECTIONS_SWEEP_TOKEN)) return new Response(null, { status: 401 });
   const verdicter = correctionsVerdicter();
-  let released = 0;
   const results: string[] = [];
-  if (verdicter) {
-    [{ n: released }] = await prisma.$queryRaw<[{ n: number }]>(Prisma.sql`SELECT release_stuck_corrections(15, ${MAX_ATTEMPTS}) AS n`);
-    const ids = await prisma.$queryRaw<{ id: bigint }[]>(Prisma.sql`SELECT received_corrections(${PER_SWEEP}) AS id`);
-    for (const { id } of ids) results.push(await checkCorrection(id, dbDeps, verdicter));
-  }
+  const [{ n: released }] = await prisma.$queryRaw<[{ n: number }]>(Prisma.sql`SELECT release_stuck_corrections(15, ${MAX_ATTEMPTS}) AS n`);
+  const ids = await prisma.$queryRaw<{ id: bigint }[]>(Prisma.sql`SELECT received_corrections(${PER_SWEEP}) AS id`);
+  for (const { id } of ids) results.push(await checkCorrection(id, dbDeps, verdicter));
   // then the replies still waiting (finished reports, sends that failed); a few per run, Gmail's limits being low
   const reply = dbReplyDeps();
   const replies: string[] = [];

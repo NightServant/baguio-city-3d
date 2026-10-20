@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { SITE_NAME } from "@/lib/site";
 import { DAILY_CHECK_CAP, MAX_ATTEMPTS, type CheckDeps, type Verdicter } from "./check";
 import { claudeVerdicter } from "./claude";
-import { routedVerdicter } from "./route";
+import { personVerdicter, routedVerdicter } from "./route";
 import type { ReplyDeps, ReplyRow } from "./reply";
 import { fetchSourceText } from "./source-check";
 
@@ -33,11 +33,11 @@ export const dbDeps: CheckDeps = {
 
 /** The checker: the decision node (lib/corrections/route.ts) over two Anthropic models, the cheap one from
  *  CORRECTIONS_MODEL (claude-haiku-5-5) and the strong one from CORRECTIONS_MODEL_HARD (default claude-sonnet-5-5).
- *  Null while CORRECTIONS_MODEL or ANTHROPIC_API_KEY is unset: reports then wait for the owner. Each decision is
- *  logged, so the Vercel function logs show which model decided and why. */
-export function correctionsVerdicter(): Verdicter | null {
+ *  While CORRECTIONS_MODEL or ANTHROPIC_API_KEY is unset, every report is held for the owner at once (its reply still
+ *  goes out). Each decision is logged, so the Vercel function logs show which model decided and why. */
+export function correctionsVerdicter(): Verdicter {
   const cheap = process.env.CORRECTIONS_MODEL?.trim();
-  if (!cheap || !process.env.ANTHROPIC_API_KEY?.trim()) return null;
+  if (!cheap || !process.env.ANTHROPIC_API_KEY?.trim()) return personVerdicter;
   const strong = process.env.CORRECTIONS_MODEL_HARD?.trim() || "claude-sonnet-5-5";
   return routedVerdicter(claudeVerdicter(cheap), claudeVerdicter(strong), (route) => console.info(`corrections route: ${route}`));
 }

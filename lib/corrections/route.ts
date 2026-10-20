@@ -37,3 +37,6 @@ export function routedVerdicter(cheap: Verdicter, strong: Verdicter, log: (route
     return v;
   };
 }
+
+/** The AI check is off (no model or key set): every report is held for a person at once, so its reply goes out. */
+export const personVerdicter: Verdicter = async () => ({ outcome: "held", note: "Waiting for a person to read it." });

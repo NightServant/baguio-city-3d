@@ -66,11 +66,23 @@ export function claudeVerdicter(model: string, client: Pick<Anthropic, "messages
       { role: "user", content: `Page: ${page}\nThe reader's message, quoted:\n"""\n${message}\n"""` },
     ];
     for (let step = 0; step < MAX_STEPS; step++) {
-      const r = await client.messages.create(
-        { model, max_tokens: 8000, system: SYSTEM, tools: [search, FIND_VENUE_TOOL, VERDICT_TOOL], messages,
-          output_config: { effort: "medium" } }, // explicit: Haiku 5.5's default, below Sonnet 5.5's high
-        { signal, maxRetries: 1 },
-      );
+      let r: Anthropic.Message;
+      try {
+        r = await client.messages.create(
+          { model, max_tokens: 8000, system: SYSTEM, tools: [search, FIND_VENUE_TOOL, VERDICT_TOOL], messages,
+            output_config: { effort: "medium" } }, // explicit: Haiku 5.5's default, below Sonnet 5.5's high
+          { signal, maxRetries: 1 },
+        );
+      } catch (err) {
+        // no credit, a bad key, a wrong model: the same answer every time, so a person reads it now (the reply goes
+        // out) instead of three retries 15 minutes apart. Rate limits, outages and timeouts throw on, for the sweep.
+        if (err instanceof Anthropic.BadRequestError || err instanceof Anthropic.AuthenticationError ||
+            err instanceof Anthropic.PermissionDeniedError || err instanceof Anthropic.NotFoundError) {
+          console.warn(`corrections: Anthropic refused the request (${err.status}): ${err.message.slice(0, 160)}`);
+          return { outcome: "held", note: "The automatic check is unavailable; a person will read it." };
+        }
+        throw err;
+      }
       if (r.stop_reason === "refusal") return { outcome: "held", note: "The model declined to check this report." };
       messages.push({ role: "assistant", content: r.content });
       if (r.stop_reason === "pause_turn") continue; // a long server-side search: send the turn back to resume it

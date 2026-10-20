@@ -55,3 +55,19 @@ describe("claudeVerdicter", () => {
     for (const r of [r1, r2, r3]) expect(r.outcome).toBe("held");
   });
 });
+
+describe("claudeVerdicter when Anthropic says no for good", () => {
+  const failing = (err: Error) => ({ messages: { create: async () => { throw err; } } }) as unknown as Pick<Anthropic, "messages">;
+  it("holds the report for a person on a 400, 401, 403 or 404 (no credit, a bad key, a wrong model): retrying can't help", async () => {
+    const { default: Sdk } = await import("@anthropic-ai/sdk");
+    const noCredit = new Sdk.BadRequestError(400, { type: "error", error: { type: "invalid_request_error",
+      message: "Your credit balance is too low to access the Anthropic API." } }, "credit balance is too low", new Headers());
+    const v = await claudeVerdicter("claude-haiku-5-5", failing(noCredit))(report, async () => []);
+    expect(v.outcome).toBe("held");
+  });
+  it("still throws on a rate limit or an outage, so the sweep retries", async () => {
+    const { default: Sdk } = await import("@anthropic-ai/sdk");
+    const busy = new Sdk.RateLimitError(429, { type: "error", error: { type: "rate_limit_error", message: "slow down" } }, "slow down", new Headers());
+    await expect(claudeVerdicter("claude-haiku-5-5", failing(busy))(report, async () => [])).rejects.toThrow();
+  });
+});
