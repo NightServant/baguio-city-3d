@@ -73,3 +73,12 @@ The fix, as the owner asked ("Remove the landmark roads and sidewalks (Session R
   - the median, as a centre island: a concrete kerb ring, planted inside, OSM's trees and lamps on it, else a tree and a twin-arm lamp in turn every 12 m, with shrubs between;
   - the sidewalks, 5.57 m from the kerb (this street's measured kerb-to-building-line width, now the city's sidewalk width) to the building fronts.
 - **Sidewalk paving** follows the owner's walk video (youtube.com/watch?v=_6sBS3FvTKo, model/flora.json S5): hexagonal concrete pavers here and on every trunk and primary road (1:15 to 4:00), a concrete kerb, yellow tactile pads at the crossings (0:30), and people on the sidewalks.
+
+## Next: remove the landmark street, rebuild sidewalks city-wide (owner decision 2026-10-21, not started)
+- **Root cause of the rendering issue (found by the owner):** the Session Road landmark's own roads and sidewalks overlap the city-wide road mode (`build_roads.py` tiles), so both surfaces draw in the same place.
+- **Fix:** remove the landmark's roads and sidewalks (Session Road) entirely; the city road tiles alone draw the street.
+- **Then rebuild the sidewalks city-wide** in the road tiles:
+  - richer textures (paving pattern, not flat colour);
+  - wider: the same width as the Session Road sidewalks (5.57 m kerb to frontage, see "1:1 rebuild" above);
+  - add people (pedestrians) on the sidewalks;
+  - staircases connected to the sidewalks (Baguio's stepped streets).
