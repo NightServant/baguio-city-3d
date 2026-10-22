@@ -44,8 +44,9 @@ describe("openrouterVerdicter", () => {
     const models = (a.bodies[0] as unknown as { models: string[] }).models;
     expect(models[0]).toBe("google/gemma-4-31b-it:free");
     expect(models.length).toBeGreaterThan(1);
+    expect(models.length).toBeLessThanOrEqual(3); // a longer list drew a 400 on the live test, 2026-10-22
     expect(new Set(models).size).toBe(models.length);
-    for (const m of models) expect(m === "openrouter/free" || m.endsWith(":free"), m).toBe(true);
+    for (const m of models) expect(m.endsWith(":free"), m).toBe(true);
     expect(a.headers[0].get("authorization")).toBe("Bearer key");
     expect(a.bodies[0].messages.at(-1)!.content).toContain(QUOTE);
     expect(a.bodies[1].messages.at(-1)).toMatchObject({ role: "tool", tool_call_id: "find_venue" });
