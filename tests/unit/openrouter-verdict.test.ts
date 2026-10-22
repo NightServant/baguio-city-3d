@@ -11,7 +11,7 @@ const call = (name: string, args: unknown, id = name) => ({ id, type: "function"
 const reply = (toolCalls: unknown[]) => new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content: null, tool_calls: toolCalls } }] }), { status: 200 });
 
 function api(responses: Response[]) {
-  const bodies: { model: string; messages: { role: string; content: string | null; tool_call_id?: string }[] }[] = [];
+  const bodies: { messages: { role: string; content: string | null; tool_call_id?: string }[] }[] = [];
   const headers: Headers[] = [];
   const fetchImpl = async (_url: string | URL | Request, init?: RequestInit) => {
     bodies.push(JSON.parse(String(init?.body)));
@@ -40,7 +40,12 @@ describe("openrouterVerdicter", () => {
     const v = await openrouterVerdicter("google/gemma-4-31b-it:free", "key", { fetchImpl: a.fetchImpl, readPage: page })(report,
       async (name) => [{ slug: "cafe-by-the-ruins", name }]);
     expect(v).toMatchObject({ outcome: "proposed", slug: "cafe-by-the-ruins", sourceUrl: report.link, value: { open: "08:00", close: "21:00" } });
-    expect(a.bodies[0].model).toBe("google/gemma-4-31b-it:free");
+    // the chosen model first, then free backups OpenRouter tries when it is rate-limited or down; all free, so no charge
+    const models = (a.bodies[0] as unknown as { models: string[] }).models;
+    expect(models[0]).toBe("google/gemma-4-31b-it:free");
+    expect(models.length).toBeGreaterThan(1);
+    expect(new Set(models).size).toBe(models.length);
+    for (const m of models) expect(m === "openrouter/free" || m.endsWith(":free"), m).toBe(true);
     expect(a.headers[0].get("authorization")).toBe("Bearer key");
     expect(a.bodies[0].messages.at(-1)!.content).toContain(QUOTE);
     expect(a.bodies[1].messages.at(-1)).toMatchObject({ role: "tool", tool_call_id: "find_venue" });
